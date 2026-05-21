@@ -1,0 +1,87 @@
+@use '../../../../assets/scss/utils/variables' as var;
+
+.custom-modal-bg {
+  background-color: var.$container-bg;
+}
+
+.custom-dark-input {
+  background-color: var.$background;
+  color: var.$primary-text;
+  border: none !important;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  resize: none;
+}
+
+.custom-dark-addon {
+  background-color: var.$background;
+  border: none !important;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+}
+
+.custom-pill {
+  background-color: var.$container-info-bg;
+  color: var.$primary-text;
+  padding: 0.35rem 0.85rem;
+  border-radius: 50rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+.tab-btn {
+  background-color: transparent;
+  color: var.$secondary-text;
+  border-radius: 6px;
+  padding: 0.4rem 1.5rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    color: var.$primary-text;
+    background-color: var.$hover-cancel-button;
+  }
+
+  &.active {
+    background-color: var.$button-primary;
+    color: var.$primary-text;
+  }
+}
+
+.blog-textarea {
+  min-height: 90px;
+}
+
+.fs-8 {
+  font-size: 0.75rem;
+}
+
+.image-container {
+  background-color: var.$background;
+  aspect-ratio: 1 / 1;
+  width: 100%;
+  border: none;
+
+  .object-fit-cover {
+    object-fit: cover;
+  }
+}
+
+.custom-btn-secondary {
+  background-color: var.$button-secondary;
+  color: var.$primary-text;
+  border: none;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  transition: background-color 0.2s ease;
+
+  &:hover,
+  &:focus {
+    background-color: var.$button-secondary-hover;
+    box-shadow: none;
+  }
+}

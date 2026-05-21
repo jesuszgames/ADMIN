@@ -1,0 +1,43 @@
+@use '../../../../assets/scss/utils/variables.scss' as var;
+
+.custom-dropdown {
+  background-color: var.$background;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.6) !important;
+
+  padding: 6px;
+  min-width: 160px;
+  margin: 0;
+  list-style: none;
+
+  li {
+    margin-bottom: 2px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  .dropdown-item {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 6px 12px;
+    color: var.$primary-text;
+    background-color: transparent;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease;
+
+    &:hover,
+    &:focus {
+      background-color: var.$hover-sidebar;
+      color: var.$text-hover;
+      outline: none;
+    }
+  }
+}

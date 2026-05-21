@@ -1,0 +1,18 @@
+@use '../../../../assets/scss/utils/variables.scss' as var;
+.pagination {
+  .page-link {
+    background-color: transparent;
+    color: var.$primary-text;
+    border-color: transparent;
+
+    &:hover {
+      background-color: var.$button-navigation;
+      color: var.$primary-text;
+    }
+  }
+
+  .page-item.active .page-link {
+    background-color: var.$button-navigation;
+    color: var.$primary-text;
+  }
+}

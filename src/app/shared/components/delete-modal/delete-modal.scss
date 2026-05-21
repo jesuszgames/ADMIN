@@ -1,0 +1,41 @@
+@use '../../../../assets/scss/utils/variables.scss' as var;
+
+.custom-modal {
+  .modal-content {
+    background-color: var.$container-bg;
+    border-radius: 16px;
+  }
+
+  .text-secondary-text {
+    color: var.$text-hover;
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+
+  .btn-cancel {
+    background-color: transparent;
+    border: 1px solid var.$hover-cancel-button;
+    color: var.$primary-text;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background-color: var.$hover-cancel-button;
+      color: var.$primary-text;
+    }
+  }
+
+  .btn-danger-custom {
+    background-color: var.$eliminated-bg-opaco;
+    color: var.$secondary-text;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background-color: var.$eliminated-text;
+      color: var.$primary-text;
+    }
+  }
+}

@@ -1,0 +1,18 @@
+@use '../utils/variables.scss' as *;
+
+body {
+  background-color: $background;
+  color: $primary-text;
+  min-height: 100vh;
+}
+.containers-colors {
+  background-color: $container-bg;
+  table,
+  th,
+  td {
+    background-color: transparent;
+  }
+}
+.container-info-color {
+  background-color: $container-info-bg;
+}

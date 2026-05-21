@@ -1,0 +1,18 @@
+@use '../../../../assets/scss/utils/variables.scss' as var;
+.custom-table {
+  th {
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    font-weight: 400;
+  }
+
+  td {
+    font-size: 0.75rem;
+    font-weight: 400;
+  }
+
+  .badge-text {
+    font-size: 0.7rem;
+    font-weight: 400;
+  }
+}
