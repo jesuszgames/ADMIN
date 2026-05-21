@@ -1,0 +1,50 @@
+<div class="table-responsive containers-colors p-3 rounded-3">
+  <header>{{ principalheader }}</header>
+  <table class="table table-sm custom-table dark-table ta-hover align-middle m-0">
+    <thead>
+      <tr>
+        @for (col of columns; track col.field) {
+          <th scope="col" class="text-white-50 text-uppercase py-2 border-secondary">
+            {{ col.header }}
+          </th>
+        }
+      </tr>
+    </thead>
+
+    <tbody>
+      @for (row of pagedData; track row) {
+        <tr class="border-secondary">
+          @for (col of columns; track col.field) {
+            <td class="py-2 text-white">
+              @if (col.type === 'badge') {
+                <span [attr.class]="getBadgeClasses(row[col.field]) + ' badge-text'">
+                  {{ row[col.field] }}
+                </span>
+              } @else if (col.type === 'actions') {
+                <app-dropdown
+                  [valueLabel]="'•••'"
+                  [listActions]="rowActions"
+                  (actionSelected)="onActionSelect($event, row)">
+                </app-dropdown>
+              } @else {
+                {{ row[col.field] }}
+              }
+            </td>
+          }
+        </tr>
+      } @empty {
+        <tr>
+          <td [attr.colspan]="columns.length" class="text-center py-4 text-muted">
+            No se encontraron registros.
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+  <app-pagination
+    [currentPage]="currentPage"
+    [totalItems]="totalItems"
+    [pageSize]="pageSize"
+    (pageChange)="onPageChange($event)"
+  ></app-pagination>
+</div>

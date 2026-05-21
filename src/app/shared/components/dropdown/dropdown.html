@@ -1,0 +1,28 @@
+<div class="dropdown">
+  <button
+    class="btn btn-link text-white-50 p-0 m-0 border-0 fs-4 lh-1 text-decoration-none"
+    type="button"
+    data-bs-toggle="dropdown"
+    aria-expanded="false"
+  >
+    {{ valueLabel }}
+  </button>
+
+  @if (listActions && listActions.length > 0) {
+    <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end shadow custom-dropdown">
+      @for (item of listActions; track item.id) {
+        <li>
+          <a
+            class="dropdown-item d-flex align-items-center gap-2 cursor-pointer"
+            (click)="onActionClick(item.id, $event)"
+          >
+            @if (item.icon) {
+              <i [class]="item.icon"></i>
+            }
+            {{ item.label }}
+          </a>
+        </li>
+      }
+    </ul>
+  }
+</div>

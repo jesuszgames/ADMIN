@@ -1,0 +1,44 @@
+@use '../utils/variables.scss' as var;
+
+.header-container {
+  position: fixed;
+  top: 0;
+  left: 270px;
+  right: 0;
+  height: 84px;
+  background-color: var.$container-bg;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 24px;
+  z-index: 1000;
+}
+.header-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    text-align: right;
+    line-height: 1.2;
+  }
+
+  &__name {
+    font-weight: 700;
+    font-size: 0.875rem;
+    color: #ffffff;
+  }
+
+  &__role {
+    font-size: 0.75rem;
+    color: #828282;
+  }
+  .header-profile__avatar {
+    width: 43px;
+    height: 43px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+}

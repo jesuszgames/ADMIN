@@ -1,0 +1,20 @@
+@use '../assets/scss/utils/variables.scss' as var;
+
+:host {
+  display: block;
+  min-height: 100vh;
+  background-color: transparent;
+}
+
+.app-layout {
+  display: flex;
+  width: 100%;
+}
+
+.app-content {
+  flex: 1;
+  margin-left: 240px;
+  padding: 32px;
+  min-height: 100vh;
+  box-sizing: border-box;
+}

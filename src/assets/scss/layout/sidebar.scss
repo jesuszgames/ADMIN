@@ -1,0 +1,90 @@
+@use '../utils/variables' as var;
+
+.sidebar-content {
+
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 270px;
+  height: 100vh;
+
+  background-color: var.$container-bg;
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  &__logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-left: 12px;
+
+    img {
+      height: 50px;
+    }
+  }
+
+  &__brand {
+    color: var.$primary-text;
+    font-weight: 700;
+    font-size: 1.5rem;
+  }
+
+  &__menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  &__link {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 25px;
+    color: var.$primary-text;
+
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    border-radius: 4x;
+    transition: all 0.2s ease;
+
+    &:hover {
+      color: var.$text-hover;
+      background-color: var.$hover-sidebar;
+      border-radius: 4px;
+
+      .sidebar-content__icon {
+      filter: invert(74%) sepia(54%) saturate(4681%) hue-rotate(190deg) brightness(101%) contrast(105%);
+      }
+    }
+
+    &.is-active {
+      color: var.$text-hover;
+      background-color: var.$hover-sidebar;
+      border-left: 4px solid var.$hover-sidebar;
+      padding-left: 8px;
+
+      .sidebar-content__icon {
+      filter: invert(74%) sepia(54%) saturate(4681%) hue-rotate(190deg) brightness(101%) contrast(105%);
+      }
+
+      .sidebar-content__icon {
+        color: var.$text-hover;
+      }
+    }
+  }
+
+  &__icon {
+    color: var.$primary-text;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+  }
+}
