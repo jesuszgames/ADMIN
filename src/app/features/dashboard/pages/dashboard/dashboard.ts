@@ -32,13 +32,6 @@ export class Dashboard {
   principalHeader = 'Rifas Recientes';
   selectedRaffle: RaffleDetail | null = null;
 
-  get tableData() {
-    return this.recentRaffles.map((raffle) => ({
-      ...raffle,
-      recaudadoStr: raffle.meta ? `${raffle.recaudado}/${raffle.meta} $` : `${raffle.recaudado}$`,
-    }));
-  }
-
   protected readonly cards = [
     { label: 'Recaudado', value: '0' },
     { label: 'Beneficiarios', value: '0' },
@@ -250,4 +243,9 @@ export class Dashboard {
       acciones: '',
     },
   ];
+
+  tableData = this.recentRaffles.map((raffle) => ({
+    ...raffle,
+    recaudadoStr: raffle.meta ? `${raffle.recaudado}/${raffle.meta} $` : `${raffle.recaudado}$`,
+  }));
 }
