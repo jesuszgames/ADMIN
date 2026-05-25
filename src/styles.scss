@@ -1,3 +1,5 @@
+@use './assets/fonts/global-font.scss';
+
 @use './assets/scss/utils/variables.scss';
 
 @use './assets/scss/layout/sidebar.scss';
@@ -5,3 +7,5 @@
 @use './assets/scss/components/general.scss';
 
 @import 'bootstrap/dist/css/bootstrap.min.css';
+
+@import 'bootstrap-icons/font/bootstrap-icons.css';

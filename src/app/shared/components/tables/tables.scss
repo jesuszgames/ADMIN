@@ -1,13 +1,13 @@
 @use '../../../../assets/scss/utils/variables.scss' as var;
 .custom-table {
   th {
-    font-size: 0.75rem;
+    font-size: var(--fs-8);
     letter-spacing: 0.05em;
     font-weight: 400;
   }
 
   td {
-    font-size: 0.75rem;
+    font-size: var(--fs-8);
     font-weight: 400;
   }
 

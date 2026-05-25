@@ -1,0 +1,30 @@
+<div class="container-fluid px-3 pt-5 pb-4 mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="m-0">Fundaciones</h3>
+  </div>
+  <div class="d-flex justify-content-between align-items-center">
+    <app-filter [options]="foundationFilters" (onFilter)="filtrarPorCategoria($event)"></app-filter>
+    <app-main-button [label]="'Crear Fundación'" [icon]="'bi-plus'"></app-main-button>
+  </div>
+
+  <div class="row">
+    <div class="col-12">
+      <app-tables
+        [principalheader]="principalHeader"
+        [columns]="foundationColumns"
+        [data]="tableData"
+        [rowActions]="foundationActions"
+        (actionClicked)="manejarAccion($event)"
+      >
+      </app-tables>
+    </div>
+  </div>
+</div>
+
+<app-delete-modal [id]="'eliminar-fundacion'" (confirmDelete)="confirmarEliminar()"></app-delete-modal>
+<button
+  id="btn-abrir-modal-delete-foundation"
+  data-bs-toggle="modal"
+  data-bs-target="#modal-eliminar-fundacion"
+  hidden
+></button>

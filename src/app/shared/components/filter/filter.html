@@ -1,0 +1,14 @@
+<div class="filter-header-container">
+  <div class="filters-group">
+    @for (opt of options; track opt.id) {
+      <button
+        class="snackfilter-btn"
+        [class.active]="filtroSeleccionado() === opt.id"
+        (click)="seleccionarFiltro(opt.id)"
+      >
+        <i class="bi {{ opt.icon }} me-2"></i>
+        {{ opt.label }}
+      </button>
+    }
+  </div>
+</div>

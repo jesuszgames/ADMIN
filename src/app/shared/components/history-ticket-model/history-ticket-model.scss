@@ -1,0 +1,76 @@
+@use '../../../../assets/scss/utils/variables' as var;
+
+.custom-modal-bg {
+  background-color: var.$container-bg;
+}
+
+/* Grid de Boletos */
+.ticket-grid {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 8px;
+  width: 100%;
+}
+
+.ticket-btn {
+  background-color: var.$background;
+  color: var.$secondary-text;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  padding: 8px 0;
+  text-align: center;
+  font-size: var(--fs-7);
+  font-weight: 500;
+  cursor: default;
+  transition: all 0.2s ease;
+  aspect-ratio: 1;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &.ticket-seleccionado {
+    background-color: var.$button-primary;
+    color: var.$primary-text;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  &.ticket-ganador {
+    background-color: transparent;
+    border: 1px solid var.$active-text;
+    color: var.$active-text;
+  }
+}
+
+/* Inputs Oscuros (Reutilizados) */
+.custom-dark-input {
+  background-color: var.$background;
+  color: var.$primary-text;
+  border: none !important;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  resize: none;
+}
+
+.custom-dark-addon {
+  background-color: var.$background;
+  border: none !important;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+}
+
+.custom-btn-secondary {
+  background-color: var.$button-secondary;
+  color: var.$primary-text;
+  border: none;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  transition: background-color 0.2s ease;
+
+  &:hover,
+  &:focus {
+    background-color: var.$button-secondary-hover;
+    box-shadow: none;
+  }
+}

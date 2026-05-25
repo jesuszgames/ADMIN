@@ -27,7 +27,7 @@
     color: var.$primary-text;
     background-color: transparent;
     border-radius: 4px;
-    font-size: 0.85rem;
+    font-size: var(--fs-7);
     font-weight: 500;
     transition:
       background-color 0.2s ease,

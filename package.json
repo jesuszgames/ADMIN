@@ -1,5 +1,5 @@
 {
-  "name": "rifas-inicio",
+  "name": "admin",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
@@ -18,6 +18,7 @@
     "@angular/router": "^21.2.0",
     "@primeuix/themes": "^2.0.3",
     "bootstrap": "^5.3.8",
+    "bootstrap-icons": "^1.13.1",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
   },

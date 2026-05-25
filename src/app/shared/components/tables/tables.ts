@@ -2,17 +2,28 @@ import { Component, Input, Output, EventEmitter, SimpleChanges } from '@angular/
 import { CommonModule } from '@angular/common';
 import { Pagination } from '../pagination/pagination';
 import { Dropdown, DropdownAction } from '../dropdown/dropdown';
+import {
+  DEFAULT_ROW_ACTIONS,
+  BADGE_BASE_CLASS,
+  STATUS_CLASSES,
+} from '../../../core/helpers/constants/global-constants';
+import {
+  DEFAULT_PAGE_SIZE,
+  DEFAULT_CURRENT_PAGE,
+} from '../../../core/helpers/constants/tables-constants';
+import { Search } from '../search/search';
 
 export interface TableColumn {
   field: string;
   header: string;
-  type?: 'text' | 'badge' | 'actions';
+  type?: 'text' | 'badge' | 'actions' | 'icon-text';
+  iconField?: string;
 }
 
 @Component({
   selector: 'app-tables',
   standalone: true,
-  imports: [CommonModule, Pagination, Dropdown],
+  imports: [CommonModule, Pagination, Dropdown, Search],
   templateUrl: './tables.html',
   styleUrl: './tables.scss',
 })
@@ -20,55 +31,73 @@ export class Tables {
   @Input() principalheader: string = '';
   @Input() columns: TableColumn[] = [];
   @Input() data: { [key: string]: unknown }[] = [];
-  @Input() pageSize: number = 4;
-  @Input() currentPage: number = 1;
+  @Input() pageSize: number = DEFAULT_PAGE_SIZE;
+  @Input() currentPage: number = DEFAULT_CURRENT_PAGE;
   totalItems: number = 0;
   pagedData: { [key: string]: unknown }[] = [];
 
   @Output() actionClicked = new EventEmitter<{ actionId: number; row: any }>();
 
-  @Input() rowActions: DropdownAction[] = [
-    { id: 1, label: 'Ver detalle rifa' },
-    { id: 2, label: 'Ver detalles de boletos' },
-    { id: 3, label: 'Eliminar' },
-  ];
+  @Input() rowActions: DropdownAction[] = DEFAULT_ROW_ACTIONS;
+
+  @Input() placeholderSearch: string = 'Buscar...';
+  @Output() searchChanged = new EventEmitter<string>();
+  searchText: string = '';
 
   getBadgeClasses(value: unknown): string {
-    const base = 'badge px-3 py-2 text-uppercase font-monospace';
     if (value === null || value === undefined) {
-      return `${base} bg-primary bg-opacity-25 text-primary border border-primary border-opacity-20`;
+      return `${BADGE_BASE_CLASS} ${STATUS_CLASSES.DEFAULT}`;
     }
     const v = String(value).toUpperCase();
-    if (v.includes('INACT')) {
-      return `${base} bg-secondary bg-opacity-25 text-secondary border border-secondary border-opacity-20`;
+    if (v.includes('INACT') || v.includes('DESACTIV')) {
+      return `${BADGE_BASE_CLASS} ${STATUS_CLASSES.INACTIVE}`;
     }
     if (v.includes('ACTIV')) {
-      return `${base} bg-success bg-opacity-25 text-success border border-success border-opacity-20`;
+      return `${BADGE_BASE_CLASS} ${STATUS_CLASSES.ACTIVE}`;
+    }
+    if (v.includes('PROX')) {
+      return `${BADGE_BASE_CLASS} ${STATUS_CLASSES.PROX_EXPIRED}`;
+    }
+    if (v.includes('META')) {
+      return `${BADGE_BASE_CLASS} ${STATUS_CLASSES.META_COMPLETED}`;
     }
     if (v.includes('FINALIZ')) {
-      return `${base} bg-info bg-opacity-25 text-info border border-info border-opacity-20`;
+      return `${BADGE_BASE_CLASS} ${STATUS_CLASSES.FINALIZED}`;
     }
     if (v.includes('ELIMIN') || v.includes('CANCE')) {
-      return `${base} bg-danger bg-opacity-25 text-danger border border-danger border-opacity-20`;
+      return `${BADGE_BASE_CLASS} ${STATUS_CLASSES.CANCELLED}`;
     }
     if (v.includes('SIN') || v.includes('PEND')) {
-      return `${base} bg-warning bg-opacity-25 text-warning border border-warning border-opacity-20`;
+      return `${BADGE_BASE_CLASS} ${STATUS_CLASSES.NO_TICKETS}`;
     }
 
-    return `${base} bg-primary bg-opacity-25 text-primary border border-primary border-opacity-20`;
+    return `${BADGE_BASE_CLASS} ${STATUS_CLASSES.DEFAULT}`;
   }
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['data'] || changes['pageSize']) {
-      this.totalItems = this.data ? this.data.length : 0;
       this.currentPage = 1;
       this.updatePagedData();
     }
   }
   updatePagedData(): void {
     if (!this.data) return;
+
+    let filtered = this.data;
+    if (this.searchText.trim()) {
+      const query = this.searchText.toLowerCase().trim();
+      filtered = this.data.filter((row) => {
+        return this.columns.some((col) => {
+          const val = row[col.field];
+          return val !== undefined && val !== null && String(val).toLowerCase().includes(query);
+        });
+      });
+    }
+
+    this.totalItems = filtered.length;
+
     const startIndex = (this.currentPage - 1) * this.pageSize;
     const endIndex = startIndex + this.pageSize;
-    this.pagedData = this.data.slice(startIndex, endIndex);
+    this.pagedData = filtered.slice(startIndex, endIndex);
   }
   onPageChange(newPage: number): void {
     this.currentPage = newPage;
@@ -77,5 +106,11 @@ export class Tables {
 
   onActionSelect(actionId: number, row: any): void {
     this.actionClicked.emit({ actionId, row });
+  }
+  handleSearch(searchValue: string) {
+    this.searchText = searchValue;
+    this.currentPage = 1;
+    this.updatePagedData();
+    this.searchChanged.emit(searchValue);
   }
 }

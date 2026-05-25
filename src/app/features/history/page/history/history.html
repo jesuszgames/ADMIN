@@ -1,0 +1,45 @@
+<div class="container-fluid px-3 pt-5 pb-4 mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="m-0">Historial de rifas</h3>
+  </div>
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <app-filter [options]="historyFilters" (onFilter)="filtrarPorCategoria($event)"></app-filter>
+  </div>
+
+  <div class="row">
+    <div class="col-12">
+      <app-tables
+        [principalheader]="'Lista rifas'"
+        [columns]="historyColumns"
+        [data]="tableData"
+        [rowActions]="historyActions"
+        (actionClicked)="manejarAccion($event)"
+      >
+      </app-tables>
+    </div>
+  </div>
+</div>
+
+<app-delete-modal [id]="'eliminar-historial'" (confirmDelete)="confirmarEliminar()"></app-delete-modal>
+<button
+  id="btn-abrir-modal-delete-history"
+  data-bs-toggle="modal"
+  data-bs-target="#modal-eliminar-historial"
+  hidden
+></button>
+
+<button
+  id="btn-abrir-modal-history"
+  data-bs-toggle="modal"
+  data-bs-target="#modalDetalleRifa"
+  hidden
+></button>
+<app-history-raffles-modal [raffleData]="selectedRaffle"></app-history-raffles-modal>
+
+<button
+  id="btn-abrir-modal-tickets"
+  data-bs-toggle="modal"
+  data-bs-target="#modalHistorialBoletos"
+  hidden
+></button>
+<app-history-ticket-model [ticketData]="selectedTicketData"></app-history-ticket-model>
