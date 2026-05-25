@@ -1,0 +1,30 @@
+<div class="container-fluid px-3 pt-5 pb-4 mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="m-0">Categorias</h3>
+  </div>
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <app-filter [options]="categoriesFilters" (onFilter)="filtrarPorCategoria($event)"></app-filter>
+    <app-main-button [label]="'Crear Categoría'" [icon]="'bi-plus'"></app-main-button>
+  </div>
+
+  <div class="row">
+    <div class="col-12">
+      <app-tables
+        [principalheader]="'Lista categorias'"
+        [columns]="categoriesColumns"
+        [data]="tableData"
+        [rowActions]="categoriesActions"
+        (actionClicked)="manejarAccion($event)"
+      >
+      </app-tables>
+    </div>
+  </div>
+</div>
+
+<app-delete-modal [id]="'eliminar-categoria'" (confirmDelete)="confirmarEliminar()"></app-delete-modal>
+<button
+  id="btn-abrir-modal-delete-category"
+  data-bs-toggle="modal"
+  data-bs-target="#modal-eliminar-categoria"
+  hidden
+></button>

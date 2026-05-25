@@ -1,0 +1,163 @@
+<div class="modal fade" id="modalHistorialBoletos" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div
+      class="modal-content custom-modal-bg border-secondary border-opacity-25 rounded-3 shadow-lg"
+    >
+      <div class="modal-body p-4 p-md-5 pb-3">
+        <div class="row g-5">
+          <div class="col-lg-6">
+            <h3 class="text-white fw-bold mb-4 fs-4">Historial Boletos</h3>
+            <div class="ticket-grid">
+              @for (ticket of ticketData?.boletos; track ticket.numero) {
+                <button
+                  type="button"
+                  class="ticket-btn"
+                  [ngClass]="{
+                    'ticket-seleccionado': ticket.estado === 'seleccionado',
+                    'ticket-ganador': ticket.estado === 'ganador',
+                  }"
+                >
+                  {{ ticket.numero }}
+                </button>
+              }
+            </div>
+          </div>
+
+          <div class="col-lg-6 pt-lg-5">
+            <div class="row g-4 mb-3">
+              <div class="col-12">
+                <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
+                  >Nombre Ganador</label
+                >
+                <input
+                  type="text"
+                  class="form-control custom-dark-input py-2"
+                  [value]="ticketData?.nombreGanador"
+                  readonly
+                />
+              </div>
+            </div>
+
+            <div class="row g-4 mb-3">
+              <div class="col-md-6 d-flex flex-column">
+                <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
+                  >Boletos Comprados</label
+                >
+                <div class="input-group mt-auto">
+                  <input
+                    type="text"
+                    class="form-control custom-dark-input border-end-0 py-2"
+                    [value]="ticketData?.boletosComprados"
+                    readonly
+                  />
+                  <span class="input-group-text custom-dark-addon border-start-0 text-white-50">
+                    <i class="bi bi-hash fs-5"></i>
+                  </span>
+                </div>
+              </div>
+
+              <div class="col-md-6 d-flex flex-column">
+                <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
+                  >Todos los números asociados</label
+                >
+                <div class="input-group mt-auto">
+                  <input
+                    type="text"
+                    class="form-control custom-dark-input border-end-0 py-2"
+                    [value]="ticketData?.numerosAsociados"
+                    readonly
+                  />
+                  <span class="input-group-text custom-dark-addon border-start-0 text-white-50">
+                    <i class="bi bi-hash fs-5"></i>
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div class="row g-4 mb-3">
+              <div class="col-md-6 d-flex flex-column">
+                <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
+                  >Correo Electrónico</label
+                >
+                <div class="input-group mt-auto">
+                  <input
+                    type="text"
+                    class="form-control custom-dark-input border-end-0 py-2"
+                    [value]="ticketData?.correo"
+                    readonly
+                  />
+                  <span class="input-group-text custom-dark-addon border-start-0 text-white-50">
+                    <i class="bi bi-envelope"></i>
+                  </span>
+                </div>
+              </div>
+
+              <div class="col-md-6 d-flex flex-column">
+                <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
+                  >Boleto Ganador</label
+                >
+                <div class="input-group mt-auto">
+                  <input
+                    type="text"
+                    class="form-control custom-dark-input border-end-0 py-2"
+                    [value]="ticketData?.boletoGanador"
+                    readonly
+                  />
+                  <span class="input-group-text custom-dark-addon border-start-0 text-white-50">
+                    <i class="bi bi-hash fs-5"></i>
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div class="row g-4">
+              <div class="col-md-6 d-flex flex-column">
+                <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
+                  >Número de Teléfono</label
+                >
+                <div class="input-group mt-auto">
+                  <input
+                    type="text"
+                    class="form-control custom-dark-input border-end-0 py-2"
+                    [value]="ticketData?.telefono"
+                    readonly
+                  />
+                  <span class="input-group-text custom-dark-addon border-start-0 text-white-50">
+                    <i class="bi bi-telephone"></i>
+                  </span>
+                </div>
+              </div>
+
+              <div class="col-md-6 d-flex flex-column">
+                <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
+                  >Fecha compra de último boleto</label
+                >
+                <div class="input-group mt-auto">
+                  <input
+                    type="text"
+                    class="form-control custom-dark-input border-end-0 py-2"
+                    [value]="ticketData?.fechaUltimaCompra"
+                    readonly
+                  />
+                  <span class="input-group-text custom-dark-addon border-start-0 text-white-50">
+                    <i class="bi bi-calendar"></i>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer border-0 pt-0 pe-4 pe-md-5 pb-4 pb-md-5 justify-content-end mt-4">
+        <button
+          type="button"
+          class="btn px-4 py-2 rounded-3 text-uppercase fs-7 custom-btn-secondary"
+          data-bs-dismiss="modal"
+        >
+          CERRAR
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -32,7 +32,9 @@
         [principalheader]="principalHeader"
         [columns]="dashboardColumns"
         [data]="tableData"
+        [rowActions]="dashboardActions"
         (actionClicked)="manejarAccion($event)"
+        [pageSize]="pageSize"
       >
       </app-tables>
     </div>
@@ -45,7 +47,7 @@
   data-bs-target="#modalDetalleRifa"
   hidden
 ></button>
-<app-delete-modal [id]="'eliminar'"></app-delete-modal>
+<app-delete-modal [id]="'eliminar'" (confirmDelete)="confirmarEliminar()"></app-delete-modal>
 <button
   id="btn-abrir-modal-delete"
   data-bs-toggle="modal"
@@ -53,3 +55,11 @@
   hidden
 ></button>
 <app-history-raffles-modal [raffleData]="selectedRaffle"></app-history-raffles-modal>
+
+<button
+  id="btn-abrir-modal-tickets"
+  data-bs-toggle="modal"
+  data-bs-target="#modalHistorialBoletos"
+  hidden
+></button>
+<app-history-ticket-model [ticketData]="selectedTicketData"></app-history-ticket-model>

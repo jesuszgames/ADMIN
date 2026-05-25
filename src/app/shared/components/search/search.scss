@@ -1,0 +1,25 @@
+@use '../../../../assets/scss/utils/variables.scss' as var;
+
+.custom-search-container {
+  background-color: var.$background;
+  border: 1px solid var.$border-color;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  height: 38px;
+  max-width: 250px;
+
+  &:focus-within {
+    border-color: var.$button-primary;
+    box-shadow: 0 0 0 0.15rem rgba(37, 99, 235, 0.25);
+  }
+}
+
+.custom-search-input {
+  font-size: 0.875rem;
+  color: var.$primary-text;
+  padding: 0;
+
+  &::placeholder {
+    color: var.$secondary-text;
+    opacity: 0.8;
+  }
+}
