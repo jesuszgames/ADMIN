@@ -1,6 +1,11 @@
 import { TableColumn } from '../../../shared/components/tables/tables';
 import { Raffle } from '../../../features/dashboard/pages/dashboard/dashboard';
 import { DropdownAction } from '../../../shared/components/dropdown/dropdown';
+import {
+  TABLE_ACTION_VIEW_DETAIL,
+  TABLE_ACTION_VIEW_TICKETS,
+  TABLE_ACTION_DASHBOARD_DELETE,
+} from './global-constants';
 
 export const DEFAULT_USER_NAME = 'Usuario';
 export const DASHBOARD_PRINCIPAL_HEADER = 'Rifas Recientes';
@@ -24,6 +29,12 @@ export const DASHBOARD_COLUMNS: TableColumn[] = [
   { field: 'recaudadoStr', header: 'Total Recaudado' },
   { field: 'ganador', header: 'Boleto Ganador' },
   { field: 'acciones', header: 'Acciones', type: 'actions' },
+];
+
+export const HISTORY_ROW_ACTIONS: DropdownAction[] = [
+  { id: TABLE_ACTION_VIEW_DETAIL, icon: 'bi-eye', label: 'Visualizar Detalle' },
+  { id: TABLE_ACTION_VIEW_TICKETS, icon: 'bi-ticket', label: 'Visualizar Boletos' },
+  { id: TABLE_ACTION_DASHBOARD_DELETE, icon: 'bi-trash', label: 'Eliminar' },
 ];
 
 export const DEFAULT_MONEY_GOAL = 3000;

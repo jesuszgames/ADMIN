@@ -5,9 +5,13 @@ import { Filter } from '../../../../shared/components/filter/filter';
 import { Tables } from '../../../../shared/components/tables/tables';
 import { DeleteModal } from '../../../../shared/components/delete-modal/delete-modal';
 import { MainButton } from '../../../../shared/components/main-button/main-button';
+import { CreateRaffleModal } from '../../../../shared/components/create-raffle-modal/create-raffle-modal';
+import { EditTicketsModal } from '../../../../shared/components/edit-tickets-modal/edit-tickets-modal';
 import {
   TABLE_ACTION_CHANGE_STATE,
   TABLE_ACTION_DELETE,
+  TABLE_ACTION_EDIT_DETAIL,
+  TABLE_ACTION_EDIT_TICKETS,
 } from '../../../../core/helpers/constants/global-constants';
 import {
   MY_RAFFLES_PRINCIPAL_HEADER,
@@ -36,16 +40,37 @@ export type Raffle = {
   recaudado: number;
   meta: number | null;
   ganador: string;
+  ganadorName?: string;
+  ganadorEmail?: string;
+  ganadorPhone?: string;
   tiempoRestante: string;
   acciones: string;
   boletosVendidosStr?: string;
   recaudadoStr?: string;
+  ticketPrice?: number;
+  startDate?: string;
+  endDate?: string;
+  beneficiaryPercentage?: number;
+  winnerPercentage?: number;
+  blogCardText?: string;
+  blogDetailText?: string;
+  photo?: string;
+  boletos?: any[];
   [key: string]: unknown;
 };
 
 @Component({
   selector: 'app-raffles',
-  imports: [CommonModule, RouterModule, Filter, Tables, DeleteModal, MainButton],
+  imports: [
+    CommonModule,
+    RouterModule,
+    Filter,
+    Tables,
+    DeleteModal,
+    MainButton,
+    CreateRaffleModal,
+    EditTicketsModal,
+  ],
   templateUrl: './my-raffles.html',
 })
 export class Raffles {
@@ -55,8 +80,12 @@ export class Raffles {
 
   filtroActual = RAFFLE_FILTER_ALL;
   rifaSeleccionadaParaBorrar: Raffle | null = null;
+  selectedRaffleForEdit: Raffle | null = null;
+  selectedRaffleForTickets: Raffle | null = null;
 
   private readonly BTN_DELETE_RAFFLE_ID = 'btn-abrir-modal-delete-raffle';
+  private readonly BTN_CREATE_RAFFLE_ID = 'btn-abrir-modal-create-raffle';
+  private readonly BTN_EDIT_TICKETS_ID = 'btn-abrir-modal-edit-tickets';
 
   filtrarPorCategoria(id: string) {
     this.filtroActual = id;
@@ -67,9 +96,15 @@ export class Raffles {
 
   tableData: Raffle[] = this.getFilteredData(RAFFLE_FILTER_ALL);
 
-  manejarAccion(evento: { actionId: number; row: Raffle }) {
+  abrirCrearRifa() {
+    this.selectedRaffleForEdit = null;
+    document.getElementById(this.BTN_CREATE_RAFFLE_ID)?.click();
+  }
+
+  manejarAccion(evento: { actionId: number; row: Record<string, unknown> }) {
+    const row = evento.row as unknown as Raffle;
     if (evento.actionId === TABLE_ACTION_CHANGE_STATE) {
-      const index = this.rifasData.findIndex((r) => r.id === evento.row.id);
+      const index = this.rifasData.findIndex((r) => r.id === row.id);
       if (index !== -1) {
         const current = this.rifasData[index].estado.toUpperCase();
         if (current.includes('INACT')) {
@@ -80,8 +115,14 @@ export class Raffles {
         this.tableData = this.getFilteredData(this.filtroActual);
       }
     } else if (evento.actionId === TABLE_ACTION_DELETE) {
-      this.rifaSeleccionadaParaBorrar = evento.row;
+      this.rifaSeleccionadaParaBorrar = row;
       document.getElementById(this.BTN_DELETE_RAFFLE_ID)?.click();
+    } else if (evento.actionId === TABLE_ACTION_EDIT_DETAIL) {
+      this.selectedRaffleForEdit = row;
+      document.getElementById(this.BTN_CREATE_RAFFLE_ID)?.click();
+    } else if (evento.actionId === TABLE_ACTION_EDIT_TICKETS) {
+      this.selectedRaffleForTickets = row;
+      document.getElementById(this.BTN_EDIT_TICKETS_ID)?.click();
     }
   }
 
@@ -91,6 +132,48 @@ export class Raffles {
       this.tableData = this.getFilteredData(this.filtroActual);
       this.rifaSeleccionadaParaBorrar = null;
     }
+  }
+
+  onSaveRaffle(raffleData: Raffle) {
+    if (raffleData.id) {
+      const index = this.rifasData.findIndex((r) => r.id === raffleData.id);
+      if (index !== -1) {
+        this.rifasData[index] = {
+          ...raffleData,
+          boletosVendidosStr: `${raffleData.boletosVendidos || 0}/${raffleData.boletosTotales || 100}`,
+          recaudadoStr: raffleData.meta
+            ? `${raffleData.recaudado || 0}/${raffleData.meta} $`
+            : `${raffleData.recaudado || 0}$`,
+        };
+      }
+    } else {
+      const newId =
+        this.rifasData.length > 0 ? Math.max(...this.rifasData.map((r) => r.id)) + 1 : 1;
+      const newRaffle: Raffle = {
+        ...raffleData,
+        id: newId,
+        estado: RAFFLE_STATUS_ACTIVE,
+        boletosVendidos: 0,
+        recaudado: 0,
+        ganador: '',
+        tiempoRestante: '15 dias',
+        acciones: '',
+        boletosVendidosStr: `0/${raffleData.boletosTotales || 100}`,
+        recaudadoStr: raffleData.meta ? `0/${raffleData.meta} $` : `0$`,
+      };
+      this.rifasData.push(newRaffle);
+    }
+    this.tableData = this.getFilteredData(this.filtroActual);
+    this.selectedRaffleForEdit = null;
+  }
+
+  onSaveTickets(updatedRaffle: Raffle) {
+    const index = this.rifasData.findIndex((r) => r.id === updatedRaffle.id);
+    if (index !== -1) {
+      this.rifasData[index] = updatedRaffle;
+      this.tableData = this.getFilteredData(this.filtroActual);
+    }
+    this.selectedRaffleForTickets = null;
   }
 
   private getFilteredData(filterId: string): Raffle[] {

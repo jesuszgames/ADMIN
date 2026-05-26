@@ -17,6 +17,23 @@ export interface Category {
   [key: string]: unknown;
 }
 
+export interface IconOption {
+  value: string;
+  label: string;
+}
+
+export const AVAILABLE_CATEGORIES_ICONS: IconOption[] = [
+  { value: 'bi-paw', label: 'Huella (Animales)' },
+  { value: 'bi-plus-square', label: 'Cruz (Salud)' },
+  { value: 'bi-mortarboard', label: 'Birrete (Educación)' },
+  { value: 'bi-leaf', label: 'Hoja (Medio Ambiente)' },
+  { value: 'bi-heart', label: 'Corazón (Asistencia Social)' },
+  { value: 'bi-cpu', label: 'Microchip (Tecnología)' },
+  { value: 'bi-trophy', label: 'Trofeo (Deportes)' },
+  { value: 'bi-palette', label: 'Paleta (Cultura y Arte)' },
+  { value: 'bi-music-note-beamed', label: 'Nota Musical (Música)' },
+];
+
 export const CATEGORIES_PRINCIPAL_HEADER = 'Categorias';
 
 export const CATEGORIES_COLUMNS: TableColumn[] = [

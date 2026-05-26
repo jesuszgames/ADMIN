@@ -1,0 +1,265 @@
+<div class="modal fade" id="modalCrearRifa" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div
+      class="modal-content custom-modal-bg border-secondary border-opacity-25 rounded-3 shadow-lg"
+    >
+      <div class="modal-body p-4 p-md-5 pb-3">
+        <h3 class="text-white fw-bold mb-4 fs-4">{{ raffle ? 'Editar Rifa' : 'Crear Rifa' }}</h3>
+
+        <div class="row g-4 mb-2">
+          <div class="col-lg-7">
+            <div class="row g-4">
+              <div class="col-md-6">
+                <label class="form-label text-white-50 text-uppercase fs-7 mb-2">Nombre Rifa</label>
+                <input
+                  type="text"
+                  class="form-control custom-dark-input py-2 w-100"
+                  [(ngModel)]="nombreRifa"
+                  placeholder="ANCHO DE TEXTO PRUEBA DE ESCRITORIO"
+                  required
+                />
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label text-white-50 text-uppercase fs-7 mb-2">Fundacion</label>
+                <select class="form-select custom-dark-input py-2 w-100" [(ngModel)]="fundacion">
+                  @for (foundation of foundations; track foundation.id) {
+                    <option [value]="foundation.nombre">{{ foundation.nombre }}</option>
+                  }
+                </select>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
+                  >Fecha Inicio</label
+                >
+                <input
+                  type="date"
+                  class="form-control custom-dark-input py-2 w-100"
+                  [(ngModel)]="startDate"
+                  required
+                />
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label text-white-50 text-uppercase fs-7 mb-2">Fecha Fin</label>
+                <input
+                  type="date"
+                  class="form-control custom-dark-input py-2 w-100"
+                  [(ngModel)]="endDate"
+                  required
+                />
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label text-white-50 text-uppercase fs-7 mb-2">Meta Dinero</label>
+                <div class="input-group">
+                  <input
+                    type="number"
+                    class="form-control custom-dark-input border-end-0 py-2"
+                    [(ngModel)]="meta"
+                    placeholder="150000"
+                    required
+                  />
+                  <span class="input-group-text custom-dark-addon border-start-0 text-white-50">
+                    <i class="bi bi-currency-dollar fs-5"></i>
+                  </span>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label text-white-50 text-uppercase fs-7 mb-2">Categoria</label>
+                <select class="form-select custom-dark-input py-2 w-100" [(ngModel)]="categoria">
+                  @for (category of categories; track category.id) {
+                    <option [value]="category.nombre">{{ category.nombre }}</option>
+                  }
+                </select>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
+                  >Numero Maximos de Boletos</label
+                >
+                <div class="input-group">
+                  <input
+                    type="number"
+                    class="form-control custom-dark-input border-end-0 py-2"
+                    [(ngModel)]="ticketsAvailable"
+                    placeholder="100"
+                    required
+                  />
+                  <span class="input-group-text custom-dark-addon border-start-0 text-white-50">
+                    <i class="bi bi-hash fs-5"></i>
+                  </span>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
+                  >Precio Boleto</label
+                >
+                <div class="input-group">
+                  <input
+                    type="number"
+                    step="0.01"
+                    class="form-control custom-dark-input border-end-0 py-2"
+                    [(ngModel)]="ticketPrice"
+                    placeholder="5.00"
+                    required
+                  />
+                  <span class="input-group-text custom-dark-addon border-start-0 text-white-50">
+                    <i class="bi bi-currency-dollar fs-5"></i>
+                  </span>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
+                  >Porcentaje Beneficiarios</label
+                >
+                <div class="input-group">
+                  <input
+                    type="number"
+                    class="form-control custom-dark-input border-end-0 py-2"
+                    [(ngModel)]="beneficiaryPercentage"
+                    (ngModelChange)="onBeneficiaryPercentageChange()"
+                    placeholder="80"
+                    required
+                  />
+                  <span class="input-group-text custom-dark-addon border-start-0">
+                    <span class="badge custom-pill">{{ ((meta || 0) * (beneficiaryPercentage || 0) / 100) | number:'1.0-2' }} $</span>
+                  </span>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
+                  >Porcentaje Ganadores</label
+                >
+                <div class="input-group">
+                  <input
+                    type="number"
+                    class="form-control custom-dark-input border-end-0 py-2"
+                    [(ngModel)]="winnerPercentage"
+                    (ngModelChange)="onWinnerPercentageChange()"
+                    placeholder="20"
+                    required
+                  />
+                  <span class="input-group-text custom-dark-addon border-start-0">
+                    <span class="badge custom-pill">{{ ((meta || 0) * (winnerPercentage || 0) / 100) | number:'1.0-2' }} $</span>
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div class="blog-section mt-5">
+              <label class="form-label text-white-50 text-uppercase fs-7 mb-3">Blog</label>
+              <div class="d-flex gap-2 mb-3">
+                <button
+                  type="button"
+                  class="btn btn-sm tab-btn"
+                  [class.active]="activeTab === 'card'"
+                  (click)="setTab('card')"
+                >
+                  CARD
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-sm tab-btn"
+                  [class.active]="activeTab === 'detalle'"
+                  (click)="setTab('detalle')"
+                >
+                  DETALLE RIFA
+                </button>
+              </div>
+
+              @if (activeTab === 'card') {
+                <div class="tab-content">
+                  <textarea
+                    class="form-control custom-dark-input blog-textarea w-100"
+                    [(ngModel)]="blogCardText"
+                    placeholder="Ayuda a reforestar 10,000 hectáreas en el Amazonas."
+                  ></textarea>
+                  <div class="text-white-50 fs-8 mt-2 lh-sm">
+                    Breve descripción de lo que se va<br />a mostrar en la card
+                  </div>
+                </div>
+              }
+
+              @if (activeTab === 'detalle') {
+                <div class="tab-content">
+                  <textarea
+                    class="form-control custom-dark-input blog-textarea w-100"
+                    [(ngModel)]="blogDetailText"
+                    placeholder="Detalle completo de la rifa..."
+                  ></textarea>
+                  <div class="text-white-50 fs-8 mt-2 lh-sm">
+                    Descripción completa que se mostrará en los detalles
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+
+          <div class="col-lg-5 d-flex flex-column pt-lg-5">
+            <label class="form-label text-white-50 text-uppercase fs-7 mb-3 text-center"
+              >Imagen</label
+            >
+            <div
+              class="image-container rounded-3 overflow-hidden d-flex flex-column align-items-center justify-content-center p-0 cursor-pointer"
+              (click)="fileInput.click()"
+              (dragover)="onDragOver($event)"
+              (drop)="onDrop($event)"
+              style="
+                border: 2px dashed rgba(255, 255, 255, 0.15);
+                min-height: 300px;
+                height: 100%;
+                max-height: 450px;
+              "
+            >
+              @if (photo) {
+                <img
+                  [src]="photo"
+                  alt="Imagen de la Rifa"
+                  class="img-fluid object-fit-cover w-100 h-100 rounded-3"
+                />
+              } @else {
+                <div class="text-center p-4">
+                  <i class="bi bi-image text-white-50 fs-1 mb-3 d-block"></i>
+                  <span class="text-white-50 fs-7">Subir o arrastrar una foto</span>
+                </div>
+              }
+              <input
+                #fileInput
+                type="file"
+                accept="image/*"
+                class="d-none"
+                (change)="onFileSelected($event)"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer border-0 pt-0 pe-4 pe-md-5 pb-4 pb-md-5 justify-content-end gap-3">
+        <button
+          type="button"
+          class="btn px-4 py-2 rounded-3 text-uppercase fs-7 custom-btn-secondary"
+          data-bs-dismiss="modal"
+          (click)="resetForm()"
+        >
+          Cancelar
+        </button>
+        <button
+          type="button"
+          class="btn px-4 py-2 rounded-3 text-uppercase fs-7 custom-btn-primary"
+          [disabled]="!isFormValid()"
+          data-bs-dismiss="modal"
+          (click)="onSubmit()"
+        >
+          {{ raffle ? 'Guardar' : 'Publicar' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

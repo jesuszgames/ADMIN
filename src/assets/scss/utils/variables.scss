@@ -1,35 +1,82 @@
+:root {
+  --background: #0d1117;
+  --container-bg: #161b22;
+  --container-info-bg: rgba(37, 99, 235, 0.7);
+  --primary-text: #e6edf3;
+  --secondary-text: #7d8590;
+  --active-text: #3fb950;
+  --no-tickets-text: #d29922;
+  --eliminated-text: #ff4757;
+  --finished-text: #4299e1;
+  --border-color: #1e2532;
+  --button-primary: rgb(37, 99, 235);
+  --button-secondary: #21262d;
+  --button-navigation: rgba(37, 99, 235, 0.7);
+  --hover-sidebar: rgba(59, 130, 246, 0.1);
+  --text-hover: rgb(37, 99, 235);
+  --hover-cancel-button: rgba(255, 255, 255, 0.05);
+  --button-secondary-hover: #30363d;
+  --active-bg-opaco: rgba(22, 53, 34, 0.5);
+  --finished-bg-opaco: rgba(26, 54, 93, 0.5);
+  --eliminated-bg-opaco: rgba(91, 35, 40, 0.5);
+  --no-tickets-bg-opaco: rgba(56, 35, 10, 0.5);
+  --desactive-bg-opaco: rgba(125, 133, 144, 0.5);
+
+  // New standardized theme color properties
+  --input-border: rgba(255, 255, 255, 0.05);
+  --input-focus-shadow: rgba(37, 99, 235, 0.25);
+  --button-primary-hover: #1e5cd8;
+  --button-success: #28a745;
+  --button-success-bg: rgba(40, 167, 69, 0.15);
+  --option-bg: rgba(255, 255, 255, 0.03);
+  --option-border: rgba(255, 255, 255, 0.05);
+  --option-hover-bg: rgba(255, 255, 255, 0.08);
+  --option-hover-border: rgba(255, 255, 255, 0.15);
+}
+
 //bg-principal-secundario
-$background: #0d1117;
-$container-bg: #161b22;
+$background: var(--background);
+$container-bg: var(--container-bg);
 
 //container.info xD
-$container-info-bg: rgba(37, 99, 235, 0.7);
+$container-info-bg: var(--container-info-bg);
 //textos
-$primary-text: #e6edf3;
-$secondary-text: #7d8590;
+$primary-text: var(--primary-text);
+$secondary-text: var(--secondary-text);
 
-$active-text: #3fb950;
-$no-tickets-text: #d29922;
-$eliminated-text: #ff4757;
-$finished-text: #4299e1;
+$active-text: var(--active-text);
+$no-tickets-text: var(--no-tickets-text);
+$eliminated-text: var(--eliminated-text);
+$finished-text: var(--finished-text);
 
 //border
-$border-color: #1e2532;
+$border-color: var(--border-color);
 
 //buttons
-$button-primary: rgba(37, 99, 235);
-$button-secondary: #21262d;
-$button-navigation: rgba(37, 99, 235, 0.7);
+$button-primary: var(--button-primary);
+$button-secondary: var(--button-secondary);
+$button-navigation: var(--button-navigation);
 
 //hover
-$hover-sidebar: rgba(59, 130, 246, 0.1);
-$text-hover: rgba(37, 99, 235);
-$hover-cancel-button: rgba(255, 255, 255, 0.05);
-$button-secondary-hover: #30363d;
+$hover-sidebar: var(--hover-sidebar);
+$text-hover: var(--text-hover);
+$hover-cancel-button: var(--hover-cancel-button);
+$button-secondary-hover: var(--button-secondary-hover);
 
 //bg-states
-$active-bg-opaco: rgba(22, 53, 34, 0.5);
-$finished-bg-opaco: rgba(26, 54, 93, 0.5);
-$eliminated-bg-opaco: rgba(91, 35, 40, 0.5);
-$no-tickets-bg-opaco: rgba(56, 35, 10, 0.5);
-$desactive-bg-opaco: rgba(125, 133, 144, 0.5);
+$active-bg-opaco: var(--active-bg-opaco);
+$finished-bg-opaco: var(--finished-bg-opaco);
+$eliminated-bg-opaco: var(--eliminated-bg-opaco);
+$no-tickets-bg-opaco: var(--no-tickets-bg-opaco);
+$desactive-bg-opaco: var(--desactive-bg-opaco);
+
+// Sass mapping of standardized theme colors
+$input-border: var(--input-border);
+$input-focus-shadow: var(--input-focus-shadow);
+$button-primary-hover: var(--button-primary-hover);
+$button-success: var(--button-success);
+$button-success-bg: var(--button-success-bg);
+$option-bg: var(--option-bg);
+$option-border: var(--option-border);
+$option-hover-bg: var(--option-hover-bg);
+$option-hover-border: var(--option-hover-border);

@@ -4,7 +4,7 @@
   </div>
   <div class="d-flex justify-content-between align-items-center mb-3">
     <app-filter [options]="categoriesFilters" (onFilter)="filtrarPorCategoria($event)"></app-filter>
-    <app-main-button [label]="'Crear Categoría'" [icon]="'bi-plus'"></app-main-button>
+    <app-main-button [label]="'Crear Categoría'" [icon]="'bi-plus'" (btnClick)="abrirCrearCategoria()"></app-main-button>
   </div>
 
   <div class="row">
@@ -26,5 +26,13 @@
   id="btn-abrir-modal-delete-category"
   data-bs-toggle="modal"
   data-bs-target="#modal-eliminar-categoria"
+  hidden
+></button>
+
+<app-create-category-modal [category]="selectedCategoryForEdit" (save)="onSaveCategory($event)"></app-create-category-modal>
+<button
+  id="btn-abrir-modal-create-category"
+  data-bs-toggle="modal"
+  data-bs-target="#modalCrearCategoria"
   hidden
 ></button>

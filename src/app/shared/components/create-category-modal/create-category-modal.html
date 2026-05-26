@@ -1,0 +1,74 @@
+<div class="modal fade" id="modalCrearCategoria" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div
+      class="modal-content custom-modal-bg border-secondary border-opacity-25 rounded-3 shadow-lg"
+    >
+      <div class="modal-body p-4 p-md-5 pb-3">
+        <h3 class="text-white fw-bold mb-4 fs-4">
+          {{ category ? 'Editar categoria' : 'Crear categoria' }}
+        </h3>
+
+        <div class="row g-3">
+          <div class="col-12">
+            <label class="form-label text-white-50 text-uppercase fs-7 mb-2">Nombre Categoría</label>
+            <input
+              type="text"
+              class="form-control custom-dark-input py-2"
+              [(ngModel)]="nombre"
+              placeholder="ANIMALES"
+              required
+            />
+          </div>
+
+          <div class="col-12">
+            <label class="form-label text-white-50 text-uppercase fs-7 mb-2">Descripción de Categoría</label>
+            <textarea
+              class="form-control custom-dark-input py-2 desc-textarea"
+              [(ngModel)]="descripcion"
+              placeholder="ANCHO DE TEXTO PRUEBA DE ESCRITORIO"
+              required
+            ></textarea>
+          </div>
+
+          <div class="col-12">
+            <label class="form-label text-white-50 text-uppercase fs-7 mb-2">Icono</label>
+            <div class="input-group">
+              <select
+                class="form-select custom-dark-input border-end-0 py-2"
+                [(ngModel)]="selectedIcon"
+                required
+              >
+                @for (icon of availableIcons; track icon.value) {
+                  <option [value]="icon.value">{{ icon.label }}</option>
+                }
+              </select>
+              <span class="input-group-text custom-dark-addon border-start-0 text-white-50">
+                <i class="bi fs-4" [ngClass]="selectedIcon"></i>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer border-0 pt-0 pe-4 pe-md-5 pb-4 pb-md-5 justify-content-end gap-3">
+        <button
+          type="button"
+          class="btn px-4 py-2 rounded-3 text-uppercase fs-7 custom-btn-secondary"
+          data-bs-dismiss="modal"
+          (click)="resetForm()"
+        >
+          Cancelar
+        </button>
+        <button
+          type="button"
+          class="btn px-4 py-2 rounded-3 text-uppercase fs-7 custom-btn-primary"
+          [disabled]="!isFormValid()"
+          data-bs-dismiss="modal"
+          (click)="onSubmit()"
+        >
+          {{ category ? 'Guardar' : 'Crear' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

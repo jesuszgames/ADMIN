@@ -4,7 +4,7 @@
   </div>
   <div class="d-flex justify-content-between align-items-center">
     <app-filter [options]="foundationFilters" (onFilter)="filtrarPorCategoria($event)"></app-filter>
-    <app-main-button [label]="'Crear Fundación'" [icon]="'bi-plus'"></app-main-button>
+    <app-main-button [label]="'Crear Fundación'" [icon]="'bi-plus'" (btnClick)="abrirCrearFundacion()"></app-main-button>
   </div>
 
   <div class="row">
@@ -26,5 +26,13 @@
   id="btn-abrir-modal-delete-foundation"
   data-bs-toggle="modal"
   data-bs-target="#modal-eliminar-fundacion"
+  hidden
+></button>
+
+<app-create-foundation-modal [foundation]="selectedFoundationForEdit" (save)="onSaveFoundation($event)"></app-create-foundation-modal>
+<button
+  id="btn-abrir-modal-create-foundation"
+  data-bs-toggle="modal"
+  data-bs-target="#modalCrearFundacion"
   hidden
 ></button>

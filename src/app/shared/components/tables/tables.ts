@@ -27,16 +27,16 @@ export interface TableColumn {
   templateUrl: './tables.html',
   styleUrl: './tables.scss',
 })
-export class Tables {
+export class Tables<T extends Record<string, unknown> = Record<string, unknown>> {
   @Input() principalheader: string = '';
   @Input() columns: TableColumn[] = [];
-  @Input() data: { [key: string]: unknown }[] = [];
+  @Input() data: T[] = [];
   @Input() pageSize: number = DEFAULT_PAGE_SIZE;
   @Input() currentPage: number = DEFAULT_CURRENT_PAGE;
   totalItems: number = 0;
-  pagedData: { [key: string]: unknown }[] = [];
+  pagedData: T[] = [];
 
-  @Output() actionClicked = new EventEmitter<{ actionId: number; row: any }>();
+  @Output() actionClicked = new EventEmitter<{ actionId: number; row: T }>();
 
   @Input() rowActions: DropdownAction[] = DEFAULT_ROW_ACTIONS;
 
@@ -104,7 +104,7 @@ export class Tables {
     this.updatePagedData();
   }
 
-  onActionSelect(actionId: number, row: any): void {
+  onActionSelect(actionId: number, row: T): void {
     this.actionClicked.emit({ actionId, row });
   }
   handleSearch(searchValue: string) {
