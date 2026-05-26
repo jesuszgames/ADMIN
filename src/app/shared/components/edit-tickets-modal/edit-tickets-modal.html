@@ -1,0 +1,210 @@
+<div class="modal fade" id="modalEditarBoletos" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div
+      class="modal-content custom-modal-bg border-secondary border-opacity-25 rounded-3 shadow-lg"
+    >
+      <div class="modal-body p-4 p-md-5 pb-3">
+        <div class="row g-5">
+          <div class="col-lg-6">
+            <h3 class="text-white fw-bold mb-4 fs-4">Editar Boletos</h3>
+            <div class="ticket-grid">
+              @for (ticket of boletos; track ticket.numero) {
+                <button
+                  type="button"
+                  class="ticket-btn"
+                  [ngClass]="{
+                    'ticket-seleccionado': ticket.estado === 'seleccionado',
+                    'ticket-ganador': ticket.estado === 'ganador',
+                    'ticket-active': selectedTicket?.numero === ticket.numero,
+                  }"
+                  (click)="selectTicket(ticket)"
+                >
+                  {{ ticket.numero }}
+                </button>
+              }
+            </div>
+          </div>
+
+          <div class="col-lg-6">
+            <div class="mb-4">
+              <div class="input-group">
+                <span class="input-group-text custom-dark-addon border-end-0 text-white-50">
+                  <i class="bi bi-search"></i>
+                </span>
+                <input
+                  type="text"
+                  class="form-control custom-dark-input border-start-0 py-2"
+                  [(ngModel)]="buscarIdCompra"
+                  (keyup.enter)="buscarCompra()"
+                  (ngModelChange)="buscarCompra()"
+                  placeholder="buscar ID de compra"
+                />
+              </div>
+            </div>
+
+            <div class="row g-4 mb-3">
+              <div class="col-12">
+                <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
+                  >Nombre Comprador</label
+                >
+                <input
+                  type="text"
+                  class="form-control custom-dark-input py-2"
+                  [(ngModel)]="nombreComprador"
+                  placeholder="Nombre Comprador"
+                  readonly
+                />
+              </div>
+            </div>
+
+            <div class="row g-4 mb-3">
+              <div class="col-md-6 d-flex flex-column">
+                <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
+                  >Boletos Comprados</label
+                >
+                <div class="input-group mt-auto">
+                  <input
+                    type="text"
+                    class="form-control custom-dark-input border-end-0 py-2"
+                    [value]="boletosComprados !== null ? boletosComprados : ''"
+                    placeholder="3"
+                    readonly
+                  />
+                  <span class="input-group-text custom-dark-addon border-start-0 text-white-50">
+                    <i class="bi bi-hash fs-5"></i>
+                  </span>
+                </div>
+              </div>
+
+              <div class="col-md-6 d-flex flex-column">
+                <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
+                  >Todos los números asociados</label
+                >
+                <div class="input-group mt-auto">
+                  <input
+                    type="text"
+                    class="form-control custom-dark-input border-end-0 py-2"
+                    [(ngModel)]="todosNumerosAsociados"
+                    placeholder="[05] [07] [14]"
+                    readonly
+                  />
+                  <span class="input-group-text custom-dark-addon border-start-0 text-white-50">
+                    <i class="bi bi-hash fs-5"></i>
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div class="row g-4 mb-3">
+              <div class="col-md-6 d-flex flex-column">
+                <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
+                  >Correo Electrónico</label
+                >
+                <div class="input-group mt-auto">
+                  <input
+                    type="text"
+                    class="form-control custom-dark-input border-end-0 py-2"
+                    [(ngModel)]="correoElectronico"
+                    placeholder="example@gmail.com"
+                    readonly
+                  />
+                  <span class="input-group-text custom-dark-addon border-start-0 text-white-50">
+                    <i class="bi bi-envelope"></i>
+                  </span>
+                </div>
+              </div>
+
+              <div class="col-md-6 d-flex flex-column">
+                <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
+                  >Número de Teléfono</label
+                >
+                <div class="input-group mt-auto">
+                  <input
+                    type="text"
+                    class="form-control custom-dark-input border-end-0 py-2"
+                    [(ngModel)]="numeroTelefono"
+                    placeholder="00-0000-0000-0000"
+                    readonly
+                  />
+                  <span class="input-group-text custom-dark-addon border-start-0 text-white-50">
+                    <i class="bi bi-telephone"></i>
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div class="row g-4 mb-4">
+              <div class="col-md-6 d-flex flex-column">
+                <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
+                  >Fecha compra de número seleccionado</label
+                >
+                <div class="input-group mt-auto">
+                  <input
+                    type="text"
+                    class="form-control custom-dark-input border-end-0 py-2"
+                    [(ngModel)]="fechaCompra"
+                    placeholder="dd/mm/aaaa"
+                    readonly
+                  />
+                  <span class="input-group-text custom-dark-addon border-start-0 text-white-50">
+                    <i class="bi bi-calendar"></i>
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            @if (selectedTicket && selectedTicket.buyer) {
+              <div class="options-container mb-4">
+                <div
+                  class="d-flex justify-content-between align-items-center cursor-pointer py-2 text-white"
+                  (click)="toggleOptions()"
+                >
+                  <span class="fs-7 fw-semibold">Opciones</span>
+                  <i class="bi" [ngClass]="showOptions ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+                </div>
+
+                @if (showOptions) {
+                  <div class="d-flex flex-column gap-2 mt-2">
+                    <button
+                      type="button"
+                      class="btn btn-option text-start w-100 py-2 px-3 fs-7 text-white"
+                      (click)="desvincularSeleccionado()"
+                    >
+                      Desvincular el número seleccionado al jugador
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-option text-start w-100 py-2 px-3 fs-7 text-white"
+                      (click)="desvincularTodos()"
+                    >
+                      Desvincular todos los números seleccionados por el jugador
+                    </button>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer border-0 pt-0 pe-4 pe-md-5 pb-4 pb-md-5 justify-content-end gap-3">
+        <button
+          type="button"
+          class="btn px-4 py-2 rounded-3 text-uppercase fs-7 custom-btn-secondary"
+          data-bs-dismiss="modal"
+          (click)="initializeTickets()"
+        >
+          Cancelar
+        </button>
+        <button
+          type="button"
+          class="btn px-4 py-2 rounded-3 text-uppercase fs-7 custom-btn-primary"
+          data-bs-dismiss="modal"
+          (click)="onSubmit()"
+        >
+          Guardar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

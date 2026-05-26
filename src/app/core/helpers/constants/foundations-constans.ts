@@ -15,6 +15,7 @@ export interface Foundation {
   telefono: string;
   estado: string;
   acciones: string;
+  photo?: string;
   [key: string]: unknown;
 }
 

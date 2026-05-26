@@ -35,3 +35,7 @@ export const STATUS_CLASSES = {
   CANCELLED: 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-20',
   DEFAULT: 'bg-dark bg-opacity-25 text-white border border-dark border-opacity-20',
 };
+
+export const STATE_ACTIVE = 'ACTIVO';
+export const STATE_INACTIVE = 'DESACTIVADO';
+export const STATE_DELETED = 'ELIMINADO';

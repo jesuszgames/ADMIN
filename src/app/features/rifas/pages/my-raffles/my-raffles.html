@@ -4,7 +4,11 @@
   </div>
   <div class="d-flex justify-content-between align-items-center">
     <app-filter [options]="misFiltrosRifas" (onFilter)="filtrarPorCategoria($event)"></app-filter>
-    <app-main-button [label]="'Crear Rifa'" [icon]="'bi-plus'"></app-main-button>
+    <app-main-button
+      [label]="'Crear Rifa'"
+      [icon]="'bi-plus'"
+      (click)="abrirCrearRifa()"
+    ></app-main-button>
   </div>
 
   <div class="row">
@@ -27,3 +31,25 @@
   data-bs-target="#modal-eliminar-rifa"
   hidden
 ></button>
+
+<button
+  id="btn-abrir-modal-create-raffle"
+  data-bs-toggle="modal"
+  data-bs-target="#modalCrearRifa"
+  hidden
+></button>
+<app-create-raffle-modal
+  [raffle]="selectedRaffleForEdit"
+  (save)="onSaveRaffle($event)"
+></app-create-raffle-modal>
+
+<button
+  id="btn-abrir-modal-edit-tickets"
+  data-bs-toggle="modal"
+  data-bs-target="#modalEditarBoletos"
+  hidden
+></button>
+<app-edit-tickets-modal
+  [raffle]="selectedRaffleForTickets"
+  (save)="onSaveTickets($event)"
+></app-edit-tickets-modal>

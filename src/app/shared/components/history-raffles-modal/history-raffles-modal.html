@@ -122,11 +122,11 @@
                   <input
                     type="text"
                     class="form-control custom-dark-input border-end-0"
-                    [value]="raffleData?.beneficiaryAmount"
+                    [value]="raffleData?.beneficiaryPercentage !== undefined && raffleData?.beneficiaryPercentage !== null ? raffleData?.beneficiaryPercentage + ' %' : ''"
                     readonly
                   />
                   <span class="input-group-text custom-dark-addon border-start-0">
-                    <span class="badge custom-pill">{{ raffleData?.beneficiaryPercentage }} %</span>
+                    <span class="badge custom-pill">{{ raffleData?.beneficiaryAmount | number:'1.0-2' }} $</span>
                   </span>
                 </div>
               </div>
@@ -139,11 +139,11 @@
                   <input
                     type="text"
                     class="form-control custom-dark-input border-end-0"
-                    [value]="raffleData?.winnerAmount"
+                    [value]="raffleData?.winnerPercentage !== undefined && raffleData?.winnerPercentage !== null ? raffleData?.winnerPercentage + ' %' : ''"
                     readonly
                   />
                   <span class="input-group-text custom-dark-addon border-start-0">
-                    <span class="badge custom-pill">{{ raffleData?.winnerPercentage }} %</span>
+                    <span class="badge custom-pill">{{ raffleData?.winnerAmount | number:'1.0-2' }} $</span>
                   </span>
                 </div>
               </div>

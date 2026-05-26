@@ -4,6 +4,7 @@ import { Filter } from '../../../../shared/components/filter/filter';
 import { Tables } from '../../../../shared/components/tables/tables';
 import { DeleteModal } from '../../../../shared/components/delete-modal/delete-modal';
 import { MainButton } from '../../../../shared/components/main-button/main-button';
+import { CreateCategoryModal } from '../../../../shared/components/create-category-modal/create-category-modal';
 import {
   CATEGORIES_COLUMNS,
   CATEGORIES_PRINCIPAL_HEADER,
@@ -19,12 +20,15 @@ import {
   TABLE_ACTION_CHANGE_STATE,
   TABLE_ACTION_DELETE,
   TABLE_ACTION_EDIT_DETAIL,
+  STATE_ACTIVE,
+  STATE_INACTIVE,
+  STATE_DELETED,
 } from '../../../../core/helpers/constants/global-constants';
 
 @Component({
   selector: 'app-categories',
   standalone: true,
-  imports: [CommonModule, Filter, Tables, DeleteModal, MainButton],
+  imports: [CommonModule, Filter, Tables, DeleteModal, MainButton, CreateCategoryModal],
   templateUrl: './categories.html',
   styleUrl: './categories.scss',
 })
@@ -36,8 +40,10 @@ export class Categories {
 
   filtroActual = CATEGORY_FILTER_ALL;
   categoriaSeleccionadaParaBorrar: Category | null = null;
+  selectedCategoryForEdit: Category | null = null;
 
   private readonly BTN_DELETE_CATEGORY_ID = 'btn-abrir-modal-delete-category';
+  private readonly BTN_CREATE_CATEGORY_ID = 'btn-abrir-modal-create-category';
 
   filtrarPorCategoria(id: string): void {
     this.filtroActual = id;
@@ -51,24 +57,57 @@ export class Categories {
     this.tableData = this.getFilteredData(this.filtroActual);
   }
 
-  manejarAccion(evento: { actionId: number; row: Category }): void {
+  abrirCrearCategoria(): void {
+    this.selectedCategoryForEdit = null;
+    document.getElementById(this.BTN_CREATE_CATEGORY_ID)?.click();
+  }
+
+  manejarAccion(evento: { actionId: number; row: Record<string, unknown> }): void {
+    const row = evento.row as unknown as Category;
     if (evento.actionId === TABLE_ACTION_CHANGE_STATE) {
-      const index = this.categoriesData.findIndex((c) => c.id === evento.row.id);
+      const index = this.categoriesData.findIndex((c) => c.id === row.id);
       if (index !== -1) {
         const current = this.categoriesData[index].estado.toUpperCase();
         if (current.includes('ACTIV') && !current.includes('DESACTIV')) {
-          this.categoriesData[index].estado = 'DESACTIVADO';
+          this.categoriesData[index].estado = STATE_INACTIVE;
         } else {
-          this.categoriesData[index].estado = 'ACTIVO';
+          this.categoriesData[index].estado = STATE_ACTIVE;
         }
         this.tableData = this.getFilteredData(this.filtroActual);
       }
     } else if (evento.actionId === TABLE_ACTION_DELETE) {
-      this.categoriaSeleccionadaParaBorrar = evento.row;
+      this.categoriaSeleccionadaParaBorrar = row;
       document.getElementById(this.BTN_DELETE_CATEGORY_ID)?.click();
     } else if (evento.actionId === TABLE_ACTION_EDIT_DETAIL) {
-      console.log('Editar Categoría:', evento.row);
+      this.selectedCategoryForEdit = row;
+      document.getElementById(this.BTN_CREATE_CATEGORY_ID)?.click();
     }
+  }
+
+  onSaveCategory(catData: Category): void {
+    if (this.selectedCategoryForEdit) {
+      const index = this.categoriesData.findIndex((c) => c.id === this.selectedCategoryForEdit!.id);
+      if (index !== -1) {
+        this.categoriesData[index] = {
+          ...this.categoriesData[index],
+          ...catData,
+        };
+      }
+    } else {
+      const nextId =
+        this.categoriesData.length > 0 ? Math.max(...this.categoriesData.map((c) => c.id)) + 1 : 1;
+      const newCat: Category = {
+        id: nextId,
+        nombre: catData.nombre,
+        descripcion: catData.descripcion,
+        icon: catData.icon || 'bi-paw',
+        estado: STATE_ACTIVE,
+        acciones: '',
+      };
+      this.categoriesData.push(newCat);
+    }
+    this.tableData = this.getFilteredData(this.filtroActual);
+    this.selectedCategoryForEdit = null;
   }
 
   confirmarEliminar(): void {
@@ -77,7 +116,7 @@ export class Categories {
         (c) => c.id === this.categoriaSeleccionadaParaBorrar!.id
       );
       if (index !== -1) {
-        this.categoriesData[index].estado = 'ELIMINADO';
+        this.categoriesData[index].estado = STATE_DELETED;
       }
       this.tableData = this.getFilteredData(this.filtroActual);
       this.categoriaSeleccionadaParaBorrar = null;
@@ -87,11 +126,11 @@ export class Categories {
   private getFilteredData(filterId: string): Category[] {
     let filtered = this.categoriesData;
     if (filterId === CATEGORY_FILTER_ALL) {
-      filtered = this.categoriesData.filter((c) => c.estado !== 'ELIMINADO');
+      filtered = this.categoriesData.filter((c) => c.estado !== STATE_DELETED);
     } else if (filterId === CATEGORY_FILTER_INACTIVE) {
-      filtered = this.categoriesData.filter((c) => c.estado === 'DESACTIVADO');
+      filtered = this.categoriesData.filter((c) => c.estado === STATE_INACTIVE);
     } else if (filterId === CATEGORY_FILTER_DELETE) {
-      filtered = this.categoriesData.filter((c) => c.estado === 'ELIMINADO');
+      filtered = this.categoriesData.filter((c) => c.estado === STATE_DELETED);
     }
     return filtered.map((category) => ({ ...category }));
   }

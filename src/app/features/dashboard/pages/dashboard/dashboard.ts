@@ -24,12 +24,12 @@ import {
   RECENT_RAFFLES_MOCK,
   DEFAULT_RAFFLE_PHOTO,
   PERSO_PAGE_SIZE,
+  HISTORY_ROW_ACTIONS,
 } from '../../../../core/helpers/constants/dashboard-constants';
 import {
   TABLE_ACTION_VIEW_DETAIL,
   TABLE_ACTION_VIEW_TICKETS,
   TABLE_ACTION_DASHBOARD_DELETE,
-  HISTORIAL_RAFFLE_OPTIONS,
 } from '../../../../core/helpers/constants/global-constants';
 
 export type Raffle = {
@@ -74,7 +74,7 @@ export class Dashboard {
 
   protected readonly cards = DASHBOARD_CARDS;
   dashboardColumns = DASHBOARD_COLUMNS;
-  dashboardActions = HISTORIAL_RAFFLE_OPTIONS;
+  dashboardActions = HISTORY_ROW_ACTIONS;
 
   rifaSeleccionadaParaBorrar: Raffle | null = null;
   rifaSeleccionadaParaVer: Raffle | null = null;

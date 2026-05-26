@@ -15,10 +15,26 @@
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 
   &:focus {
+    background-color: var.$background;
+    color: var.$primary-text;
     border-color: var.$button-primary;
     box-shadow: 0 0 0 0.25rem var.$input-focus-shadow;
     outline: none;
   }
+
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  &[type='number'] {
+    appearance: textfield;
+  }
+}
+
+select.custom-dark-input {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
 }
 
 .custom-dark-addon {
@@ -93,8 +109,6 @@
   transition: all 0.2s ease;
   border-radius: 6px;
   border: none;
-  box-shadow: none;
-  outline: none;
 
   &:hover {
     color: var.$primary-text;
@@ -105,39 +119,62 @@
     background-color: var.$button-primary;
     color: var.$primary-text;
   }
-
-  &:focus {
-    box-shadow: none;
-    outline: none;
-  }
 }
 
 .blog-textarea {
-  min-height: 90px;
+  min-height: 120px;
   border: none;
 }
 
 .image-container {
   background-color: var.$background;
-  aspect-ratio: 1 / 1;
   width: 100%;
-  border: none;
+  border-radius: 8px;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
 
-  .object-fit-cover {
-    object-fit: cover;
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.02);
+    border-color: rgba(255, 255, 255, 0.3);
   }
 }
 
+.cursor-pointer {
+  cursor: pointer;
+}
+
 .custom-btn-secondary {
-  background-color: var.$button-secondary;
+  background-color: transparent;
   color: var.$primary-text;
-  border: none;
+  border: 1px solid var.$hover-cancel-button;
   font-weight: 500;
   letter-spacing: 0.5px;
-  transition: background-color 0.2s ease;
+  transition: all 0.2s ease;
 
   &:hover,
   &:focus {
-    background-color: var.$button-secondary-hover;
+    background-color: var.$hover-cancel-button;
+    color: var.$primary-text;
+  }
+}
+
+.custom-btn-primary {
+  background-color: var.$button-success-bg;
+  color: var.$button-success;
+  border: 1px solid var.$button-success;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled),
+  &:focus:not(:disabled) {
+    background-color: var.$button-success;
+    color: #fff;
+  }
+
+  &:disabled {
+    background-color: var.$hover-cancel-button;
+    color: rgba(255, 255, 255, 0.3);
+    border-color: var.$hover-cancel-button;
+    cursor: not-allowed;
   }
 }
