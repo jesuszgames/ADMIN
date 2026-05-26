@@ -15,8 +15,8 @@ import {
   MY_FOUNDATIONS_COLUMNS,
   MY_FOUNDATIONS_DATA_MOCK,
   MY_FOUNDATIONS_PRINCIPAL_HEADER,
-  Foundation,
 } from '../../../../core/helpers/constants/foundations-constans';
+import { Foundation } from '../../../../core/interfaces/foundation.interface';
 import {
   TABLE_ACTION_CHANGE_STATE,
   TABLE_ACTION_DELETE,
@@ -97,7 +97,9 @@ export class Foundations {
       }
     } else {
       const nextId =
-        this.foundationsData.length > 0 ? Math.max(...this.foundationsData.map((f) => f.id)) + 1 : 1;
+        this.foundationsData.length > 0
+          ? Math.max(...this.foundationsData.map((f) => f.id)) + 1
+          : 1;
       const newFound: Foundation = {
         id: nextId,
         nombre: foundData.nombre,

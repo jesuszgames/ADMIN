@@ -1,22 +1,9 @@
 import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import type { Raffle } from '../../../features/rifas/pages/my-raffles/my-raffles';
-
-export interface Ticket {
-  numero: string;
-  estado: 'disponible' | 'seleccionado' | 'ganador';
-  buyer?: BuyerInfo;
-}
-
-export interface BuyerInfo {
-  id: string;
-  nombre: string;
-  correo: string;
-  telefono: string;
-  fechaCompra: string;
-  boletos: string[];
-}
+import { Raffle } from '../../../core/interfaces/raffle.interface';
+import { Ticket, BuyerInfo } from '../../../core/interfaces/ticket.interface';
+import { DEFAULT_RAFFLE_TICKET_PRICE, DEFAULT_RAFFLE_TICKETS_TOTAL } from '../../../core/helpers/constants/my-raffles-constants';
 
 @Component({
   selector: 'app-edit-tickets-modal',
@@ -215,14 +202,14 @@ export class EditTicketsModal implements OnChanges {
     if (!raffle) return;
 
     const soldCount = this.boletos.filter((b) => b.estado !== 'disponible').length;
-    const newRecaudado = soldCount * (raffle.ticketPrice || 5);
+    const newRecaudado = soldCount * (raffle.ticketPrice || DEFAULT_RAFFLE_TICKET_PRICE);
 
     const updatedRaffle: Raffle = {
       ...raffle,
       boletos: this.boletos,
       boletosVendidos: soldCount,
       recaudado: newRecaudado,
-      boletosVendidosStr: `${soldCount}/${raffle.boletosTotales || 100}`,
+      boletosVendidosStr: `${soldCount}/${raffle.boletosTotales || DEFAULT_RAFFLE_TICKETS_TOTAL}`,
       recaudadoStr: raffle.meta ? `${newRecaudado}/${raffle.meta} $` : `${newRecaudado}$`,
     };
 

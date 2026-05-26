@@ -1,5 +1,5 @@
 import { TableColumn } from '../../../shared/components/tables/tables';
-import { Raffle } from '../../../features/dashboard/pages/dashboard/dashboard';
+import { Raffle } from '../../interfaces/raffle.interface';
 import { DropdownAction } from '../../../shared/components/dropdown/dropdown';
 import {
   TABLE_ACTION_VIEW_DETAIL,

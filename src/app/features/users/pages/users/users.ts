@@ -9,7 +9,6 @@ import {
   USERS_FILTERS,
   USER_ROW_ACTIONS,
   USERS_DATA_MOCK,
-  User,
   USER_ACTION_TOGGLE_STATUS,
   USER_ACTION_DELETE,
   USER_STATUS_ACTIVE,
@@ -17,6 +16,7 @@ import {
   USER_FILTER_ALL,
   USER_FILTER_INACTIVE,
 } from '../../../../core/helpers/constants/users-constants';
+import { User } from '../../../../core/interfaces/user.interface';
 
 @Component({
   selector: 'app-users',

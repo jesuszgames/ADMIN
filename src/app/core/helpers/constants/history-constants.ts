@@ -7,34 +7,12 @@ import {
   TABLE_ACTION_DASHBOARD_DELETE,
 } from './global-constants';
 
-export interface HistoryRaffle {
-  id: number;
-  nombreRifa: string;
-  fundacion: string;
-  categoria: string;
-  estado: string;
-  boletosVendidos: number;
-  boletosTotales: number;
-  recaudado: number;
+import { Raffle } from '../../interfaces/raffle.interface';
+
+export interface HistoryRaffle extends Raffle {
   meta: number;
-  ganador: string;
-  acciones: string;
-  boletosVendidosStr?: string;
-  recaudadoStr?: string;
-  numerosAsociados?: string;
-  ganadorName?: string;
-  ganadorEmail?: string;
-  ganadorPhone?: string;
-  beneficiaryPercentage?: number;
-  winnerPercentage?: number;
-  startDate?: string;
-  endDate?: string;
-  ticketPrice?: number;
-  photo?: string;
-  blogCardText?: string;
-  blogDetailText?: string;
-  [key: string]: unknown;
 }
+
 
 export const HISTORY_PRINCIPAL_HEADER = 'Historial de rifas';
 

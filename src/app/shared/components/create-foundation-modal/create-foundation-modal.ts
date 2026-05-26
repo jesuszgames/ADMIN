@@ -1,7 +1,9 @@
 import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Foundation } from '../../../core/helpers/constants/foundations-constans';
+import { Foundation } from '../../../core/interfaces/foundation.interface';
+
+
 
 @Component({
   selector: 'app-create-foundation-modal',
@@ -32,7 +34,7 @@ export class CreateFoundationModal implements OnChanges {
       this.descripcion = this.foundation.descripcion || '';
       this.correo = this.foundation.correo || '';
       this.telefono = this.foundation.telefono || '';
-      this.photo = (this.foundation['photo'] as string) || '';
+      this.photo = this.foundation.photo || '';
     } else {
       this.nombre = '';
       this.descripcion = '';
@@ -66,6 +68,9 @@ export class CreateFoundationModal implements OnChanges {
     const reader = new FileReader();
     reader.onload = () => {
       this.photo = reader.result as string;
+    };
+    reader.onerror = (error) => {
+      console.error('CreateFoundationModal: Error al leer el archivo:', error);
     };
     reader.readAsDataURL(file);
   }

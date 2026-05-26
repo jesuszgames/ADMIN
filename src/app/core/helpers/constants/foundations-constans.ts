@@ -7,17 +7,8 @@ import {
   TABLE_ACTION_EDIT_DETAIL,
 } from './global-constants';
 
-export interface Foundation {
-  id: number;
-  nombre: string;
-  descripcion: string;
-  correo: string;
-  telefono: string;
-  estado: string;
-  acciones: string;
-  photo?: string;
-  [key: string]: unknown;
-}
+import { Foundation } from '../../interfaces/foundation.interface';
+
 
 export const MY_FOUNDATIONS_PRINCIPAL_HEADER = 'Fundaciones';
 

@@ -7,23 +7,11 @@ import {
   TABLE_ACTION_EDIT_DETAIL,
 } from './global-constants';
 
-export interface Category {
-  id: number;
-  nombre: string;
-  descripcion: string;
-  icon: string;
-  estado: string;
-  acciones: string;
-  [key: string]: unknown;
-}
+import { Category, IconOption } from '../../interfaces/category.interface';
 
-export interface IconOption {
-  value: string;
-  label: string;
-}
 
 export const AVAILABLE_CATEGORIES_ICONS: IconOption[] = [
-  { value: 'bi-paw', label: 'Huella (Animales)' },
+  { value: 'bi-tux', label: 'Pingüino (Animales)' },
   { value: 'bi-plus-square', label: 'Cruz (Salud)' },
   { value: 'bi-mortarboard', label: 'Birrete (Educación)' },
   { value: 'bi-leaf', label: 'Hoja (Medio Ambiente)' },
@@ -64,7 +52,7 @@ export const MY_CATEGORIES_DATA_MOCK: Category[] = [
     id: 1,
     nombre: 'ANIMALES',
     descripcion: 'Gestión de especies, refugios y programas de adopción animal.',
-    icon: 'bi-paw',
+    icon: 'bi-tux',
     estado: 'ACTIVO',
     acciones: '',
   },
