@@ -1,11 +1,15 @@
-<div class="app-layout">
-  <app-sidebar></app-sidebar>
+@if (authService.isAuthenticated()) {
+  <div class="app-layout">
+    <app-sidebar></app-sidebar>
 
-  <div class="app-content">
-    <app-navbar></app-navbar>
+    <div class="app-content">
+      <app-navbar></app-navbar>
 
-    <div class="app-main">
-      <router-outlet></router-outlet>
+      <div class="app-main">
+        <router-outlet></router-outlet>
+      </div>
     </div>
   </div>
-</div>
+} @else {
+  <router-outlet></router-outlet>
+}

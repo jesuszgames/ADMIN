@@ -3,7 +3,7 @@
     <img src="/assets/img/image.png" alt="Logo" />
     <span class="sidebar-content__brand"></span>
   </div>
-  <nav>
+  <nav class="sidebar-content__nav">
     <ul class="sidebar-content__menu">
       <li class="sidebar-content__item">
         <a routerLink="/dashboard" routerLinkActive="is-active" class="sidebar-content__link">
@@ -33,4 +33,11 @@
       </li>
     </ul>
   </nav>
+
+  <div class="sidebar-content__footer">
+    <a (click)="logout()" class="sidebar-content__link sidebar-content__link--logout" style="cursor: pointer;">
+      <i class="bi bi-box-arrow-right sidebar-content__icon sidebar-content__icon--logout"></i>
+      <span class="sidebar-content__text">Cerrar Sesión</span>
+    </a>
+  </div>
 </aside>

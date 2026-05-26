@@ -3,6 +3,10 @@
   --fs-8: 0.75rem;
 }
 
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
 .fs-7 {
   font-size: var(--fs-7) !important;
 }

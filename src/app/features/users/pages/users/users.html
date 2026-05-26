@@ -1,6 +1,10 @@
 <div class="container-fluid px-3 pt-5 pb-4 mt-4">
-  <h3>Usuarios</h3>
-  <app-filter [options]="misFiltrosUsuarios" (onFilter)="filtrarPorEstado($event)"></app-filter>
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="m-0">Usuarios</h3>
+  </div>
+  <div class="d-flex justify-content-between align-items-center">
+    <app-filter [options]="misFiltrosUsuarios" (onFilter)="filtrarPorEstado($event)"></app-filter>
+  </div>
   <div class="row">
     <div class="col-12">
       <app-tables
