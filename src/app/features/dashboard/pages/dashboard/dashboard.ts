@@ -10,8 +10,8 @@ import {
 import {
   HistoryTicketModel,
   TicketHistoryData,
-  Ticket,
 } from '../../../../shared/components/history-ticket-model/history-ticket-model';
+import { Ticket } from '../../../../core/interfaces/ticket.interface';
 import {
   DEFAULT_USER_NAME,
   DASHBOARD_PRINCIPAL_HEADER,
@@ -31,34 +31,7 @@ import {
   TABLE_ACTION_VIEW_TICKETS,
   TABLE_ACTION_DASHBOARD_DELETE,
 } from '../../../../core/helpers/constants/global-constants';
-
-export type Raffle = {
-  id: number;
-  nombreRifa: string;
-  fundacion: string;
-  categoria: string;
-  estado: string;
-  boletosVendidos: number;
-  boletosTotales: number;
-  recaudado: number;
-  meta: number | null;
-  ganador: string;
-  acciones: string;
-  beneficiaryPercentage?: number;
-  winnerPercentage?: number;
-  ticketPrice?: number;
-  photo?: string;
-  startDate?: string;
-  endDate?: string;
-  blogCardText?: string;
-  blogDetailText?: string;
-  ganadorName?: string;
-  ganadorEmail?: string;
-  ganadorPhone?: string;
-  numerosAsociados?: string;
-  recaudadoStr?: string;
-  [key: string]: unknown;
-};
+import { Raffle } from '../../../../core/interfaces/raffle.interface';
 
 @Component({
   selector: 'app-dashboard',
@@ -101,7 +74,9 @@ export class Dashboard {
 
   confirmarEliminar() {
     if (this.rifaSeleccionadaParaBorrar) {
-      this.recentRaffles = this.recentRaffles.filter((r) => r.id !== this.rifaSeleccionadaParaBorrar!.id);
+      this.recentRaffles = this.recentRaffles.filter(
+        (r) => r.id !== this.rifaSeleccionadaParaBorrar!.id,
+      );
       this.tableData = this.recentRaffles.map((raffle) => ({
         ...raffle,
         recaudadoStr: raffle.meta ? `${raffle.recaudado}/${raffle.meta} $` : `${raffle.recaudado}$`,

@@ -1,10 +1,8 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-export interface Ticket {
-  numero: string;
-  estado: 'disponible' | 'seleccionado' | 'ganador';
-}
+import { Ticket } from '../../../core/interfaces/ticket.interface';
+
 
 export interface TicketHistoryData {
   nombreGanador: string;

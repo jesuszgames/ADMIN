@@ -2,15 +2,8 @@ import { TableColumn } from '../../../shared/components/tables/tables';
 import { FilterOption } from '../../../shared/components/filter/filter';
 import { DropdownAction } from '../../../shared/components/dropdown/dropdown';
 
-export interface User {
-  id: number;
-  nombre: string;
-  correo: string;
-  telefono: string;
-  estado: 'ACTIVO' | 'INACTIVO';
-  acciones: string;
-  [key: string]: unknown;
-}
+import { User } from '../../interfaces/user.interface';
+
 
 export const USERS_PRINCIPAL_HEADER = 'Lista Usuarios';
 

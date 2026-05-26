@@ -1,9 +1,21 @@
 import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import {
+  DEFAULT_RAFFLE_START_DATE,
+  DEFAULT_RAFFLE_END_DATE,
+  DEFAULT_RAFFLE_META,
+  DEFAULT_RAFFLE_TICKETS_TOTAL,
+  DEFAULT_RAFFLE_TICKET_PRICE,
+  DEFAULT_RAFFLE_BENEFICIARY_PERCENT,
+  DEFAULT_RAFFLE_WINNER_PERCENT,
+  DEFAULT_RAFFLE_BLOG_CARD,
+  DEFAULT_RAFFLE_BLOG_DETAIL,
+  DEFAULT_RAFFLE_TIME_LEFT,
+} from '../../../core/helpers/constants/my-raffles-constants';
+import { Raffle } from '../../../core/interfaces/raffle.interface';
 import { MY_CATEGORIES_DATA_MOCK } from '../../../core/helpers/constants/categories-constants';
 import { MY_FOUNDATIONS_DATA_MOCK } from '../../../core/helpers/constants/foundations-constans';
-import type { Raffle } from '../../../features/rifas/pages/my-raffles/my-raffles';
 
 @Component({
   selector: 'app-create-raffle-modal',
@@ -50,15 +62,25 @@ export class CreateRaffleModal implements OnChanges {
       this.nombreRifa = this.raffle.nombreRifa || '';
       this.fundacion = this.raffle.fundacion || '';
       this.categoria = this.raffle.categoria || '';
-      this.startDate = this.raffle.startDate || '2026-05-10';
-      this.endDate = this.raffle.endDate || '2026-05-20';
-      this.meta = this.raffle.meta !== undefined && this.raffle.meta !== null ? this.raffle.meta : 10000;
-      this.ticketsAvailable = this.raffle.boletosTotales || 100;
-      this.ticketPrice = this.raffle.ticketPrice || 100;
-      this.beneficiaryPercentage = this.raffle.beneficiaryPercentage !== undefined && this.raffle.beneficiaryPercentage !== null ? this.raffle.beneficiaryPercentage : 80;
-      this.winnerPercentage = this.raffle.winnerPercentage !== undefined && this.raffle.winnerPercentage !== null ? this.raffle.winnerPercentage : 20;
-      this.blogCardText = this.raffle.blogCardText || 'Ayuda a personas necesitadas.';
-      this.blogDetailText = this.raffle.blogDetailText || 'Esta rifa apoya la causa social.';
+      this.startDate = this.raffle.startDate || DEFAULT_RAFFLE_START_DATE;
+      this.endDate = this.raffle.endDate || DEFAULT_RAFFLE_END_DATE;
+      this.meta =
+        this.raffle.meta !== undefined && this.raffle.meta !== null
+          ? this.raffle.meta
+          : DEFAULT_RAFFLE_META;
+      this.ticketsAvailable = this.raffle.boletosTotales || DEFAULT_RAFFLE_TICKETS_TOTAL;
+      this.ticketPrice = this.raffle.ticketPrice || DEFAULT_RAFFLE_TICKET_PRICE;
+      this.beneficiaryPercentage =
+        this.raffle.beneficiaryPercentage !== undefined &&
+        this.raffle.beneficiaryPercentage !== null
+          ? this.raffle.beneficiaryPercentage
+          : DEFAULT_RAFFLE_BENEFICIARY_PERCENT;
+      this.winnerPercentage =
+        this.raffle.winnerPercentage !== undefined && this.raffle.winnerPercentage !== null
+          ? this.raffle.winnerPercentage
+          : DEFAULT_RAFFLE_WINNER_PERCENT;
+      this.blogCardText = this.raffle.blogCardText || DEFAULT_RAFFLE_BLOG_CARD;
+      this.blogDetailText = this.raffle.blogDetailText || DEFAULT_RAFFLE_BLOG_DETAIL;
       this.photo = this.raffle.photo || '';
     } else {
       this.nombreRifa = '';
@@ -101,6 +123,9 @@ export class CreateRaffleModal implements OnChanges {
     const reader = new FileReader();
     reader.onload = () => {
       this.photo = reader.result as string;
+    };
+    reader.onerror = (error) => {
+      console.error('CreateRaffleModal: Error al leer el archivo:', error);
     };
     reader.readAsDataURL(file);
   }
@@ -148,7 +173,7 @@ export class CreateRaffleModal implements OnChanges {
       boletosVendidos: this.raffle?.boletosVendidos ?? 0,
       recaudado: this.raffle?.recaudado ?? 0,
       ganador: this.raffle?.ganador ?? '',
-      tiempoRestante: this.raffle?.tiempoRestante ?? '15 dias',
+      tiempoRestante: this.raffle?.tiempoRestante ?? DEFAULT_RAFFLE_TIME_LEFT,
       acciones: this.raffle?.acciones ?? '',
       nombreRifa: this.nombreRifa,
       fundacion: this.fundacion,
@@ -156,10 +181,10 @@ export class CreateRaffleModal implements OnChanges {
       startDate: this.startDate,
       endDate: this.endDate,
       meta: this.meta,
-      boletosTotales: this.ticketsAvailable ?? 100,
-      ticketPrice: this.ticketPrice ?? 5,
-      beneficiaryPercentage: this.beneficiaryPercentage ?? 80,
-      winnerPercentage: this.winnerPercentage ?? 20,
+      boletosTotales: this.ticketsAvailable ?? DEFAULT_RAFFLE_TICKETS_TOTAL,
+      ticketPrice: this.ticketPrice ?? DEFAULT_RAFFLE_TICKET_PRICE,
+      beneficiaryPercentage: this.beneficiaryPercentage ?? DEFAULT_RAFFLE_BENEFICIARY_PERCENT,
+      winnerPercentage: this.winnerPercentage ?? DEFAULT_RAFFLE_WINNER_PERCENT,
       blogCardText: this.blogCardText,
       blogDetailText: this.blogDetailText,
       photo: this.photo,

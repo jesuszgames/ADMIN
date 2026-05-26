@@ -1,6 +1,18 @@
 import { TableColumn } from '../../../shared/components/tables/tables';
 import { FilterOption } from '../../../shared/components/filter/filter';
-import { Raffle } from '../../../features/rifas/pages/my-raffles/my-raffles';
+import { Raffle } from '../../interfaces/raffle.interface';
+
+export const DEFAULT_RAFFLE_START_DATE = '2026-05-10';
+export const DEFAULT_RAFFLE_END_DATE = '2026-05-20';
+export const DEFAULT_RAFFLE_META = 10000;
+export const DEFAULT_RAFFLE_TICKETS_TOTAL = 100;
+export const DEFAULT_RAFFLE_TICKET_PRICE = 5;
+export const DEFAULT_RAFFLE_BENEFICIARY_PERCENT = 80;
+export const DEFAULT_RAFFLE_WINNER_PERCENT = 20;
+export const DEFAULT_RAFFLE_BLOG_CARD = 'Ayuda a personas necesitadas.';
+export const DEFAULT_RAFFLE_BLOG_DETAIL = 'Esta rifa apoya la causa social.';
+export const DEFAULT_RAFFLE_TIME_LEFT = '15 dias';
+
 
 export const MY_RAFFLES_PRINCIPAL_HEADER = 'Rifas Activas';
 

@@ -1,7 +1,10 @@
 import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Category, AVAILABLE_CATEGORIES_ICONS } from '../../../core/helpers/constants/categories-constants';
+import { AVAILABLE_CATEGORIES_ICONS } from '../../../core/helpers/constants/categories-constants';
+import { Category } from '../../../core/interfaces/category.interface';
+
+
 
 @Component({
   selector: 'app-create-category-modal',

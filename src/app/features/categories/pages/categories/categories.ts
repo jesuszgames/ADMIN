@@ -14,8 +14,8 @@ import {
   CATEGORY_FILTER_INACTIVE,
   CATEGORY_FILTER_DELETE,
   CATEGORY_ROW_ACTIONS,
-  Category,
 } from '../../../../core/helpers/constants/categories-constants';
+import { Category } from '../../../../core/interfaces/category.interface';
 import {
   TABLE_ACTION_CHANGE_STATE,
   TABLE_ACTION_DELETE,
@@ -113,7 +113,7 @@ export class Categories {
   confirmarEliminar(): void {
     if (this.categoriaSeleccionadaParaBorrar) {
       const index = this.categoriesData.findIndex(
-        (c) => c.id === this.categoriaSeleccionadaParaBorrar!.id
+        (c) => c.id === this.categoriaSeleccionadaParaBorrar!.id,
       );
       if (index !== -1) {
         this.categoriesData[index].estado = STATE_DELETED;

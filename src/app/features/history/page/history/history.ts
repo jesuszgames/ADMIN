@@ -10,8 +10,8 @@ import {
 import {
   HistoryTicketModel,
   TicketHistoryData,
-  Ticket,
 } from '../../../../shared/components/history-ticket-model/history-ticket-model';
+import { Ticket } from '../../../../core/interfaces/ticket.interface';
 import {
   DEFAULT_MONEY_GOAL,
   BENEFICIARY_PERCENTAGE,
@@ -86,9 +86,7 @@ export class History {
 
   confirmarEliminar(): void {
     if (this.rifaSeleccionadaParaBorrar) {
-      const index = this.historyData.findIndex(
-        (r) => r.id === this.rifaSeleccionadaParaBorrar!.id
-      );
+      const index = this.historyData.findIndex((r) => r.id === this.rifaSeleccionadaParaBorrar!.id);
       if (index !== -1) {
         this.historyData[index].estado = 'ELIMINADO';
       }
@@ -105,7 +103,7 @@ export class History {
 
       if (numStr === (raffle.ganador || '07')) {
         estado = 'ganador';
-      } else if (raffle.numerosAsociados && String(raffle.numerosAsociados).includes(`[${numStr}]`)) {
+      } else if (raffle.numerosAsociados && raffle.numerosAsociados.includes(`[${numStr}]`)) {
         estado = 'seleccionado';
       } else if (!raffle.numerosAsociados && (numStr === '05' || numStr === '14')) {
         estado = 'seleccionado';
@@ -114,18 +112,18 @@ export class History {
       return { numero: numStr, estado };
     });
 
-    const numerosAsociados = (raffle.numerosAsociados as string) || '[05] [07] [14]';
+    const numerosAsociados = raffle.numerosAsociados || '[05] [07] [14]';
     const boletosComprados = raffle.numerosAsociados
-      ? String(numerosAsociados).split(']').filter(Boolean).length
+      ? numerosAsociados.split(']').filter(Boolean).length
       : 3;
 
     this.selectedTicketData = {
-      nombreGanador: (raffle.ganadorName as string) || 'Paco Briones Macias',
+      nombreGanador: raffle.ganadorName || 'Paco Briones Macias',
       boletosComprados: boletosComprados,
       numerosAsociados: numerosAsociados,
-      correo: (raffle.ganadorEmail as string) || 'example@gmail.com',
+      correo: raffle.ganadorEmail || 'example@gmail.com',
       boletoGanador: raffle.ganador || '07',
-      telefono: (raffle.ganadorPhone as string) || '0998452318',
+      telefono: raffle.ganadorPhone || '0998452318',
       fechaUltimaCompra: '12/05/2026',
       boletos: generatedTickets,
     };
@@ -136,12 +134,10 @@ export class History {
     const moneyGoal = raffle.meta || DEFAULT_MONEY_GOAL;
     const beneficiaryPercentage =
       raffle.beneficiaryPercentage !== undefined
-        ? (raffle.beneficiaryPercentage as number)
+        ? raffle.beneficiaryPercentage
         : BENEFICIARY_PERCENTAGE;
     const winnerPercentage =
-      raffle.winnerPercentage !== undefined
-        ? (raffle.winnerPercentage as number)
-        : WINNER_PERCENTAGE;
+      raffle.winnerPercentage !== undefined ? raffle.winnerPercentage : WINNER_PERCENTAGE;
 
     const beneficiaryAmount = (totalCollected * beneficiaryPercentage) / 100;
     const winnerAmount = (totalCollected * winnerPercentage) / 100;
@@ -149,23 +145,23 @@ export class History {
     this.selectedRaffle = {
       name: raffle.nombreRifa,
       foundation: raffle.fundacion,
-      startDate: (raffle.startDate as string) || '10/05/2026',
-      endDate: (raffle.endDate as string) || '14/05/2026',
+      startDate: raffle.startDate || '10/05/2026',
+      endDate: raffle.endDate || '14/05/2026',
       category: raffle.categoria,
-      ticketPrice: (raffle.ticketPrice as number) || 30,
+      ticketPrice: raffle.ticketPrice || 30,
       winningTicket: raffle.ganador,
       moneyGoal: moneyGoal,
       ticketsSold: raffle.boletosVendidos,
       ticketsAvailable: raffle.boletosTotales,
       totalCollected: totalCollected,
-      photo: (raffle.photo as string) || DEFAULT_RAFFLE_PHOTO,
+      photo: raffle.photo || DEFAULT_RAFFLE_PHOTO,
       beneficiaryAmount,
       beneficiaryPercentage: beneficiaryPercentage,
       winnerAmount,
       winnerPercentage: winnerPercentage,
-      blogCardText: (raffle.blogCardText as string) || 'Ayuda a reforestar 10,000 hectáreas en el Amazonas.',
+      blogCardText: raffle.blogCardText || 'Ayuda a reforestar 10,000 hectáreas en el Amazonas.',
       blogDetailText:
-        (raffle.blogDetailText as string) ||
+        raffle.blogDetailText ||
         'Detalle completo de la rifa se muestra aquí...\nPuedes añadir toda la información detallada que necesites sobre los premios, mecánicas y condiciones de participación de la rifa en esta sección interactiva.',
     };
   }
@@ -176,12 +172,10 @@ export class History {
       filtered = this.historyData.filter((r) => r.estado !== 'ELIMINADO');
     } else if (filterId === HISTORY_FILTER_TICKETS) {
       filtered = this.historyData.filter(
-        (r) => r.estado !== 'ELIMINADO' && r.boletosVendidos === r.boletosTotales
+        (r) => r.estado !== 'ELIMINADO' && r.boletosVendidos === r.boletosTotales,
       );
     } else if (filterId === HISTORY_FILTER_GOAL) {
-      filtered = this.historyData.filter(
-        (r) => r.estado !== 'ELIMINADO' && r.recaudado === r.meta
-      );
+      filtered = this.historyData.filter((r) => r.estado !== 'ELIMINADO' && r.recaudado === r.meta);
     } else if (filterId === HISTORY_FILTER_DELETE) {
       filtered = this.historyData.filter((r) => r.estado === 'ELIMINADO');
     }
