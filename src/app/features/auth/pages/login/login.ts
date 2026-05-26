@@ -1,0 +1,33 @@
+import { Component, inject, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { AuthService } from '../../../../core/services/auth.service';
+
+@Component({
+  selector: 'app-login',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  templateUrl: './login.html',
+  styleUrl: './login.scss',
+})
+export class LoginComponent {
+  private readonly authService = inject(AuthService);
+
+  username = '';
+  password = '';
+  errorMessage = signal<string | null>(null);
+
+  onSubmit(): void {
+    if (!this.username.trim() || !this.password.trim()) {
+      this.errorMessage.set('Por favor, completa todos los campos.');
+      return;
+    }
+
+    const success = this.authService.login(this.username, this.password);
+    if (!success) {
+      this.errorMessage.set('Usuario o contraseña incorrectos.');
+    } else {
+      this.errorMessage.set(null);
+    }
+  }
+}
