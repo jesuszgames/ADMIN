@@ -13,9 +13,9 @@
                   type="button"
                   class="ticket-btn"
                   [ngClass]="{
-                    'ticket-seleccionado': ticket.estado === 'seleccionado',
-                    'ticket-ganador': ticket.estado === 'ganador',
-                    'ticket-active': selectedTicket?.numero === ticket.numero,
+                    'ticket-comprado': ticket.buyer && (!selectedTicket?.buyer || ticket.buyer.id !== selectedTicket?.buyer?.id),
+                    'ticket-seleccionado': ticket.buyer && selectedTicket?.buyer && ticket.buyer.id === selectedTicket?.buyer?.id,
+                    'ticket-active': selectedTicket?.numero === ticket.numero
                   }"
                   (click)="selectTicket(ticket)"
                 >
@@ -148,6 +148,24 @@
                   />
                   <span class="input-group-text custom-dark-addon border-start-0 text-white-50">
                     <i class="bi bi-calendar"></i>
+                  </span>
+                </div>
+              </div>
+
+              <div class="col-md-6 d-flex flex-column">
+                <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
+                  >Número Seleccionado</label
+                >
+                <div class="input-group mt-auto">
+                  <input
+                    type="text"
+                    class="form-control custom-dark-input border-end-0 py-2"
+                    [value]="selectedTicket ? selectedTicket.numero : ''"
+                    placeholder="Ninguno"
+                    readonly
+                  />
+                  <span class="input-group-text custom-dark-addon border-start-0 text-white-50">
+                    <i class="bi bi-ticket-perforated"></i>
                   </span>
                 </div>
               </div>
