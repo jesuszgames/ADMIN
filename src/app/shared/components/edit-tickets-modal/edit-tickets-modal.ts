@@ -65,6 +65,11 @@ export class EditTicketsModal implements OnChanges {
 
     if (raffle.boletos && Array.isArray(raffle.boletos)) {
       this.boletos = JSON.parse(JSON.stringify(raffle.boletos));
+      this.boletos.forEach((b) => {
+        if (b.estado === 'ganador') {
+          b.estado = 'seleccionado';
+        }
+      });
       return;
     }
 
@@ -85,16 +90,12 @@ export class EditTicketsModal implements OnChanges {
       let buyer: BuyerInfo | undefined;
 
       if (mockBuyer.boletos.includes(numStr)) {
-        if (numStr === (raffle.ganador || '07')) {
-          estado = 'ganador';
-        } else {
-          estado = 'seleccionado';
-        }
+        estado = 'seleccionado';
         buyer = mockBuyer;
       } else if (numStr === raffle.ganador && raffle.ganador) {
-        estado = 'ganador';
+        estado = 'seleccionado';
         buyer = {
-          id: 'COMPRA-WIN',
+          id: 'COMPRA-123',
           nombre: raffle.ganadorName || 'Ganador Oficial',
           correo: raffle.ganadorEmail || 'ganador@gmail.com',
           telefono: raffle.ganadorPhone || '0999999999',
@@ -148,7 +149,7 @@ export class EditTicketsModal implements OnChanges {
       const id = (b.buyer.id || '').toUpperCase();
       const nombre = (b.buyer.nombre || '').toUpperCase();
       const correo = (b.buyer.correo || '').toUpperCase();
-      const telefono = (b.buyer.telefono || '');
+      const telefono = b.buyer.telefono || '';
       return (
         id.includes(query) ||
         nombre.includes(query) ||
@@ -179,8 +180,9 @@ export class EditTicketsModal implements OnChanges {
       this.boletos.forEach((b) => {
         if (b.buyer && b.buyer.id === buyer.id) {
           b.buyer = buyer;
-          if (b.estado === 'ganador' && b.numero === numToUnlink) {
+          if (b.numero === numToUnlink) {
             b.estado = 'disponible';
+            delete b.buyer;
           }
         }
       });

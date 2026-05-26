@@ -54,7 +54,8 @@ export const MY_RAFFLES_DATA_MOCK: Raffle[] = [
     winnerPercentage: 20,
     blogCardText: 'Ayuda a personas de la tercera edad',
     blogDetailText: 'Esta rifa apoya a Caritas Tijuana A.C. en sus comedores sociales.',
-    photo: 'https://images.unsplash.com/photo-1516841273335-e39b37888115?auto=format&fit=crop&q=80&w=400',
+    photo:
+      'https://images.unsplash.com/photo-1516841273335-e39b37888115?auto=format&fit=crop&q=80&w=400',
   },
   {
     id: 2,
@@ -76,7 +77,8 @@ export const MY_RAFFLES_DATA_MOCK: Raffle[] = [
     winnerPercentage: 25,
     blogCardText: 'Equipamiento médico infantil',
     blogDetailText: 'Esta rifa apoya la compra de incubadoras para el Hospital Infantil.',
-    photo: 'https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&q=80&w=400',
+    photo:
+      'https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&q=80&w=400',
   },
   {
     id: 3,
@@ -98,7 +100,8 @@ export const MY_RAFFLES_DATA_MOCK: Raffle[] = [
     winnerPercentage: 20,
     blogCardText: 'Apoyo invernal para el asilo',
     blogDetailText: 'Esta rifa apoya con insumos médicos y calefactores para el Asilo San Pedro.',
-    photo: 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&q=80&w=400',
+    photo:
+      'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&q=80&w=400',
   },
   {
     id: 4,

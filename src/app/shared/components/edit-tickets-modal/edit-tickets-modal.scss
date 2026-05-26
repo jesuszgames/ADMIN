@@ -34,6 +34,17 @@
     color: var.$primary-text;
   }
 
+  &.ticket-comprado {
+    background-color: var.$finished-bg-opaco;
+    color: var.$finished-text;
+    border: 1px solid rgba(66, 153, 225, 0.15);
+
+    &:hover {
+      background-color: rgba(26, 54, 93, 0.75);
+      color: var.$primary-text;
+    }
+  }
+
   &.ticket-seleccionado {
     background-color: var.$button-primary;
     color: var.$primary-text;
@@ -44,20 +55,12 @@
     }
   }
 
-  &.ticket-ganador {
-    background-color: transparent;
-    border: 1px solid var.$active-text;
-    color: var.$active-text;
-
-    &:hover {
-      background-color: var.$active-bg-opaco;
-    }
-  }
-
   &.ticket-active {
-    box-shadow: 0 0 0 2px var.$primary-text;
+    outline: 2px solid var.$primary-text;
+    outline-offset: 2px;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
     transform: scale(1.05);
-    z-index: 1;
+    z-index: 2;
   }
 }
 
