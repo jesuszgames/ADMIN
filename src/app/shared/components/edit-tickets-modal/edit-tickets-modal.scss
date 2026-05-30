@@ -72,7 +72,9 @@
   border-radius: 6px;
   font-size: 0.9rem;
   resize: none;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 
   &:focus {
     background-color: var.$background;
@@ -95,7 +97,9 @@
     background-color: var.$background;
     border: 1px solid var.$input-border;
     border-radius: 6px;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    transition:
+      border-color 0.2s ease,
+      box-shadow 0.2s ease;
 
     &:focus-within {
       border-color: var.$button-primary;
@@ -186,5 +190,113 @@
   &:focus {
     background-color: var.$button-primary-hover;
     box-shadow: none;
+  }
+}
+
+/* Confirmation Modal Overlay */
+.confirm-modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(13, 17, 23, 0.85);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  border-radius: 8px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.confirm-modal-content {
+  background-color: var.$container-bg;
+  border: 1px solid var.$option-hover-bg;
+  width: 90%;
+  max-width: 480px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+  animation: scaleUp 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.unlinked-list {
+  max-height: 180px;
+  overflow-y: auto;
+  background-color: var.$background;
+  border: 1px solid var.$border-color;
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+
+  // Custom scrollbar
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: var.$option-hover-bg;
+    border-radius: 3px;
+    &:hover {
+      background: var.$option-hover-border;
+    }
+  }
+}
+
+.unlinked-item {
+  border-bottom: 1px solid var.$option-border;
+  &:last-child {
+    border-bottom: none;
+  }
+
+  i {
+    font-size: 1rem;
+  }
+
+  strong {
+    color: var.$primary-text;
+  }
+}
+
+.custom-btn-danger {
+  background-color: var.$eliminated-text;
+  color: var.$primary-text;
+  border: none;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  transition:
+    opacity 0.2s ease,
+    background-color 0.2s ease;
+
+  &:hover,
+  &:focus {
+    background-color: var.$eliminated-text-hover;
+    color: var.$primary-text;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleUp {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
   }
 }

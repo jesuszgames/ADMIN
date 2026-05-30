@@ -9,7 +9,11 @@
     <thead>
       <tr>
         @for (col of columns; track col.field) {
-          <th scope="col" class="text-white-50 text-uppercase py-2 border-secondary">
+          <th
+            scope="col"
+            class="text-white-50 text-uppercase py-2 border-secondary"
+            [class.text-center]="isCenteredColumn(col.field, col.type)"
+          >
             {{ col.header }}
           </th>
         }
@@ -20,7 +24,7 @@
       @for (row of pagedData; track row) {
         <tr class="border-secondary">
           @for (col of columns; track col.field) {
-            <td class="py-2 text-white">
+            <td class="py-2 text-white" [class.text-center]="isCenteredColumn(col.field, col.type)">
               @if (col.type === 'badge') {
                 <span [attr.class]="getBadgeClasses(row[col.field]) + ' badge-text'">
                   {{ row[col.field] }}
@@ -28,7 +32,7 @@
               } @else if (col.type === 'actions') {
                 <app-dropdown
                   [valueLabel]="'•••'"
-                  [listActions]="rowActions"
+                  [listActions]="getRowActions(row)"
                   (actionSelected)="onActionSelect($event, row)"
                 >
                 </app-dropdown>

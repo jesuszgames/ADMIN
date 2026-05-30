@@ -1,15 +1,19 @@
 <div class="container-fluid px-3 pt-5 pb-4 mt-4">
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h3>Dashboard</h3>
+    <h3 class="dashboard-title">Dashboard</h3>
   </div>
   <div class="row align-items-stretch mb-4 g-4">
     <div class="col-12 col-xl-6">
-      <div
-        class="container-info-color rounded-3 p-4 h-100 d-flex flex-column justify-content-center"
-      >
-        <div class="card-body flex-grow-0">
-          <h4 class="card-title text-white fw-bold mb-2">Bienvenido {{ userName }}</h4>
-          <p class="card-text text-secondary-text mb-4">Esto es lo que está pasando hoy</p>
+      <div class="welcome-card">
+        <div class="card-body p-0 d-flex flex-column h-100">
+          <h4 class="welcome-title">{{ welcomeGreeting }}, {{ userName }}</h4>
+          <p class="welcome-subtitle">Esto es lo que está pasando hoy en tu plataforma de sorteos.</p>
+          @if (currentDate) {
+            <div class="welcome-meta">
+              <i class="bi bi-calendar3"></i>
+              <span>{{ currentDate }}</span>
+            </div>
+          }
         </div>
       </div>
     </div>
@@ -18,7 +22,12 @@
       <div class="row row-cols-2 row-cols-sm-3 g-3 h-100 align-content-start">
         @for (item of cards; track item.label) {
           <div class="col">
-            <app-simple-card [name]="item.label" [value]="item.value"></app-simple-card>
+            <app-simple-card 
+              [name]="item.label" 
+              [value]="item.value"
+              [icon]="item.icon"
+              [color]="item.color"
+            ></app-simple-card>
           </div>
         }
       </div>
@@ -46,7 +55,7 @@
   data-bs-target="#modalDetalleRifa"
   hidden
 ></button>
-<app-delete-modal [id]="'eliminar'" (confirmDelete)="confirmarEliminar()"></app-delete-modal>
+<app-delete-modal [id]="'eliminar'" (confirmDelete)="confirmarEliminar($event)"></app-delete-modal>
 <button
   id="btn-abrir-modal-delete"
   data-bs-toggle="modal"
@@ -62,3 +71,36 @@
   hidden
 ></button>
 <app-history-ticket-model [ticketData]="selectedTicketData"></app-history-ticket-model>
+
+<button
+  id="btn-abrir-modal-unlink-logs"
+  data-bs-toggle="modal"
+  data-bs-target="#modalVerDesvinculaciones"
+  hidden
+></button>
+
+<div class="modal fade" id="modalVerDesvinculaciones" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div
+      class="modal-content custom-modal-bg border-secondary border-opacity-25 rounded-3 shadow-lg"
+    >
+      <div class="modal-header border-0 pb-0 pt-4 px-4 px-md-5 d-flex justify-content-between align-items-center">
+        <h5 class="modal-title text-white fw-bold">Bitácora de Desvinculaciones</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-4 p-md-5 pt-3 pb-3">
+        <app-unlink-logs [raffleData]="selectedRaffleForLogs"></app-unlink-logs>
+      </div>
+      <div class="modal-footer border-0 pt-0 pe-4 pe-md-5 pb-4 pb-md-5 justify-content-end">
+        <button
+          type="button"
+          class="btn px-4 py-2 rounded-3 text-uppercase fs-7 custom-btn-secondary"
+          data-bs-dismiss="modal"
+        >
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+

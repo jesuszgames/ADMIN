@@ -11,14 +11,14 @@ import {
   HistoryTicketModel,
   TicketHistoryData,
 } from '../../../../shared/components/history-ticket-model/history-ticket-model';
-import { Ticket } from '../../../../core/interfaces/ticket.interface';
+import { Ticket } from '../../../../core/interfaces/api/ticket.interface';
 import {
   DEFAULT_MONEY_GOAL,
   BENEFICIARY_PERCENTAGE,
   WINNER_PERCENTAGE,
   TICKETS_TOTAL_COUNT,
   DEFAULT_RAFFLE_PHOTO,
-} from '../../../../core/helpers/constants/dashboard-constants';
+} from '../../../../core/helpers/global/dashboard.constants';
 import {
   HISTORY_COLUMNS,
   HISTORY_FILTERS,
@@ -30,17 +30,22 @@ import {
   HISTORY_FILTER_DELETE,
   MY_HISTORY_DATA_MOCK,
   HistoryRaffle,
-} from '../../../../core/helpers/constants/history-constants';
+  STATE_DELETED,
+  METHOD_AUTOMATIC,
+} from '../../../../core/helpers/global/history.constants';
+import { UnlinkLogs } from '../../../../shared/components/unlink-logs/unlink-logs';
+import { Raffle } from '../../../../core/interfaces/api/raffle.interface';
 import {
   TABLE_ACTION_VIEW_DETAIL,
   TABLE_ACTION_VIEW_TICKETS,
   TABLE_ACTION_DASHBOARD_DELETE,
-} from '../../../../core/helpers/constants/global-constants';
+  TABLE_ACTION_VIEW_UNLINK_LOGS,
+} from '../../../../core/helpers/ui/constants';
 
 @Component({
   selector: 'app-history',
   standalone: true,
-  imports: [CommonModule, Filter, Tables, DeleteModal, HistoryRafflesModal, HistoryTicketModel],
+  imports: [CommonModule, Filter, Tables, DeleteModal, HistoryRafflesModal, HistoryTicketModel, UnlinkLogs],
   templateUrl: './history.html',
   styleUrl: './history.scss',
 })
@@ -54,6 +59,7 @@ export class History {
   rifaSeleccionadaParaBorrar: HistoryRaffle | null = null;
   selectedRaffle: RaffleDetail | null = null;
   selectedTicketData: TicketHistoryData | null = null;
+  selectedRaffleForLogs: Raffle | null = null;
 
   private readonly BTN_HISTORY_MODAL_ID = 'btn-abrir-modal-history';
   private readonly BTN_TICKETS_MODAL_ID = 'btn-abrir-modal-tickets';
@@ -72,66 +78,82 @@ export class History {
   }
 
   manejarAccion(evento: { actionId: number; row: HistoryRaffle }): void {
-    if (evento.actionId === TABLE_ACTION_VIEW_DETAIL) {
-      this.onViewDetails(evento.row);
-      document.getElementById(this.BTN_HISTORY_MODAL_ID)?.click();
-    } else if (evento.actionId === TABLE_ACTION_VIEW_TICKETS) {
-      this.onViewTicketDetails(evento.row);
-      document.getElementById(this.BTN_TICKETS_MODAL_ID)?.click();
-    } else if (evento.actionId === TABLE_ACTION_DASHBOARD_DELETE) {
-      this.rifaSeleccionadaParaBorrar = evento.row;
-      document.getElementById(this.BTN_DELETE_HISTORY_ID)?.click();
-    }
+    try {
+      const actions: Record<number, () => void> = {
+        [TABLE_ACTION_VIEW_DETAIL]: () => {
+          this.onViewDetails(evento.row);
+          document.getElementById(this.BTN_HISTORY_MODAL_ID)?.click();
+        },
+        [TABLE_ACTION_VIEW_TICKETS]: () => {
+          this.onViewTicketDetails(evento.row);
+          document.getElementById(this.BTN_TICKETS_MODAL_ID)?.click();
+        },
+        [TABLE_ACTION_DASHBOARD_DELETE]: () => {
+          this.rifaSeleccionadaParaBorrar = evento.row;
+          document.getElementById(this.BTN_DELETE_HISTORY_ID)?.click();
+        },
+        [TABLE_ACTION_VIEW_UNLINK_LOGS]: () => {
+          this.selectedRaffleForLogs = evento.row as unknown as Raffle;
+          document.getElementById('btn-abrir-modal-unlink-logs')?.click();
+        },
+      };
+
+      const action = actions[evento.actionId];
+      if (!action) throw new Error();
+      action();
+    } catch {}
   }
 
-  confirmarEliminar(): void {
-    if (this.rifaSeleccionadaParaBorrar) {
-      const index = this.historyData.findIndex((r) => r.id === this.rifaSeleccionadaParaBorrar!.id);
-      if (index !== -1) {
-        this.historyData[index].estado = 'ELIMINADO';
-      }
+  confirmarEliminar(razon: string): void {
+    try {
+      const targetRaffle = this.rifaSeleccionadaParaBorrar;
+      if (!targetRaffle) throw new Error();
+      const index = this.historyData.findIndex((r) => r._id === targetRaffle._id);
+      if (index === -1) throw new Error();
+      this.historyData[index].status = STATE_DELETED;
+      this.historyData[index].deleteReason = razon;
       this.tableData = this.getFilteredData(this.filtroActual);
       this.rifaSeleccionadaParaBorrar = null;
-    }
+    } catch {}
   }
 
   onViewTicketDetails(raffle: HistoryRaffle): void {
-    const ticketsTotalCount = raffle.boletosTotales || TICKETS_TOTAL_COUNT;
+    const ticketsTotalCount = raffle.totalTickets || TICKETS_TOTAL_COUNT;
     const generatedTickets: Ticket[] = Array.from({ length: ticketsTotalCount }, (_, i) => {
       const numStr = (i + 1).toString().padStart(2, '0');
-      let estado: 'disponible' | 'seleccionado' | 'ganador' = 'disponible';
+      let status: 'available' | 'selected' | 'winner' = 'available';
 
-      if (numStr === (raffle.ganador || '07')) {
-        estado = 'ganador';
-      } else if (raffle.numerosAsociados && raffle.numerosAsociados.includes(`[${numStr}]`)) {
-        estado = 'seleccionado';
-      } else if (!raffle.numerosAsociados && (numStr === '05' || numStr === '14')) {
-        estado = 'seleccionado';
+      if (numStr === (raffle.winner || '07')) {
+        status = 'winner';
+      } else if (raffle.associatedNumbers && raffle.associatedNumbers.includes(`[${numStr}]`)) {
+        status = 'selected';
+      } else if (!raffle.associatedNumbers && (numStr === '05' || numStr === '14')) {
+        status = 'selected';
       }
 
-      return { numero: numStr, estado };
+      return { number: numStr, status };
     });
 
-    const numerosAsociados = raffle.numerosAsociados || '[05] [07] [14]';
-    const boletosComprados = raffle.numerosAsociados
-      ? numerosAsociados.split(']').filter(Boolean).length
+    const associatedNumbers = raffle.associatedNumbers || '[05] [07] [14]';
+    const ticketsPurchased = raffle.associatedNumbers
+      ? associatedNumbers.split(']').filter(Boolean).length
       : 3;
 
     this.selectedTicketData = {
-      nombreGanador: raffle.ganadorName || 'Paco Briones Macias',
-      boletosComprados: boletosComprados,
-      numerosAsociados: numerosAsociados,
-      correo: raffle.ganadorEmail || 'example@gmail.com',
-      boletoGanador: raffle.ganador || '07',
-      telefono: raffle.ganadorPhone || '0998452318',
-      fechaUltimaCompra: '12/05/2026',
-      boletos: generatedTickets,
+      winnerName: raffle.winnerName || 'Paco Briones Macias',
+      ticketsPurchased: ticketsPurchased,
+      associatedNumbers: associatedNumbers,
+      email: raffle.winnerEmail || 'example@gmail.com',
+      winnerTicket: raffle.winner || '07',
+      phone: raffle.winnerPhone || '0998452318',
+      lastPurchaseDate: '12/05/2026',
+      tickets: generatedTickets,
     };
   }
 
   onViewDetails(raffle: HistoryRaffle): void {
-    const totalCollected = raffle.recaudado;
-    const moneyGoal = raffle.meta || DEFAULT_MONEY_GOAL;
+    const totalCollected = raffle.collected;
+    const moneyGoal = raffle.goal || DEFAULT_MONEY_GOAL;
     const beneficiaryPercentage =
       raffle.beneficiaryPercentage !== undefined
         ? raffle.beneficiaryPercentage
@@ -143,16 +165,16 @@ export class History {
     const winnerAmount = (totalCollected * winnerPercentage) / 100;
 
     this.selectedRaffle = {
-      name: raffle.nombreRifa,
-      foundation: raffle.fundacion,
+      name: raffle.title,
+      foundation: raffle.foundation,
       startDate: raffle.startDate || '10/05/2026',
       endDate: raffle.endDate || '14/05/2026',
-      category: raffle.categoria,
+      category: raffle.category,
       ticketPrice: raffle.ticketPrice || 30,
-      winningTicket: raffle.ganador,
+      winningTicket: raffle.winner,
       moneyGoal: moneyGoal,
-      ticketsSold: raffle.boletosVendidos,
-      ticketsAvailable: raffle.boletosTotales,
+      ticketsSold: raffle.soldTickets,
+      ticketsAvailable: raffle.totalTickets,
       totalCollected: totalCollected,
       photo: raffle.photo || DEFAULT_RAFFLE_PHOTO,
       beneficiaryAmount,
@@ -163,27 +185,36 @@ export class History {
       blogDetailText:
         raffle.blogDetailText ||
         'Detalle completo de la rifa se muestra aquí...\nPuedes añadir toda la información detallada que necesites sobre los premios, mecánicas y condiciones de participación de la rifa en esta sección interactiva.',
+      drawMethod: raffle.drawMethod,
+      deleteReason: raffle.deleteReason || '',
+      unlinks: raffle.unlinks || [],
     };
   }
 
   private getFilteredData(filterId: string): HistoryRaffle[] {
     let filtered = this.historyData;
-    if (filterId === HISTORY_FILTER_ALL) {
-      filtered = this.historyData.filter((r) => r.estado !== 'ELIMINADO');
-    } else if (filterId === HISTORY_FILTER_TICKETS) {
-      filtered = this.historyData.filter(
-        (r) => r.estado !== 'ELIMINADO' && r.boletosVendidos === r.boletosTotales,
-      );
-    } else if (filterId === HISTORY_FILTER_GOAL) {
-      filtered = this.historyData.filter((r) => r.estado !== 'ELIMINADO' && r.recaudado === r.meta);
-    } else if (filterId === HISTORY_FILTER_DELETE) {
-      filtered = this.historyData.filter((r) => r.estado === 'ELIMINADO');
-    }
+    try {
+      const filterActions: Record<string, () => HistoryRaffle[]> = {
+        [HISTORY_FILTER_ALL]: () => this.historyData.filter((r) => r.status !== STATE_DELETED),
+        [HISTORY_FILTER_TICKETS]: () => this.historyData.filter(
+          (r) => r.status !== STATE_DELETED && r.soldTickets === r.totalTickets,
+        ),
+        [HISTORY_FILTER_GOAL]: () => this.historyData.filter(
+          (r) => r.status !== STATE_DELETED && r.collected === r.goal,
+        ),
+        [HISTORY_FILTER_DELETE]: () => this.historyData.filter((r) => r.status === STATE_DELETED),
+      };
+
+      const filterFn = filterActions[filterId];
+      if (!filterFn) throw new Error();
+      filtered = filterFn();
+    } catch {}
 
     return filtered.map((raffle) => ({
       ...raffle,
-      boletosVendidosStr: `${raffle.boletosVendidos}/${raffle.boletosTotales}`,
-      recaudadoStr: `${raffle.recaudado}/${raffle.meta} $`,
+      drawMethod: raffle.drawMethod || (METHOD_AUTOMATIC as 'AUTOMATICO' | 'MANUAL'),
+      soldTicketsStr: `${raffle.soldTickets}/${raffle.totalTickets}`,
+      collectedStr: `${raffle.collected}/${raffle.goal} $`,
     }));
   }
 }

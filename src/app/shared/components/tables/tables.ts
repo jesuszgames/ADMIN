@@ -6,11 +6,10 @@ import {
   DEFAULT_ROW_ACTIONS,
   BADGE_BASE_CLASS,
   STATUS_CLASSES,
-} from '../../../core/helpers/constants/global-constants';
-import {
+  BADGE_MAP,
   DEFAULT_PAGE_SIZE,
   DEFAULT_CURRENT_PAGE,
-} from '../../../core/helpers/constants/tables-constants';
+} from '../../../core/helpers/ui/constants';
 import { Search } from '../search/search';
 
 export interface TableColumn {
@@ -45,59 +44,54 @@ export class Tables<T extends Record<string, unknown> = Record<string, unknown>>
   searchText: string = '';
 
   getBadgeClasses(value: unknown): string {
-    if (value === null || value === undefined) {
+    try {
+      if (value === null || value === undefined) {
+        throw new Error('Value is empty');
+      }
+      const v = String(value).toUpperCase();
+      const matchedKey = Object.keys(BADGE_MAP).find((key) => v.includes(key));
+      if (!matchedKey) {
+        throw new Error('No matching status class');
+      }
+      return `${BADGE_BASE_CLASS} ${STATUS_CLASSES[BADGE_MAP[matchedKey]]}`;
+    } catch {
       return `${BADGE_BASE_CLASS} ${STATUS_CLASSES.DEFAULT}`;
     }
-    const v = String(value).toUpperCase();
-    if (v.includes('INACT') || v.includes('DESACTIV')) {
-      return `${BADGE_BASE_CLASS} ${STATUS_CLASSES.INACTIVE}`;
-    }
-    if (v.includes('ACTIV')) {
-      return `${BADGE_BASE_CLASS} ${STATUS_CLASSES.ACTIVE}`;
-    }
-    if (v.includes('PROX')) {
-      return `${BADGE_BASE_CLASS} ${STATUS_CLASSES.PROX_EXPIRED}`;
-    }
-    if (v.includes('META')) {
-      return `${BADGE_BASE_CLASS} ${STATUS_CLASSES.META_COMPLETED}`;
-    }
-    if (v.includes('FINALIZ')) {
-      return `${BADGE_BASE_CLASS} ${STATUS_CLASSES.FINALIZED}`;
-    }
-    if (v.includes('ELIMIN') || v.includes('CANCE')) {
-      return `${BADGE_BASE_CLASS} ${STATUS_CLASSES.CANCELLED}`;
-    }
-    if (v.includes('SIN') || v.includes('PEND')) {
-      return `${BADGE_BASE_CLASS} ${STATUS_CLASSES.NO_TICKETS}`;
-    }
-
-    return `${BADGE_BASE_CLASS} ${STATUS_CLASSES.DEFAULT}`;
   }
+
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['data'] || changes['pageSize']) {
+    try {
+      const shouldUpdate = changes['data'] || changes['pageSize'];
+      if (!shouldUpdate) throw new Error();
       this.currentPage = 1;
       this.updatePagedData();
-    }
+    } catch {}
   }
+
   updatePagedData(): void {
-    if (!this.data) return;
-
-    let filtered = this.data;
-    if (this.searchText.trim()) {
-      const query = this.searchText.toLowerCase().trim();
-      filtered = this.data.filter((row) => {
-        return this.columns.some((col) => {
-          const val = row[col.field];
-          return val !== undefined && val !== null && String(val).toLowerCase().includes(query);
-        });
-      });
+    try {
+      const query = this.searchText.trim().toLowerCase();
+      const filtered = this.data.filter(
+        (row) =>
+          !query ||
+          this.columns.some((col) => {
+            try {
+              const val = row[col.field];
+              if (val === null || val === undefined) throw new Error();
+              return String(val).toLowerCase().includes(query);
+            } catch {
+              return false;
+            }
+          }),
+      );
+      this.totalItems = filtered.length;
+      const startIndex = (this.currentPage - 1) * this.pageSize;
+      const endIndex = startIndex + this.pageSize;
+      this.pagedData = filtered.slice(startIndex, endIndex);
+    } catch {
+      this.totalItems = 0;
+      this.pagedData = [];
     }
-
-    this.totalItems = filtered.length;
-
-    const startIndex = (this.currentPage - 1) * this.pageSize;
-    const endIndex = startIndex + this.pageSize;
-    this.pagedData = filtered.slice(startIndex, endIndex);
   }
   onPageChange(newPage: number): void {
     this.currentPage = newPage;
@@ -107,6 +101,47 @@ export class Tables<T extends Record<string, unknown> = Record<string, unknown>>
   onActionSelect(actionId: number, row: T): void {
     this.actionClicked.emit({ actionId, row });
   }
+
+  getRowActions(row: T): DropdownAction[] {
+    try {
+      const estado = String(row['status'] || row['estado'] || '').toUpperCase();
+      if (estado === 'ELIMINADO' || estado === 'DELETED') {
+        const filtered: DropdownAction[] = [];
+        for (const action of this.rowActions) {
+          const label = action.label.toLowerCase();
+          if (label.includes('editar')) {
+            filtered.push({
+              id: action.id,
+              label: 'Visualizar Detalle',
+              icon: 'bi-eye',
+            });
+          } else if (
+            !label.includes('cambiar') &&
+            !label.includes('eliminar') &&
+            !label.includes('edit')
+          ) {
+            filtered.push(action);
+          }
+        }
+        return filtered;
+      }
+    } catch {}
+    return this.rowActions;
+  }
+  isCenteredColumn(field: string, type?: string): boolean {
+    return (
+      type === 'actions' ||
+      field === 'soldTicketsStr' ||
+      field === 'boletosVendidosStr' ||
+      field === 'collectedStr' ||
+      field === 'recaudadoStr' ||
+      field === 'winner' ||
+      field === 'ganador' ||
+      field === 'remainingTime' ||
+      field === 'tiempoRestante'
+    );
+  }
+
   handleSearch(searchValue: string) {
     this.searchText = searchValue;
     this.currentPage = 1;

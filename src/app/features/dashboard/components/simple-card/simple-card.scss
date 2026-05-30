@@ -1,0 +1,115 @@
+@use '../../../../../assets/scss/utils/variables.scss' as v;
+
+:host {
+  display: block;
+  height: 100%;
+}
+
+.simple-card-container {
+  background-color: v.$container-bg;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 1.25rem;
+  display: flex;
+  align-items: center;
+  height: 100%;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+
+  &:hover {
+    transform: translateY(-4px);
+    border-color: rgba(255, 255, 255, 0.12);
+    
+    &.card-success {
+      box-shadow: 0 12px 20px -8px v.$color-success-shadow;
+      border-color: v.$color-success-border;
+    }
+    &.card-danger {
+      box-shadow: 0 12px 20px -8px v.$color-danger-shadow;
+      border-color: v.$color-danger-border;
+    }
+    &.card-warning {
+      box-shadow: 0 12px 20px -8px v.$color-warning-shadow;
+      border-color: v.$color-warning-border;
+    }
+    &.card-info {
+      box-shadow: 0 12px 20px -8px v.$color-info-shadow;
+      border-color: v.$color-info-border;
+    }
+    &.card-primary {
+      box-shadow: 0 12px 20px -8px v.$color-primary-accent-shadow;
+      border-color: v.$color-primary-accent-border;
+    }
+    &.card-secondary {
+      box-shadow: 0 12px 20px -8px v.$color-secondary-accent-shadow;
+      border-color: v.$color-secondary-accent-border;
+    }
+
+    .icon-badge {
+      transform: scale(1.1);
+    }
+  }
+}
+
+.icon-badge {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  margin-right: 1rem;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+
+  &.badge-success {
+    background-color: v.$color-success-bg;
+    color: v.$color-success;
+  }
+  &.badge-danger {
+    background-color: v.$color-danger-bg;
+    color: v.$color-danger;
+  }
+  &.badge-warning {
+    background-color: v.$color-warning-bg;
+    color: v.$color-warning;
+  }
+  &.badge-info {
+    background-color: v.$color-info-bg;
+    color: v.$color-info;
+  }
+  &.badge-primary {
+    background-color: v.$color-primary-accent-bg;
+    color: v.$color-primary-accent;
+  }
+  &.badge-secondary {
+    background-color: v.$color-secondary-accent-bg;
+    color: v.$color-secondary-accent;
+  }
+}
+
+.card-content {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.card-title {
+  color: v.$secondary-text;
+  font-size: 0.8rem;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-value {
+  color: v.$primary-text;
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1.2;
+}

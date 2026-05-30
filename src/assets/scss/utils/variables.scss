@@ -7,6 +7,7 @@
   --active-text: #3fb950;
   --no-tickets-text: #d29922;
   --eliminated-text: #ff4757;
+  --eliminated-text-hover: #e03e4d;
   --finished-text: #4299e1;
   --border-color: #1e2532;
   --button-primary: rgb(37, 99, 235);
@@ -21,7 +22,7 @@
   --eliminated-bg-opaco: rgba(91, 35, 40, 0.5);
   --no-tickets-bg-opaco: rgba(56, 35, 10, 0.5);
   --desactive-bg-opaco: rgba(125, 133, 144, 0.5);
-
+ 
   // New standardized theme color properties
   --input-border: rgba(255, 255, 255, 0.05);
   --input-focus-shadow: rgba(37, 99, 235, 0.25);
@@ -32,6 +33,43 @@
   --option-border: rgba(255, 255, 255, 0.05);
   --option-hover-bg: rgba(255, 255, 255, 0.08);
   --option-hover-border: rgba(255, 255, 255, 0.15);
+
+  --dashboard-title-start: #ffffff;
+  --dashboard-title-end: #a5b4fc;
+  --welcome-grad-start: #1e40af;
+  --welcome-grad-mid: #3b82f6;
+  --welcome-grad-end: #7c3aed;
+  --welcome-shadow: rgba(59, 130, 246, 0.3);
+
+  --color-success: #10b981;
+  --color-success-bg: rgba(16, 185, 129, 0.12);
+  --color-success-shadow: rgba(16, 185, 129, 0.25);
+  --color-success-border: rgba(16, 185, 129, 0.3);
+
+  --color-danger: #ef4444;
+  --color-danger-bg: rgba(239, 68, 68, 0.12);
+  --color-danger-shadow: rgba(239, 68, 68, 0.25);
+  --color-danger-border: rgba(239, 68, 68, 0.3);
+
+  --color-warning: #f59e0b;
+  --color-warning-bg: rgba(245, 158, 11, 0.12);
+  --color-warning-shadow: rgba(245, 158, 11, 0.25);
+  --color-warning-border: rgba(245, 158, 11, 0.3);
+
+  --color-info: #3b82f6;
+  --color-info-bg: rgba(59, 130, 246, 0.12);
+  --color-info-shadow: rgba(59, 130, 246, 0.25);
+  --color-info-border: rgba(59, 130, 246, 0.3);
+
+  --color-primary-accent: #8b5cf6;
+  --color-primary-accent-bg: rgba(139, 92, 246, 0.12);
+  --color-primary-accent-shadow: rgba(139, 92, 246, 0.25);
+  --color-primary-accent-border: rgba(139, 92, 246, 0.3);
+
+  --color-secondary-accent: #94a3b8;
+  --color-secondary-accent-bg: rgba(148, 163, 184, 0.12);
+  --color-secondary-accent-shadow: rgba(148, 163, 184, 0.2);
+  --color-secondary-accent-border: rgba(148, 163, 184, 0.3);
 }
 
 //bg-principal-secundario
@@ -47,6 +85,7 @@ $secondary-text: var(--secondary-text);
 $active-text: var(--active-text);
 $no-tickets-text: var(--no-tickets-text);
 $eliminated-text: var(--eliminated-text);
+$eliminated-text-hover: var(--eliminated-text-hover);
 $finished-text: var(--finished-text);
 
 //border
@@ -80,3 +119,40 @@ $option-bg: var(--option-bg);
 $option-border: var(--option-border);
 $option-hover-bg: var(--option-hover-bg);
 $option-hover-border: var(--option-hover-border);
+
+$dashboard-title-start: var(--dashboard-title-start);
+$dashboard-title-end: var(--dashboard-title-end);
+$welcome-grad-start: var(--welcome-grad-start);
+$welcome-grad-mid: var(--welcome-grad-mid);
+$welcome-grad-end: var(--welcome-grad-end);
+$welcome-shadow: var(--welcome-shadow);
+
+$color-success: var(--color-success);
+$color-success-bg: var(--color-success-bg);
+$color-success-shadow: var(--color-success-shadow);
+$color-success-border: var(--color-success-border);
+
+$color-danger: var(--color-danger);
+$color-danger-bg: var(--color-danger-bg);
+$color-danger-shadow: var(--color-danger-shadow);
+$color-danger-border: var(--color-danger-border);
+
+$color-warning: var(--color-warning);
+$color-warning-bg: var(--color-warning-bg);
+$color-warning-shadow: var(--color-warning-shadow);
+$color-warning-border: var(--color-warning-border);
+
+$color-info: var(--color-info);
+$color-info-bg: var(--color-info-bg);
+$color-info-shadow: var(--color-info-shadow);
+$color-info-border: var(--color-info-border);
+
+$color-primary-accent: var(--color-primary-accent);
+$color-primary-accent-bg: var(--color-primary-accent-bg);
+$color-primary-accent-shadow: var(--color-primary-accent-shadow);
+$color-primary-accent-border: var(--color-primary-accent-border);
+
+$color-secondary-accent: var(--color-secondary-accent);
+$color-secondary-accent-bg: var(--color-secondary-accent-bg);
+$color-secondary-accent-shadow: var(--color-secondary-accent-shadow);
+$color-secondary-accent-border: var(--color-secondary-accent-border);

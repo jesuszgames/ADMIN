@@ -1,4 +1,11 @@
-<div class="flex-column justify-content-center text-center rounded-3 p-3 containers-colors">
-  <span class="fw-semibold mb-2 text-white">{{ value }}</span>
-  <p class="text-white-50 fs-7 mb-0">{{ name }}</p>
+<div class="simple-card-container" [ngClass]="'card-' + color">
+  @if (icon) {
+    <div class="icon-badge" [ngClass]="'badge-' + color">
+      <i class="bi" [ngClass]="icon"></i>
+    </div>
+  }
+  <div class="card-content">
+    <span class="card-title">{{ name }}</span>
+    <span class="card-value">{{ value }}</span>
+  </div>
 </div>

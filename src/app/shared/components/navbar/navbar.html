@@ -1,8 +1,12 @@
 <div class="header-container">
+  <div class="header-status" [title]="getConnectionTooltip()">
+    <span class="status-dot" [class]="getConnectionClass()"></span>
+  </div>
+
   <div class="header-profile">
     <div class="header-profile__info">
-      <span class="header-profile__name">PACO</span>
-      <span class="header-profile__role">ADMIN</span>
+      <span class="header-profile__name">{{ getUserName() }}</span>
+      <span class="header-profile__role">{{ getUserRole() }}</span>
     </div>
     <img
       src="https://primefaces.org/cdn/primeng/images/demo/avatar/amyelsner.png"

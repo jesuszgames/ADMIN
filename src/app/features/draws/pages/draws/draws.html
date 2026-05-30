@@ -1,0 +1,35 @@
+<div class="container-fluid px-3 pt-5 pb-4 mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="m-0 text-white fw-bold">Sorteos de Rifas</h3>
+  </div>
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <app-filter [options]="filters" (onFilter)="filtrar($event)"></app-filter>
+  </div>
+
+  <div class="row">
+    <div class="col-12">
+      <app-tables
+        [principalheader]="'Lista de Rifas para Sorteos'"
+        [columns]="columns"
+        [data]="tableData"
+        [rowActions]="rowActions"
+        (actionClicked)="manejarAccion($event)"
+      >
+      </app-tables>
+    </div>
+  </div>
+</div>
+
+<button
+  id="btn-abrir-modal-edit-tickets"
+  data-bs-toggle="modal"
+  data-bs-target="#modalEditarBoletos"
+  hidden
+></button>
+
+<app-edit-tickets-modal
+  [raffle]="selectedRaffleForTickets"
+  [mode]="'sorteos'"
+  (save)="onSaveTickets($event)"
+></app-edit-tickets-modal>

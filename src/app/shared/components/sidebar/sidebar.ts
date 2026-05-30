@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from "@angular/router";
-import { AuthService } from '../../../core/services/auth.service';
+import { AuthService } from '../../../core/services/api/auth.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -10,6 +10,7 @@ import { AuthService } from '../../../core/services/auth.service';
 })
 export class Sidebar {
   private readonly authService = inject(AuthService);
+  userRole = this.authService.getUserRole();
 
   logout(): void {
     this.authService.logout();

@@ -1,0 +1,192 @@
+@use '../../../../assets/scss/utils/variables' as var;
+
+.unlink-logs-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* Compact Stats Badges */
+.stat-badge {
+  background-color: var.$option-bg;
+  border: 1px solid var.$option-border;
+  font-size: 0.85rem;
+  color: var.$secondary-text;
+  backdrop-filter: blur(4px);
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: var.$option-hover-bg;
+    border-color: var.$option-hover-border;
+  }
+}
+
+/* Search Bar Styling */
+.search-box-wrapper {
+  .input-group {
+    background-color: var.$background;
+    border: 1px solid var.$input-border;
+    border-radius: 6px;
+    overflow: hidden;
+    transition: all 0.2s ease;
+
+    &:focus-within {
+      border-color: var.$button-primary;
+      box-shadow: 0 0 0 0.25rem var.$input-focus-shadow;
+    }
+  }
+
+  .search-icon-addon {
+    background: transparent;
+    border: none;
+    color: var.$secondary-text;
+    padding-left: 1rem;
+    display: flex;
+    align-items: center;
+  }
+
+  .search-input {
+    background: transparent;
+    border: none;
+    color: var.$primary-text;
+    font-size: 0.9rem;
+    padding: 0.6rem 0.75rem;
+
+    &:focus {
+      outline: none;
+      box-shadow: none;
+    }
+
+    &::placeholder {
+      color: var.$secondary-text;
+      opacity: 0.6;
+    }
+  }
+
+  .clear-search-btn {
+    background: transparent;
+    border: none;
+    color: var.$secondary-text;
+    transition: color 0.2s;
+    display: flex;
+    align-items: center;
+
+    &:hover {
+      color: var.$primary-text;
+    }
+  }
+}
+
+.custom-table {
+  background-color: transparent !important;
+  border-collapse: collapse;
+
+  --bs-table-bg: transparent !important;
+  --bs-table-color: var.$primary-text !important;
+  --bs-table-hover-bg: var.$option-hover-bg !important;
+  --bs-table-hover-color: var.$primary-text !important;
+  --bs-table-striped-bg: transparent !important;
+  --bs-table-active-bg: transparent !important;
+  --bs-table-border-color: var.$border-color !important;
+
+  thead th {
+    background-color: transparent !important;
+    --bs-table-bg: transparent !important;
+    color: var.$secondary-text !important;
+    border-bottom: 1px solid var.$border-color !important;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    padding: 0.85rem 1rem;
+  }
+
+  tbody tr {
+    background-color: transparent !important;
+    --bs-table-bg: transparent !important;
+    border-bottom: 1px solid var.$border-color !important;
+    transition: background-color 0.15s ease-in-out;
+
+    &:hover {
+      background-color: var.$option-hover-bg !important;
+      --bs-table-bg: var.$option-hover-bg !important;
+    }
+
+    td {
+      background-color: transparent !important;
+      --bs-table-bg: transparent !important;
+      border: none !important;
+      font-size: 0.75rem;
+      padding: 0.85rem 1rem;
+      color: var.$primary-text;
+    }
+  }
+}
+
+/* High Contrast Ticket Badge (matching standard active badge styles) */
+.ticket-badge {
+  background-color: rgba(56, 189, 248, 0.12) !important;
+  color: #38bdf8 !important;
+  border: 1px solid rgba(56, 189, 248, 0.25) !important;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.35rem 0.65rem;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--font-monospace, monospace);
+}
+
+.timestamp {
+  color: var.$secondary-text;
+  font-size: 0.75rem;
+}
+
+/* High Contrast Reason Section (matching standard deleted badge accent styles) */
+.reason-section {
+  background-color: rgba(248, 113, 113, 0.08) !important;
+  border: 1px solid rgba(248, 113, 113, 0.15) !important;
+  border-left: 3px solid #f87171 !important;
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  max-width: 100%;
+
+  span {
+    word-break: break-word;
+    display: block;
+    line-height: 1.45;
+    color: var.$primary-text;
+    font-weight: 500;
+  }
+}
+
+/* Custom Scrollbar for Scroll Container */
+.table-responsive {
+  border: 1px solid var.$border-color;
+  background-color: var.$background;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: var.$option-hover-bg;
+    border-radius: 3px;
+    &:hover {
+      background: var.$option-hover-border;
+    }
+  }
+}
+
+/* Empty State Wrapper */
+.no-logs-wrapper {
+  background-color: var.$background !important;
+  border: 1px solid var.$border-color !important;
+}

@@ -16,3 +16,22 @@ body {
 .container-info-color {
   background-color: $container-info-bg;
 }
+
+.custom-modal-bg {
+  background-color: $container-bg !important;
+}
+
+.custom-btn-secondary {
+  background-color: transparent !important;
+  color: $primary-text !important;
+  border: 1px solid $hover-cancel-button !important;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  transition: all 0.2s ease;
+
+  &:hover,
+  &:focus {
+    background-color: $hover-cancel-button !important;
+    color: $primary-text !important;
+  }
+}
