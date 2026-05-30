@@ -1,5 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { UnlinkLog } from '../../../core/interfaces/api/raffle.interface';
+import { ImageCropperComponent } from '../image-cropper/image-cropper';
 
 export interface RaffleDetail {
   name: string;
@@ -20,19 +22,23 @@ export interface RaffleDetail {
   winnerPercentage: number;
   blogCardText: string;
   blogDetailText: string;
+  drawMethod?: 'AUTOMATICO' | 'MANUAL';
+  deleteReason?: string;
+  unlinks?: UnlinkLog[];
 }
 
 @Component({
   selector: 'app-history-raffles-modal',
-  imports: [CommonModule],
+  standalone: true,
+  imports: [CommonModule, ImageCropperComponent],
   templateUrl: './history-raffles-modal.html',
   styleUrl: './history-raffles-modal.scss',
 })
 export class HistoryRafflesModal {
   @Input() raffleData: RaffleDetail | null = null;
-  activeTab: 'card' | 'detalle' = 'card';
+  activeTab: 'card' | 'detalle' | 'desvinculaciones' = 'card';
 
-  setTab(tab: 'card' | 'detalle') {
+  setTab(tab: 'card' | 'detalle' | 'desvinculaciones') {
     this.activeTab = tab;
   }
 }

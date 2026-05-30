@@ -8,15 +8,33 @@
 >
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content border-0 shadow-lg">
-      <div class="modal-body text-center p-5">
+      <div class="modal-body text-center p-5 pb-4">
         <h4 class="modal-title mb-3 text-white fw-bold" id="modal-{{ id }}">¿Eliminar registro?</h4>
-        <p class="text-white mb-0">
-          Esta acción no se puede deshacer. Se borrarán permanentemente todos los datos asociados.
-        </p>
+        <p class="text-white mb-4">Esta acción no se puede deshacer.</p>
+        <div class="text-start mt-3">
+          <label
+            [attr.for]="'razon-' + id"
+            class="form-label text-white-50 text-uppercase fs-8 fw-semibold mb-2"
+            >Razón de eliminación</label
+          >
+          <textarea
+            [attr.id]="'razon-' + id"
+            class="form-control custom-dark-input w-100"
+            rows="3"
+            placeholder="Escribe el motivo de la eliminación..."
+            [(ngModel)]="razon"
+          ></textarea>
+        </div>
       </div>
       <div class="modal-footer border-0 justify-content-center pb-4 pt-0 gap-3">
         <button type="button" class="btn btn-cancel px-4" data-bs-dismiss="modal">Cancelar</button>
-        <button type="button" class="btn btn-danger-custom px-4" data-bs-dismiss="modal" (click)="onConfirm()">
+        <button
+          type="button"
+          class="btn btn-danger-custom px-4"
+          data-bs-dismiss="modal"
+          (click)="onConfirm()"
+          [disabled]="!razon || !razon.trim()"
+        >
           Sí, eliminar
         </button>
       </div>

@@ -1,0 +1,154 @@
+<div
+  class="modal fade"
+  id="modalCrearFundacion"
+  tabindex="-1"
+  aria-hidden="true"
+  data-bs-backdrop="static"
+  data-bs-keyboard="false"
+>
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div
+      class="modal-content custom-modal-bg border-secondary border-opacity-25 rounded-3 shadow-lg"
+    >
+      <div class="modal-body p-4 p-md-5 pb-3">
+        <h3 class="text-white fw-bold mb-4 fs-4">
+          {{
+            isReadOnly ? 'Detalle Fundacion' : foundation ? 'Editar Fundacion' : 'Crear Fundacion'
+          }}
+        </h3>
+
+        @if (isReadOnly && foundation?.deleteReason) {
+          <div
+            class="alert alert-danger border-danger border-opacity-25 bg-danger bg-opacity-10 text-danger rounded-3 p-3 mb-4 d-flex align-items-start gap-2"
+          >
+            <i class="bi bi-exclamation-octagon-fill fs-5 lh-1"></i>
+            <div>
+              <strong class="d-block mb-1 text-uppercase fs-7">Fundación Eliminada</strong>
+              <span class="fs-7"
+                ><strong>Razón de la eliminación:</strong> {{ foundation?.deleteReason }}</span
+              >
+            </div>
+          </div>
+        }
+
+        <div class="row g-5">
+          <div class="col-lg-7 d-flex flex-column gap-3">
+            <div>
+              <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
+                >Nombre Fundacion</label
+              >
+              <input
+                type="text"
+                class="form-control custom-dark-input py-2"
+                [(ngModel)]="name"
+                placeholder="ANCHO DE TEXTO PRUEBA DE ESCRITORIO"
+                [disabled]="isReadOnly"
+                required
+              />
+            </div>
+
+            <div>
+              <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
+                >Descripcion Fundacion</label
+              >
+              <textarea
+                class="form-control custom-dark-input py-2 desc-textarea w-100"
+                [(ngModel)]="description"
+                placeholder="ANCHO DE TEXTO PRUEBA DE ESCRITORIO"
+                [disabled]="isReadOnly"
+                required
+              ></textarea>
+            </div>
+
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
+                  >Correo Electronico</label
+                >
+                <div class="input-group" [class.is-invalid]="email && !isEmailValid(email)">
+                  <input
+                    type="email"
+                    class="form-control custom-dark-input border-end-0 py-2"
+                    [class.is-invalid]="email && !isEmailValid(email)"
+                    [(ngModel)]="email"
+                    placeholder="example@gmail.com"
+                    [disabled]="isReadOnly"
+                    required
+                  />
+                  <span class="input-group-text custom-dark-addon border-start-0 text-white-50">
+                    <i class="bi bi-envelope"></i>
+                  </span>
+                </div>
+                @if (email && !isEmailValid(email)) {
+                  <div class="text-danger fs-8 mt-1" style="font-size: 0.75rem; color: #ef5350">
+                    Por favor, introduce un correo electrónico válido.
+                  </div>
+                }
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
+                  >Numero de Telefono</label
+                >
+                <div class="input-group">
+                  <input
+                    type="text"
+                    class="form-control custom-dark-input border-end-0 py-2"
+                    [(ngModel)]="phone"
+                    placeholder="00-0000-0000-0000"
+                    [disabled]="isReadOnly"
+                    required
+                  />
+                  <span class="input-group-text custom-dark-addon border-start-0 text-white-50">
+                    <i class="bi bi-telephone"></i>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-5 d-flex flex-column">
+            <label class="form-label text-white-50 text-uppercase fs-7 mb-2 text-center"
+              >Imagen</label
+            >
+            <app-image-cropper
+              [(photo)]="photo"
+              [isReadOnly]="isReadOnly"
+              style="min-height: 250px; height: 100%; max-height: 380px; display: block"
+            ></app-image-cropper>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer border-0 pt-0 pe-4 pe-md-5 pb-4 pb-md-5 justify-content-end gap-3">
+        <button
+          type="button"
+          class="btn px-4 py-2 rounded-3 text-uppercase fs-7 custom-btn-secondary"
+          data-bs-dismiss="modal"
+          (click)="resetForm()"
+        >
+          {{ isReadOnly ? 'Cerrar' : 'Cancelar' }}
+        </button>
+        @if (!isReadOnly) {
+          <button
+            type="button"
+            class="btn px-4 py-2 rounded-3 text-uppercase fs-7 custom-btn-primary"
+            [disabled]="!isFormValid()"
+            (click)="onSaveClick()"
+          >
+            {{ foundation ? 'Guardar' : 'Crear' }}
+          </button>
+        }
+        <button id="btn-cerrar-modal-crear-fundacion" data-bs-dismiss="modal" hidden></button>
+      </div>
+
+      <app-confirm-changes-modal
+        [title]="'Confirmar Cambios en Fundación'"
+        [changes]="cambios"
+        [isOpen]="showConfirmModal"
+        (confirm)="confirmSubmit()"
+        (cancel)="cancelConfirm()"
+      ></app-confirm-changes-modal>
+    </div>
+  </div>
+</div>

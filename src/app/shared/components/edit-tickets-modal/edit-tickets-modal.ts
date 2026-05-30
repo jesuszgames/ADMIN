@@ -1,9 +1,13 @@
-import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Raffle } from '../../../core/interfaces/raffle.interface';
-import { Ticket, BuyerInfo } from '../../../core/interfaces/ticket.interface';
-import { DEFAULT_RAFFLE_TICKET_PRICE, DEFAULT_RAFFLE_TICKETS_TOTAL } from '../../../core/helpers/constants/my-raffles-constants';
+import { AuthService } from '../../../core/services/api/auth.service';
+import { Raffle } from '../../../core/interfaces/api/raffle.interface';
+import { Ticket, BuyerInfo } from '../../../core/interfaces/api/ticket.interface';
+import {
+  DEFAULT_RAFFLE_TICKET_PRICE,
+  DEFAULT_RAFFLE_TICKETS_TOTAL,
+} from '../../../core/helpers/global/raffle.constants';
 
 @Component({
   selector: 'app-edit-tickets-modal',
@@ -14,20 +18,30 @@ import { DEFAULT_RAFFLE_TICKET_PRICE, DEFAULT_RAFFLE_TICKETS_TOTAL } from '../..
 })
 export class EditTicketsModal implements OnChanges {
   @Input() raffle: Raffle | null = null;
+  @Input() mode: 'rifas' | 'sorteos' = 'rifas';
   @Output() save = new EventEmitter<Raffle>();
 
-  boletos: Ticket[] = [];
+  private readonly authService = inject(AuthService);
+  userRole = this.authService.getUserRole();
+
+  tickets: Ticket[] = [];
   selectedTicket: Ticket | null = null;
-  buscarIdCompra = '';
+  searchPurchaseId = '';
 
   showOptions = false;
+  unlinkedLogs: { number: string; user: string; purchaseId: string }[] = [];
+  showConfirmModal = false;
+  unlinkReason = '';
 
-  nombreComprador = '';
-  boletosComprados: number | null = null;
-  correoElectronico = '';
-  todosNumerosAsociados = '';
-  numeroTelefono = '';
-  fechaCompra = '';
+  buyerName = '';
+  ticketsPurchased: number | null = null;
+  buyerEmail = '';
+  allAssociatedNumbers = '';
+  buyerPhone = '';
+  purchaseDate = '';
+
+  winnerTicketNumber: string | null = null;
+  winnerBuyer: BuyerInfo | null = null;
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['raffle']) {
@@ -39,59 +53,74 @@ export class EditTicketsModal implements OnChanges {
     this.showOptions = !this.showOptions;
   }
 
+  establecerComoGanador() {
+    if (!this.selectedTicket || !this.selectedTicket.buyer) return;
+    this.winnerTicketNumber = this.selectedTicket.number;
+    this.winnerBuyer = this.selectedTicket.buyer;
+
+    this.tickets.forEach((b) => {
+      if (b.status === 'winner') {
+        b.status = 'selected';
+      }
+    });
+    this.selectedTicket.status = 'winner';
+
+    this.showOptions = false;
+  }
+
   initializeTickets() {
     this.selectedTicket = null;
-    this.buscarIdCompra = '';
+    this.searchPurchaseId = '';
     this.clearForm();
+    this.unlinkedLogs = [];
+    this.showConfirmModal = false;
+    this.unlinkReason = '';
+    this.winnerTicketNumber = this.raffle?.winner || null;
+    this.winnerBuyer = null;
 
     const raffle = this.raffle;
     if (!raffle) {
-      this.boletos = [];
+      this.tickets = [];
       return;
     }
 
-    if (raffle.boletos && Array.isArray(raffle.boletos)) {
-      this.boletos = JSON.parse(JSON.stringify(raffle.boletos));
-      this.boletos.forEach((b) => {
-        if (b.estado === 'ganador') {
-          b.estado = 'seleccionado';
-        }
-      });
+    if (raffle.tickets && Array.isArray(raffle.tickets)) {
+      this.tickets = JSON.parse(JSON.stringify(raffle.tickets));
       return;
     }
 
-    const count = raffle.boletosTotales || 100;
+    const count = raffle.totalTickets || 100;
 
     const mockBuyer: BuyerInfo = {
       id: 'COMPRA-123',
-      nombre: raffle.ganadorName || 'Paco Briones Macias',
-      correo: raffle.ganadorEmail || 'example@gmail.com',
-      telefono: raffle.ganadorPhone || '0998452318',
-      fechaCompra: '12/05/2026',
-      boletos: ['05', '07', '14'],
+      name: raffle.winnerName || 'Paco Briones Macias',
+      email: raffle.winnerEmail || 'example@gmail.com',
+      phone: raffle.winnerPhone || '0998452318',
+      purchaseDate: '12/05/2026',
+      tickets: ['05', '07', '14'],
     };
 
-    this.boletos = Array.from({ length: count }, (_, i) => {
+    this.tickets = Array.from({ length: count }, (_, i) => {
       const numStr = (i + 1).toString().padStart(2, '0');
-      let estado: 'disponible' | 'seleccionado' | 'ganador' = 'disponible';
+      let status: 'available' | 'selected' | 'winner' = 'available';
       let buyer: BuyerInfo | undefined;
 
-      if (mockBuyer.boletos.includes(numStr)) {
-        estado = 'seleccionado';
+      if (mockBuyer.tickets.includes(numStr)) {
+        status = numStr === raffle.winner ? 'winner' : 'selected';
         buyer = mockBuyer;
-      } else if (numStr === raffle.ganador && raffle.ganador) {
-        estado = 'seleccionado';
+      } else if (numStr === raffle.winner && raffle.winner) {
+        status = 'winner';
         buyer = {
           id: 'COMPRA-123',
-          nombre: raffle.ganadorName || 'Ganador Oficial',
-          correo: raffle.ganadorEmail || 'ganador@gmail.com',
-          telefono: raffle.ganadorPhone || '0999999999',
-          fechaCompra: '14/05/2026',
-          boletos: [numStr],
+          name: raffle.winnerName || 'Ganador Oficial',
+          email: raffle.winnerEmail || 'ganador@gmail.com',
+          phone: raffle.winnerPhone || '0999999999',
+          purchaseDate: '14/05/2026',
+          tickets: [numStr],
         };
       }
 
-      return { numero: numStr, estado, buyer };
+      return { number: numStr, status, buyer };
     });
   }
 
@@ -105,43 +134,43 @@ export class EditTicketsModal implements OnChanges {
   }
 
   loadBuyer(buyer: BuyerInfo) {
-    this.nombreComprador = buyer.nombre;
-    this.boletosComprados = buyer.boletos.length;
-    this.correoElectronico = buyer.correo;
-    this.todosNumerosAsociados = buyer.boletos.map((num) => `[${num}]`).join(' ');
-    this.numeroTelefono = buyer.telefono;
-    this.fechaCompra = buyer.fechaCompra;
+    this.buyerName = buyer.name;
+    this.ticketsPurchased = buyer.tickets.length;
+    this.buyerEmail = buyer.email;
+    this.allAssociatedNumbers = buyer.tickets.map((num) => `[${num}]`).join(' ');
+    this.buyerPhone = buyer.phone;
+    this.purchaseDate = buyer.purchaseDate;
   }
 
   clearForm() {
-    this.nombreComprador = '';
-    this.boletosComprados = null;
-    this.correoElectronico = '';
-    this.todosNumerosAsociados = '';
-    this.numeroTelefono = '';
-    this.fechaCompra = '';
+    this.buyerName = '';
+    this.ticketsPurchased = null;
+    this.buyerEmail = '';
+    this.allAssociatedNumbers = '';
+    this.buyerPhone = '';
+    this.purchaseDate = '';
     this.showOptions = false;
   }
 
   buscarCompra() {
-    const query = this.buscarIdCompra.toUpperCase().trim();
+    const query = this.searchPurchaseId.toUpperCase().trim();
     if (!query) {
       this.selectedTicket = null;
       this.clearForm();
       return;
     }
 
-    const found = this.boletos.find((b) => {
+    const found = this.tickets.find((b) => {
       if (!b.buyer) return false;
       const id = (b.buyer.id || '').toUpperCase();
-      const nombre = (b.buyer.nombre || '').toUpperCase();
-      const correo = (b.buyer.correo || '').toUpperCase();
-      const telefono = b.buyer.telefono || '';
+      const name = (b.buyer.name || '').toUpperCase();
+      const email = (b.buyer.email || '').toUpperCase();
+      const phone = b.buyer.phone || '';
       return (
         id.includes(query) ||
-        nombre.includes(query) ||
-        correo.includes(query) ||
-        telefono.includes(query)
+        name.includes(query) ||
+        email.includes(query) ||
+        phone.includes(query)
       );
     });
 
@@ -157,18 +186,24 @@ export class EditTicketsModal implements OnChanges {
     if (!this.selectedTicket || !this.selectedTicket.buyer) return;
 
     const buyer = this.selectedTicket.buyer;
-    const numToUnlink = this.selectedTicket.numero;
+    const numToUnlink = this.selectedTicket.number;
 
-    buyer.boletos = buyer.boletos.filter((num) => num !== numToUnlink);
+    this.unlinkedLogs.push({
+      number: numToUnlink,
+      user: buyer.name,
+      purchaseId: buyer.id,
+    });
 
-    this.selectedTicket.estado = 'disponible';
+    buyer.tickets = buyer.tickets.filter((num) => num !== numToUnlink);
+
+    this.selectedTicket.status = 'available';
     delete this.selectedTicket.buyer;
-    if (buyer.boletos.length > 0) {
-      this.boletos.forEach((b) => {
+    if (buyer.tickets.length > 0) {
+      this.tickets.forEach((b) => {
         if (b.buyer && b.buyer.id === buyer.id) {
           b.buyer = buyer;
-          if (b.numero === numToUnlink) {
-            b.estado = 'disponible';
+          if (b.number === numToUnlink) {
+            b.status = 'available';
             delete b.buyer;
           }
         }
@@ -185,9 +220,15 @@ export class EditTicketsModal implements OnChanges {
     if (!this.selectedTicket || !this.selectedTicket.buyer) return;
 
     const buyerId = this.selectedTicket.buyer.id;
-    this.boletos.forEach((b) => {
+    const buyerName = this.selectedTicket.buyer.name;
+    this.tickets.forEach((b) => {
       if (b.buyer && b.buyer.id === buyerId) {
-        b.estado = 'disponible';
+        this.unlinkedLogs.push({
+          number: b.number,
+          user: buyerName,
+          purchaseId: buyerId,
+        });
+        b.status = 'available';
         delete b.buyer;
       }
     });
@@ -197,21 +238,66 @@ export class EditTicketsModal implements OnChanges {
     this.showOptions = false;
   }
 
+  get hasWinnerChanged(): boolean {
+    return this.winnerTicketNumber !== (this.raffle?.winner || null);
+  }
+
+  onSaveClick() {
+    if (this.hasWinnerChanged || this.unlinkedLogs.length > 0) {
+      this.showConfirmModal = true;
+    } else {
+      this.confirmSubmit();
+    }
+  }
+
+  cancelConfirm() {
+    this.showConfirmModal = false;
+  }
+
+  confirmSubmit() {
+    this.showConfirmModal = false;
+    this.onSubmit();
+    document.getElementById('btn-cerrar-modal-editar-boletos')?.click();
+  }
+
   onSubmit() {
     const raffle = this.raffle;
     if (!raffle) return;
 
-    const soldCount = this.boletos.filter((b) => b.estado !== 'disponible').length;
+    const soldCount = this.tickets.filter((b) => b.status !== 'available').length;
     const newRecaudado = soldCount * (raffle.ticketPrice || DEFAULT_RAFFLE_TICKET_PRICE);
+
+    const existingLogs = raffle.unlinks || [];
+    const now = new Date();
+    const formattedDate = `${now.getDate().toString().padStart(2, '0')}/${(now.getMonth() + 1).toString().padStart(2, '0')}/${now.getFullYear()} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+
+    const newLogs = this.unlinkedLogs.map((log) => ({
+      number: log.number,
+      user: log.user,
+      purchaseId: log.purchaseId,
+      reason: this.unlinkReason.trim(),
+      date: formattedDate,
+    }));
 
     const updatedRaffle: Raffle = {
       ...raffle,
-      boletos: this.boletos,
-      boletosVendidos: soldCount,
-      recaudado: newRecaudado,
-      boletosVendidosStr: `${soldCount}/${raffle.boletosTotales || DEFAULT_RAFFLE_TICKETS_TOTAL}`,
-      recaudadoStr: raffle.meta ? `${newRecaudado}/${raffle.meta} $` : `${newRecaudado}$`,
+      tickets: this.tickets,
+      soldTickets: soldCount,
+      collected: newRecaudado,
+      soldTicketsStr: `${soldCount}/${raffle.totalTickets || DEFAULT_RAFFLE_TICKETS_TOTAL}`,
+      collectedStr: raffle.goal ? `${newRecaudado}/${raffle.goal} $` : `${newRecaudado}$`,
+      unlinks: [...existingLogs, ...newLogs],
     };
+
+    if (this.winnerTicketNumber) {
+      updatedRaffle.winner = this.winnerTicketNumber;
+      if (this.winnerBuyer) {
+        updatedRaffle.winnerName = this.winnerBuyer.name;
+        updatedRaffle.winnerEmail = this.winnerBuyer.email;
+        updatedRaffle.winnerPhone = this.winnerBuyer.phone;
+      }
+      updatedRaffle.status = 'FINALIZADA';
+    }
 
     this.save.emit(updatedRaffle);
   }

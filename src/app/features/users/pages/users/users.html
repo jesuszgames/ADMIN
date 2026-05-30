@@ -19,10 +19,30 @@
   </div>
 </div>
 
-<app-delete-modal [id]="'eliminar-user'" (confirmDelete)="confirmarEliminar()"></app-delete-modal>
+<app-delete-modal [id]="'eliminar-user'" (confirmDelete)="confirmarEliminar($event)"></app-delete-modal>
 <button
   id="btn-abrir-modal-delete-user"
   data-bs-toggle="modal"
   data-bs-target="#modal-eliminar-user"
   hidden
 ></button>
+
+<app-edit-user-modal
+  [user]="selectedUserForEdit"
+  [isReadOnly]="isReadOnlyView"
+  (save)="onSaveUser($event)"
+></app-edit-user-modal>
+<button
+  id="btn-abrir-modal-edit-user"
+  data-bs-toggle="modal"
+  data-bs-target="#modalEditarUsuario"
+  hidden
+></button>
+
+<app-confirm-changes-modal
+  [title]="'Confirmar Cambio de Estado'"
+  [changes]="changesToConfirm"
+  [isOpen]="showConfirmModal"
+  (confirm)="confirmarCambioEstado()"
+  (cancel)="cancelarCambioEstado()"
+></app-confirm-changes-modal>

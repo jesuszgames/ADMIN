@@ -1,0 +1,102 @@
+<div class="modal fade" id="modalEditarUsuario" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content custom-modal-bg border-secondary border-opacity-25 rounded-3 shadow-lg">
+      <div class="modal-body p-4 p-md-5 pb-3">
+        <h3 class="text-white fw-bold mb-4 fs-4">
+          {{ isReadOnly ? 'Detalle de Usuario' : 'Editar Usuario' }}
+        </h3>
+
+        @if (isReadOnly && deleteReason) {
+          <div class="alert alert-danger border-danger border-opacity-25 bg-danger bg-opacity-10 text-danger rounded-3 p-3 mb-4 d-flex align-items-start gap-2">
+            <i class="bi bi-exclamation-octagon-fill fs-5 lh-1"></i>
+            <div>
+              <strong class="d-block mb-1 text-uppercase fs-7">Usuario Eliminado</strong>
+              <span class="fs-7"><strong>Razón de la eliminación:</strong> {{ deleteReason }}</span>
+            </div>
+          </div>
+        }
+
+        <div class="row g-3">
+          <div class="col-md-6 col-12">
+            <label class="form-label text-white-50 text-uppercase fs-7 mb-2">Nombre Completo</label>
+            <input
+              type="text"
+              class="form-control custom-dark-input py-2"
+              [(ngModel)]="name"
+              placeholder="Ej. Juan Pérez"
+              [disabled]="isReadOnly"
+              required
+            />
+          </div>
+
+          <div class="col-md-6 col-12">
+            <label class="form-label text-white-50 text-uppercase fs-7 mb-2">Correo Electrónico</label>
+            <input
+              type="email"
+              class="form-control custom-dark-input py-2"
+              [(ngModel)]="email"
+              placeholder="Ej. juan@correo.com"
+              [disabled]="isReadOnly"
+              required
+            />
+          </div>
+
+          <div class="col-md-6 col-12">
+            <label class="form-label text-white-50 text-uppercase fs-7 mb-2">Teléfono</label>
+            <input
+              type="text"
+              class="form-control custom-dark-input py-2"
+              [(ngModel)]="phone"
+              placeholder="Ej. 0998765432"
+              [disabled]="isReadOnly"
+              required
+            />
+          </div>
+
+          <div class="col-md-6 col-12">
+            <label class="form-label text-white-50 text-uppercase fs-7 mb-2">Rol de Usuario</label>
+            <select
+              class="form-select custom-dark-input py-2"
+              [(ngModel)]="role"
+              [disabled]="isReadOnly"
+              required
+            >
+              <option value="ADMIN">ADMIN</option>
+              <option value="SORTEADOR">SORTEADOR</option>
+              <option value="USUARIO">USUARIO</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer border-0 pt-0 pe-4 pe-md-5 pb-4 pb-md-5 justify-content-end gap-3">
+        <button
+          type="button"
+          class="btn px-4 py-2 rounded-3 text-uppercase fs-7 custom-btn-secondary"
+          data-bs-dismiss="modal"
+        >
+          {{ isReadOnly ? 'Cerrar' : 'Cancelar' }}
+        </button>
+        @if (!isReadOnly) {
+          <button
+            type="button"
+            class="btn px-4 py-2 rounded-3 text-uppercase fs-7 custom-btn-primary"
+            [disabled]="!isFormValid()"
+            (click)="onSaveClick()"
+          >
+            Guardar
+          </button>
+        }
+        <button id="btn-cerrar-modal-editar-usuario" data-bs-dismiss="modal" hidden></button>
+      </div>
+
+      <app-confirm-changes-modal
+        [title]="'Confirmar Cambios en Usuario'"
+        [changes]="cambios"
+        [isOpen]="showConfirmModal"
+        (confirm)="confirmSubmit()"
+        (cancel)="cancelConfirm()"
+      ></app-confirm-changes-modal>
+    </div>
+  </div>
+</div>

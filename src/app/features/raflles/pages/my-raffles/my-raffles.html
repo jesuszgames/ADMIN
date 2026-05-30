@@ -1,0 +1,98 @@
+<div class="container-fluid px-3 pt-5 pb-4 mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="m-0">Rifas activas</h3>
+  </div>
+  <div class="d-flex justify-content-between align-items-center">
+    <app-filter [options]="misFiltrosRifas" (onFilter)="filtrarPorCategoria($event)"></app-filter>
+    <app-main-button
+      [label]="'Crear Rifa'"
+      [icon]="'bi-plus'"
+      (click)="abrirCrearRifa()"
+    ></app-main-button>
+  </div>
+
+  <div class="row">
+    <div class="col-12">
+      <app-tables
+        [principalheader]="principalHeader"
+        [columns]="dashboardColumns"
+        [data]="tableData"
+        (actionClicked)="manejarAccion($event)"
+      >
+      </app-tables>
+    </div>
+  </div>
+</div>
+
+<app-delete-modal [id]="'eliminar-rifa'" (confirmDelete)="confirmarEliminar($event)"></app-delete-modal>
+<button
+  id="btn-abrir-modal-delete-raffle"
+  data-bs-toggle="modal"
+  data-bs-target="#modal-eliminar-rifa"
+  hidden
+></button>
+
+<button
+  id="btn-abrir-modal-create-raffle"
+  data-bs-toggle="modal"
+  data-bs-target="#modalCrearRifa"
+  hidden
+></button>
+<app-create-raffle-modal
+  [raffle]="selectedRaffleForEdit"
+  [isReadOnly]="isReadOnlyView"
+  (save)="onSaveRaffle($event)"
+></app-create-raffle-modal>
+
+<button
+  id="btn-abrir-modal-edit-tickets"
+  data-bs-toggle="modal"
+  data-bs-target="#modalEditarBoletos"
+  hidden
+></button>
+<app-edit-tickets-modal
+  [raffle]="selectedRaffleForTickets"
+  [mode]="'rifas'"
+  (save)="onSaveTickets($event)"
+></app-edit-tickets-modal>
+
+<button
+  id="btn-abrir-modal-unlink-logs"
+  data-bs-toggle="modal"
+  data-bs-target="#modalVerDesvinculaciones"
+  hidden
+></button>
+
+<div class="modal fade" id="modalVerDesvinculaciones" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div
+      class="modal-content custom-modal-bg border-secondary border-opacity-25 rounded-3 shadow-lg"
+    >
+      <div class="modal-header border-0 pb-0 pt-4 px-4 px-md-5 d-flex justify-content-between align-items-center">
+        <h5 class="modal-title text-white fw-bold">Bitácora de Desvinculaciones</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-4 p-md-5 pt-3 pb-3">
+        <app-unlink-logs [raffleData]="selectedRaffleForLogs"></app-unlink-logs>
+      </div>
+      <div class="modal-footer border-0 pt-0 pe-4 pe-md-5 pb-4 pb-md-5 justify-content-end">
+        <button
+          type="button"
+          class="btn px-4 py-2 rounded-3 text-uppercase fs-7 custom-btn-secondary"
+          data-bs-dismiss="modal"
+        >
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-confirm-changes-modal
+  [title]="'Confirmar Cambio de Estado'"
+  [changes]="changesToConfirm"
+  [isOpen]="showConfirmModal"
+  (confirm)="confirmarCambioEstado()"
+  (cancel)="cancelarCambioEstado()"
+></app-confirm-changes-modal>
+

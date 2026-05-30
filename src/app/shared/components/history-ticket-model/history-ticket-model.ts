@@ -1,18 +1,18 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { Ticket } from '../../../core/interfaces/ticket.interface';
+import { Ticket } from '../../../core/interfaces/api/ticket.interface';
 
 
 export interface TicketHistoryData {
-  nombreGanador: string;
-  boletosComprados: number;
-  numerosAsociados: string;
-  correo: string;
-  boletoGanador: string;
-  telefono: string;
-  fechaUltimaCompra: string;
-  boletos: Ticket[];
+  winnerName: string;
+  ticketsPurchased: number;
+  associatedNumbers: string;
+  email: string;
+  winnerTicket: string;
+  phone: string;
+  lastPurchaseDate: string;
+  tickets: Ticket[];
 }
 
 @Component({

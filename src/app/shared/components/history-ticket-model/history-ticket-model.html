@@ -8,16 +8,16 @@
           <div class="col-lg-6">
             <h3 class="text-white fw-bold mb-4 fs-4">Historial Boletos</h3>
             <div class="ticket-grid">
-              @for (ticket of ticketData?.boletos; track ticket.numero) {
+              @for (ticket of ticketData?.tickets; track ticket.number) {
                 <button
                   type="button"
                   class="ticket-btn"
                   [ngClass]="{
-                    'ticket-seleccionado': ticket.estado === 'seleccionado',
-                    'ticket-ganador': ticket.estado === 'ganador',
+                    'ticket-seleccionado': ticket.status === 'selected',
+                    'ticket-ganador': ticket.status === 'winner',
                   }"
                 >
-                  {{ ticket.numero }}
+                  {{ ticket.number }}
                 </button>
               }
             </div>
@@ -32,7 +32,7 @@
                 <input
                   type="text"
                   class="form-control custom-dark-input py-2"
-                  [value]="ticketData?.nombreGanador"
+                  [value]="ticketData?.winnerName"
                   readonly
                 />
               </div>
@@ -47,7 +47,7 @@
                   <input
                     type="text"
                     class="form-control custom-dark-input border-end-0 py-2"
-                    [value]="ticketData?.boletosComprados"
+                    [value]="ticketData?.ticketsPurchased"
                     readonly
                   />
                   <span class="input-group-text custom-dark-addon border-start-0 text-white-50">
@@ -64,7 +64,7 @@
                   <input
                     type="text"
                     class="form-control custom-dark-input border-end-0 py-2"
-                    [value]="ticketData?.numerosAsociados"
+                    [value]="ticketData?.associatedNumbers"
                     readonly
                   />
                   <span class="input-group-text custom-dark-addon border-start-0 text-white-50">
@@ -83,7 +83,7 @@
                   <input
                     type="text"
                     class="form-control custom-dark-input border-end-0 py-2"
-                    [value]="ticketData?.correo"
+                    [value]="ticketData?.email"
                     readonly
                   />
                   <span class="input-group-text custom-dark-addon border-start-0 text-white-50">
@@ -100,7 +100,7 @@
                   <input
                     type="text"
                     class="form-control custom-dark-input border-end-0 py-2"
-                    [value]="ticketData?.boletoGanador"
+                    [value]="ticketData?.winnerTicket"
                     readonly
                   />
                   <span class="input-group-text custom-dark-addon border-start-0 text-white-50">
@@ -119,7 +119,7 @@
                   <input
                     type="text"
                     class="form-control custom-dark-input border-end-0 py-2"
-                    [value]="ticketData?.telefono"
+                    [value]="ticketData?.phone"
                     readonly
                   />
                   <span class="input-group-text custom-dark-addon border-start-0 text-white-50">
@@ -136,7 +136,7 @@
                   <input
                     type="text"
                     class="form-control custom-dark-input border-end-0 py-2"
-                    [value]="ticketData?.fechaUltimaCompra"
+                    [value]="ticketData?.lastPurchaseDate"
                     readonly
                   />
                   <span class="input-group-text custom-dark-addon border-start-0 text-white-50">

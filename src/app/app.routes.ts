@@ -6,8 +6,7 @@ import { guestGuard } from './core/guards/guest.guard';
 export const routes: Routes = [
   {
     path: 'login',
-    loadComponent: () =>
-      import('./features/auth/pages/login/login').then((m) => m.LoginComponent),
+    loadComponent: () => import('./features/auth/pages/login/login').then((m) => m.LoginComponent),
     canActivate: [guestGuard],
   },
   {
@@ -23,7 +22,7 @@ export const routes: Routes = [
   {
     path: 'raffles',
     loadComponent: () =>
-      import('./features/rifas/pages/my-raffles/my-raffles').then((m) => m.Raffles),
+      import('./features/raflles/pages/my-raffles/my-raffles').then((m) => m.Raffles),
     canActivate: [authGuard],
   },
   {
@@ -46,6 +45,11 @@ export const routes: Routes = [
   {
     path: 'history',
     loadComponent: () => import('./features/history/page/history/history').then((m) => m.History),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'draws',
+    loadComponent: () => import('./features/draws/pages/draws/draws').then((m) => m.Draws),
     canActivate: [authGuard],
   },
   {

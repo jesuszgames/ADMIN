@@ -27,7 +27,7 @@
 
 <app-delete-modal
   [id]="'eliminar-categoria'"
-  (confirmDelete)="confirmarEliminar()"
+  (confirmDelete)="confirmarEliminar($event)"
 ></app-delete-modal>
 <button
   id="btn-abrir-modal-delete-category"
@@ -38,6 +38,7 @@
 
 <app-create-category-modal
   [category]="selectedCategoryForEdit"
+  [isReadOnly]="isReadOnlyView"
   (save)="onSaveCategory($event)"
 ></app-create-category-modal>
 <button
@@ -46,3 +47,11 @@
   data-bs-target="#modalCrearCategoria"
   hidden
 ></button>
+
+<app-confirm-changes-modal
+  [title]="'Confirmar Cambio de Estado'"
+  [changes]="changesToConfirm"
+  [isOpen]="showConfirmModal"
+  (confirm)="confirmarCambioEstado()"
+  (cancel)="cancelarCambioEstado()"
+></app-confirm-changes-modal>

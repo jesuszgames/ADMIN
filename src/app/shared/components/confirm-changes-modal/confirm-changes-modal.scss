@@ -1,0 +1,175 @@
+@use '../../../../assets/scss/utils/variables' as var;
+
+/* Confirmation Modal Overlay */
+.confirm-modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(13, 17, 23, 0.85);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  border-radius: 8px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.confirm-modal-content {
+  background-color: var.$container-bg;
+  border: 1px solid var.$option-hover-bg;
+  width: 90%;
+  max-width: 480px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+  animation: scaleUp 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.unlinked-list {
+  max-height: 180px;
+  overflow-y: auto;
+  background-color: var.$background;
+  border: 1px solid var.$input-border;
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+
+  // Custom scrollbar
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: var.$option-hover-bg;
+    border-radius: 3px;
+    &:hover {
+      background: var.$option-hover-border;
+    }
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleUp {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Change items formatting */
+.change-item {
+  background-color: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  padding: 0.65rem 0.85rem;
+  display: flex;
+  flex-direction: column;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+}
+
+.change-field-label {
+  color: var.$secondary-text;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+}
+
+.change-value-old {
+  color: #ef5350;
+  text-decoration: line-through;
+  font-size: 0.82rem;
+  flex-grow: 1;
+  max-width: 45%;
+  opacity: 0.85;
+}
+
+.change-value-new {
+  color: #66bb6a;
+  font-weight: 600;
+  font-size: 0.82rem;
+  flex-grow: 1;
+  max-width: 45%;
+}
+
+.change-value-old-stacked {
+  color: #ef5350;
+  text-decoration: line-through;
+  font-size: 0.82rem;
+  word-break: break-word;
+  white-space: pre-wrap;
+  background-color: rgba(239, 83, 80, 0.05);
+  border-left: 2px solid #ef5350;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0 4px 4px 0;
+  line-height: 1.4;
+}
+
+.change-value-new-stacked {
+  color: #66bb6a;
+  font-weight: 600;
+  font-size: 0.82rem;
+  word-break: break-word;
+  white-space: pre-wrap;
+  background-color: rgba(102, 187, 106, 0.05);
+  border-left: 2px solid #66bb6a;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0 4px 4px 0;
+  line-height: 1.4;
+}
+
+.change-arrow {
+  color: var.$secondary-text;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+}
+
+.custom-btn-secondary {
+  background-color: transparent;
+  color: var.$primary-text;
+  border: 1px solid var.$hover-cancel-button;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  transition: all 0.2s ease;
+
+  &:hover,
+  &:focus {
+    background-color: var.$hover-cancel-button;
+    color: var.$primary-text;
+  }
+}
+
+.custom-btn-primary {
+  background-color: var.$button-success-bg;
+  color: var.$button-success;
+  border: 1px solid var.$button-success;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled),
+  &:focus:not(:disabled) {
+    background-color: var.$button-success;
+    color: #fff;
+  }
+}

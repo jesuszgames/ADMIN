@@ -1,0 +1,107 @@
+<div class="unlink-logs-container text-white">
+  <!-- Stats & Search Row -->
+  <div
+    class="d-flex flex-column flex-md-row justify-content-between align-items-stretch align-items-md-center gap-3 mb-4"
+  >
+    <!-- Stats Summary -->
+    <div class="d-flex align-items-center gap-3">
+      <div class="stat-badge d-flex align-items-center gap-2 px-3 py-2 rounded-3">
+        <i class="bi bi-ticket-detailed text-danger"></i>
+        <span
+          >Total Desvinculados:
+          <strong class="text-white">{{ totalUnlinks }}</strong></span
+        >
+      </div>
+      <div class="stat-badge d-flex align-items-center gap-2 px-3 py-2 rounded-3">
+        <i class="bi bi-people text-primary"></i>
+        <span
+          >Usuarios Afectados: <strong class="text-white">{{ uniqueUsersCount }}</strong></span
+        >
+      </div>
+    </div>
+
+    <div class="search-box-wrapper flex-grow-1" style="max-width: 450px">
+      <div class="input-group">
+        <span class="input-group-text search-icon-addon">
+          <i class="bi bi-search"></i>
+        </span>
+        <input
+          type="text"
+          class="form-control search-input"
+          placeholder="Buscar por boleto, comprador, ID o motivo..."
+          [(ngModel)]="searchTerm"
+        />
+        @if (searchTerm) {
+          <button class="btn clear-search-btn" type="button" (click)="searchTerm = ''">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        }
+      </div>
+    </div>
+  </div>
+
+  @if (filteredLogs.length) {
+    <div class="table-responsive rounded-3" style="max-height: 500px; overflow-y: auto">
+      <table class="table table-hover align-middle mb-0 custom-table">
+        <thead>
+          <tr>
+            <th scope="col" class="px-4">Boleto</th>
+            <th scope="col" class="px-3">Fecha y Hora</th>
+            <th scope="col" class="px-3">Usuario / ID Compra</th>
+            <th scope="col" class="px-4">Motivo de Desvinculación</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (log of filteredLogs; track log.number + log.date) {
+            <tr>
+              <td class="px-4">
+                <span class="ticket-badge">
+                   <i class="bi bi-ticket-perforated"></i> Boleto {{ log.number }}
+                </span>
+              </td>
+              <td class="px-3">
+                <span class="timestamp d-inline-flex align-items-center gap-1.5">
+                  <i class="bi bi-clock"></i> {{ log.date }}
+                </span>
+              </td>
+              <td class="px-3">
+                <div class="d-flex flex-column">
+                  <span class="fw-semibold text-white">{{ log.user }}</span>
+                  <span class="text-white-50" style="font-size: 0.7rem"
+                    >ID: {{ log.purchaseId }}</span
+                  >
+                </div>
+              </td>
+              <td class="px-4">
+                <div class="reason-section">
+                  <span>{{ log.reason }}</span>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  } @else {
+    <div
+      class="no-logs-wrapper text-center py-5 rounded-3 d-flex flex-column justify-content-center align-items-center"
+    >
+      <div class="no-logs-icon mb-3">
+        <i class="bi bi-clipboard2-x fs-1 text-white-50"></i>
+      </div>
+      <h5 class="text-white fw-semibold mb-1">No se encontraron registros</h5>
+      <p class="text-white-50 fs-7 mb-0">
+        No hay desvinculaciones registradas o no coinciden con la búsqueda.
+      </p>
+      @if (searchTerm) {
+        <button
+          class="btn btn-sm btn-outline-secondary mt-3 px-3"
+          type="button"
+          (click)="searchTerm = ''"
+        >
+          Limpiar búsqueda
+        </button>
+      }
+    </div>
+  }
+</div>

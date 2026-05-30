@@ -42,3 +42,29 @@
     object-fit: cover;
   }
 }
+
+.header-status {
+  display: flex;
+  align-items: center;
+  margin-right: 24px;
+
+  .status-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease;
+
+    &--online {
+      background-color: #198754;
+      opacity: 1;
+      box-shadow: 0 0 8px #198754;
+    }
+
+    &--offline {
+      background-color: #dc3545;
+      opacity: 0.5;
+      box-shadow: none;
+    }
+  }
+}
+

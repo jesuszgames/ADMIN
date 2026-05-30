@@ -27,7 +27,7 @@
 
 <app-delete-modal
   [id]="'eliminar-fundacion'"
-  (confirmDelete)="confirmarEliminar()"
+  (confirmDelete)="confirmarEliminar($event)"
 ></app-delete-modal>
 <button
   id="btn-abrir-modal-delete-foundation"
@@ -38,6 +38,7 @@
 
 <app-create-foundation-modal
   [foundation]="selectedFoundationForEdit"
+  [isReadOnly]="isReadOnlyView"
   (save)="onSaveFoundation($event)"
 ></app-create-foundation-modal>
 <button
@@ -46,3 +47,11 @@
   data-bs-target="#modalCrearFundacion"
   hidden
 ></button>
+
+<app-confirm-changes-modal
+  [title]="'Confirmar Cambio de Estado'"
+  [changes]="changesToConfirm"
+  [isOpen]="showConfirmModal"
+  (confirm)="confirmarCambioEstado()"
+  (cancel)="cancelarCambioEstado()"
+></app-confirm-changes-modal>
