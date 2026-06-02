@@ -67,22 +67,28 @@ export class Categories implements OnInit {
 
   categoriesData: Category[] = [];
   tableData: Category[] = [];
+  loading: boolean = false;
 
   ngOnInit(): void {
     this.loadCategories();
   }
 
   loadCategories(): void {
+    this.loading = true;
+    this.cdr.detectChanges();
     this.categoryService.getAll().subscribe({
       next: (res) => {
         if (res && res.data) {
           this.categoriesData = res.data;
           this.tableData = this.getFilteredData(this.filtroActual);
-          this.cdr.detectChanges();
         }
+        this.loading = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('API Error: No se pudo cargar categorías del backend.', err);
+        this.loading = false;
+        this.cdr.detectChanges();
       },
     });
   }
@@ -90,6 +96,7 @@ export class Categories implements OnInit {
   filtrarPorCategoria(id: string): void {
     this.filtroActual = id;
     this.tableData = this.getFilteredData(id);
+    this.cdr.detectChanges();
   }
 
   abrirCrearCategoria(): void {

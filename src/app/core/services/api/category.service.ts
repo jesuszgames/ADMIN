@@ -9,7 +9,7 @@ import { environment } from '../../../../environments/environment';
 })
 export class CategoryService {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = `${environment.apiUrl}/category`;
+  private readonly apiUrl = `${environment.apiUrl}/adminpanel/category`;
 
   getAll(page?: number, limit?: number, search?: string): Observable<{ data: Category[] }> {
     let params = new HttpParams();
@@ -21,7 +21,7 @@ export class CategoryService {
       map((res) => ({
         ...res,
         data: res?.data?.result || (Array.isArray(res?.data) ? res.data : []),
-      }))
+      })),
     );
   }
 

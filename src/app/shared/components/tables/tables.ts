@@ -30,6 +30,7 @@ export class Tables<T extends Record<string, unknown> = Record<string, unknown>>
   @Input() principalheader: string = '';
   @Input() columns: TableColumn[] = [];
   @Input() data: T[] = [];
+  @Input() loading: boolean = false;
   @Input() pageSize: number = DEFAULT_PAGE_SIZE;
   @Input() currentPage: number = DEFAULT_CURRENT_PAGE;
   totalItems: number = 0;

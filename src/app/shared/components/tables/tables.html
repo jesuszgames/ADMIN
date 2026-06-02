@@ -21,40 +21,58 @@
     </thead>
 
     <tbody>
-      @for (row of pagedData; track row) {
-        <tr class="border-secondary">
-          @for (col of columns; track col.field) {
-            <td class="py-2 text-white" [class.text-center]="isCenteredColumn(col.field, col.type)">
-              @if (col.type === 'badge') {
-                <span [attr.class]="getBadgeClasses(row[col.field]) + ' badge-text'">
+      @if (loading) {
+        @for (item of [1, 2, 3, 4, 5]; track item) {
+          <tr class="border-secondary">
+            @for (col of columns; track col.field) {
+              <td class="py-3" [class.text-center]="isCenteredColumn(col.field, col.type)">
+                @if (col.type === 'actions') {
+                  <div class="skeleton-cell" style="width: 30px;"></div>
+                } @else if (col.type === 'badge') {
+                  <div class="skeleton-cell" style="width: 70px; height: 24px; border-radius: 6px;"></div>
+                } @else {
+                  <div class="skeleton-cell"></div>
+                }
+              </td>
+            }
+          </tr>
+        }
+      } @else {
+        @for (row of pagedData; track row) {
+          <tr class="border-secondary">
+            @for (col of columns; track col.field) {
+              <td class="py-2 text-white" [class.text-center]="isCenteredColumn(col.field, col.type)">
+                @if (col.type === 'badge') {
+                  <span [attr.class]="getBadgeClasses(row[col.field]) + ' badge-text'">
+                    {{ row[col.field] }}
+                  </span>
+                } @else if (col.type === 'actions') {
+                  <app-dropdown
+                    [valueLabel]="'•••'"
+                    [listActions]="getRowActions(row)"
+                    (actionSelected)="onActionSelect($event, row)"
+                  >
+                  </app-dropdown>
+                } @else if (col.type === 'icon-text') {
+                  <div class="d-flex align-items-center gap-2">
+                    @if (row[col.iconField || 'icon']) {
+                      <i [class]="row[col.iconField || 'icon'] + ' text-secondary'"></i>
+                    }
+                    <span>{{ row[col.field] }}</span>
+                  </div>
+                } @else {
                   {{ row[col.field] }}
-                </span>
-              } @else if (col.type === 'actions') {
-                <app-dropdown
-                  [valueLabel]="'•••'"
-                  [listActions]="getRowActions(row)"
-                  (actionSelected)="onActionSelect($event, row)"
-                >
-                </app-dropdown>
-              } @else if (col.type === 'icon-text') {
-                <div class="d-flex align-items-center gap-2">
-                  @if (row[col.iconField || 'icon']) {
-                    <i [class]="row[col.iconField || 'icon'] + ' text-secondary'"></i>
-                  }
-                  <span>{{ row[col.field] }}</span>
-                </div>
-              } @else {
-                {{ row[col.field] }}
-              }
+                }
+              </td>
+            }
+          </tr>
+        } @empty {
+          <tr>
+            <td [attr.colspan]="columns.length" class="text-center py-4 text-muted">
+              No se encontraron registros.
             </td>
-          }
-        </tr>
-      } @empty {
-        <tr>
-          <td [attr.colspan]="columns.length" class="text-center py-4 text-muted">
-            No se encontraron registros.
-          </td>
-        </tr>
+          </tr>
+        }
       }
     </tbody>
   </table>
