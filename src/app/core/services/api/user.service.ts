@@ -16,6 +16,20 @@ export interface BackendUserPayload {
   [key: string]: unknown;
 }
 
+export interface ApiResponseEnvelope<T> {
+  statusCode: number;
+  status: string;
+  message: string;
+  data: T;
+}
+
+export interface PaginatedResult<T> {
+  result: T[];
+  totalCount: number;
+  page?: number;
+  totalPages?: number;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -29,30 +43,30 @@ export class UserService {
     if (limit) params = params.set('limit', limit.toString());
     if (search) params = params.set('search', search);
 
-    return this.http.get<any>(`${this.apiUrl}/get-all`, { params }).pipe(
+    return this.http.get<ApiResponseEnvelope<PaginatedResult<User>>>(`${this.apiUrl}/get-all`, { params }).pipe(
       map((res) => ({
         ...res,
-        data: res?.data?.result || (Array.isArray(res?.data) ? res.data : []),
+        data: res?.data?.result || [],
       })),
     );
   }
 
-  getOne(id: string): Observable<{ data: User }> {
-    return this.http.get<{ data: User }>(`${this.apiUrl}/get-one/${id}`);
+  getOne(id: string): Observable<ApiResponseEnvelope<User>> {
+    return this.http.get<ApiResponseEnvelope<User>>(`${this.apiUrl}/get-one/${id}`);
   }
 
-  create(user: Partial<User>): Observable<{ data: User }> {
+  create(user: Partial<User>): Observable<ApiResponseEnvelope<User>> {
     const backendUser = this.mapToBackend(user);
-    return this.http.post<{ data: User }>(`${this.apiUrl}/create`, backendUser);
+    return this.http.post<ApiResponseEnvelope<User>>(`${this.apiUrl}/create`, backendUser);
   }
 
-  update(id: string, user: Partial<User>): Observable<{ data: User }> {
+  update(id: string, user: Partial<User>): Observable<ApiResponseEnvelope<User>> {
     const backendUser = this.mapToBackend(user);
-    return this.http.put<{ data: User }>(`${this.apiUrl}/update/${id}`, backendUser);
+    return this.http.put<ApiResponseEnvelope<User>>(`${this.apiUrl}/update/${id}`, backendUser);
   }
 
-  deleteUser(id: string, deleteReason: string): Observable<{ data: User }> {
-    return this.http.delete<{ data: User }>(`${this.apiUrl}/delete/${id}`, {
+  deleteUser(id: string, deleteReason: string): Observable<ApiResponseEnvelope<User>> {
+    return this.http.delete<ApiResponseEnvelope<User>>(`${this.apiUrl}/delete/${id}`, {
       body: { deleteReason },
     });
   }

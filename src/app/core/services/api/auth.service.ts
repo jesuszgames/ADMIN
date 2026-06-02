@@ -13,6 +13,18 @@ import {
   VALUE_TRUE,
 } from '../../helpers/global/auth.constants';
 
+export interface AuthResponse {
+  statusCode: number;
+  status: string;
+  message: string;
+  data: {
+    _id: string;
+    username: string;
+    role: string[];
+    token: string;
+  };
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -62,8 +74,8 @@ export class AuthService {
     return this.safeGetItem(SESSION_STORAGE_KEY_LOGGED_IN) === VALUE_TRUE;
   }
 
-  login(username?: string, password?: string): Observable<any> {
-    return this.http.post<any>(`${environment.apiUrl}/auth/login`, { username, password }).pipe(
+  login(username?: string, password?: string): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${environment.apiUrl}/auth/login`, { username, password }).pipe(
       tap((res) => {
         const data = res.data;
         
