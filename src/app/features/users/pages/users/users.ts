@@ -65,7 +65,7 @@ export class Users implements OnInit {
     this.cdr.detectChanges();
     this.userService.getAll().subscribe({
       next: (res) => {
-        this.usersData = res.data.map((u: any) => {
+        this.usersData = res.data.map((u: User) => {
           let statusMapped = 'ACTIVO';
           const s = String(u.status || '').toUpperCase();
           if (s === 'ACTIVE' || s === 'ACTIVO') {

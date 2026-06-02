@@ -4,6 +4,18 @@ import { Observable, map } from 'rxjs';
 import { User } from '../../interfaces/api/user.interface';
 import { environment } from '../../../../environments/environment';
 
+export interface BackendUserPayload {
+  _id?: string;
+  username?: string;
+  password?: string;
+  role?: ('admin' | 'sort' | 'player')[];
+  name?: string;
+  email?: string;
+  phone?: string;
+  status?: 'ACTIVE' | 'INACTIVE' | 'DELETED';
+  [key: string]: unknown;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -45,20 +57,23 @@ export class UserService {
     });
   }
 
-  private mapToBackend(user: Partial<User>): any {
-    const mapped: any = { ...user };
-    if (mapped.role) {
-      const r = String(mapped.role).toUpperCase();
+  private mapToBackend(user: Partial<User>): BackendUserPayload {
+    const { role, status, ...rest } = user;
+    const mapped: BackendUserPayload = { ...rest };
+
+    if (role) {
+      const r = String(role).toUpperCase();
       if (r.includes('ADMIN')) {
-        mapped.role = ['admin'] as any;
+        mapped.role = ['admin'];
       } else if (r.includes('SORTEADOR') || r.includes('SORT')) {
-        mapped.role = ['sort'] as any;
+        mapped.role = ['sort'];
       } else {
-        mapped.role = ['player'] as any;
+        mapped.role = ['player'];
       }
     }
-    if (mapped.status) {
-      const s = String(mapped.status).toUpperCase();
+
+    if (status) {
+      const s = String(status).toUpperCase();
       if (s === 'ACTIVO' || s === 'ACTIVE') {
         mapped.status = 'ACTIVE';
       } else if (s === 'INACTIVO' || s === 'INACTIVE') {
@@ -67,6 +82,7 @@ export class UserService {
         mapped.status = 'DELETED';
       }
     }
+
     return mapped;
   }
 }
