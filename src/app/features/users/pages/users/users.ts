@@ -142,7 +142,7 @@ export class Users implements OnInit {
               },
             ];
             this.showConfirmModal = true;
-          } catch {}
+          } catch { }
         },
         [USER_ACTION_DELETE]: () => {
           this.userSeleccionadoParaBorrar = evento.row;
@@ -153,7 +153,7 @@ export class Users implements OnInit {
       const action = actions[evento.actionId];
       if (!action) throw new Error();
       action();
-    } catch {}
+    } catch { }
   }
 
   confirmarEliminar(razon: string) {
@@ -166,7 +166,7 @@ export class Users implements OnInit {
           this.userSeleccionadoParaBorrar = null;
         },
       });
-    } catch {}
+    } catch { }
   }
 
   confirmarCambioEstado() {
@@ -194,7 +194,7 @@ export class Users implements OnInit {
       if (index === -1) throw new Error();
       this.usersData[index] = { ...userData };
       this.tableData = this.getFilteredData(this.filtroActual);
-    } catch {}
+    } catch { }
     this.selectedUserForEdit = null;
   }
 
@@ -206,7 +206,7 @@ export class Users implements OnInit {
     try {
       if (filterId !== USER_FILTER_INACTIVE) throw new Error('Not inactive filter');
       filtered = filtered.filter((u) => u.status === USER_STATUS_INACTIVE);
-    } catch {}
+    } catch { }
     return filtered.map((user) => ({ ...user }));
   }
 }

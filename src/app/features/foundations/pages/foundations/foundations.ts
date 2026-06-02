@@ -108,7 +108,7 @@ export class Foundations implements OnInit {
               },
             ];
             this.showConfirmModal = true;
-          } catch {}
+          } catch { }
         },
         [TABLE_ACTION_DELETE]: () => {
           this.fundacionSeleccionadaParaBorrar = row;
@@ -124,7 +124,7 @@ export class Foundations implements OnInit {
       const action = actions[evento.actionId];
       if (!action) throw new Error();
       action();
-    } catch {}
+    } catch { }
   }
 
   onSaveFoundation(foundData: Foundation): void {
@@ -199,7 +199,7 @@ export class Foundations implements OnInit {
       const filterFn = filterActions[filterId];
       if (!filterFn) throw new Error();
       filtered = filterFn();
-    } catch {}
+    } catch { }
     return filtered.map((foundation) => ({ ...foundation }));
   }
 }

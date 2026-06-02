@@ -204,7 +204,7 @@ export class Dashboard implements OnInit {
       const action = actions[evento.actionId];
       if (!action) throw new Error();
       action();
-    } catch {}
+    } catch { }
   }
 
   confirmarEliminar(razon: string) {
@@ -223,7 +223,7 @@ export class Dashboard implements OnInit {
           try {
             if (!raffle.goal) throw new Error();
             recStr = `${raffle.collected}/${raffle.goal} $`;
-          } catch {}
+          } catch { }
           return {
             ...raffle,
             drawMethod: raffle.drawMethod || METHOD_AUTOMATIC,
@@ -232,7 +232,7 @@ export class Dashboard implements OnInit {
         });
       this.updateCardMetrics();
       this.rifaSeleccionadaParaBorrar = null;
-    } catch {}
+    } catch { }
   }
 
   onViewTicketDetails(raffle: Raffle) {

@@ -97,7 +97,7 @@ export class History {
       const action = actions[evento.actionId];
       if (!action) throw new Error();
       action();
-    } catch {}
+    } catch { }
   }
 
   confirmarEliminar(razon: string): void {
@@ -110,7 +110,7 @@ export class History {
       this.historyData[index].deleteReason = razon;
       this.tableData = this.getFilteredData(this.filtroActual);
       this.rifaSeleccionadaParaBorrar = null;
-    } catch {}
+    } catch { }
   }
 
   onViewTicketDetails(raffle: HistoryRaffle): void {
@@ -204,7 +204,7 @@ export class History {
       const filterFn = filterActions[filterId];
       if (!filterFn) throw new Error();
       filtered = filterFn();
-    } catch {}
+    } catch { }
 
     return filtered.map((raffle) => ({
       ...raffle,

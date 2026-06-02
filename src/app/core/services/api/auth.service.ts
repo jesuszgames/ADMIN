@@ -76,7 +76,7 @@ export class AuthService {
     return this.http.post<AuthResponse>(`${environment.apiUrl}/auth/login`, { username, password }).pipe(
       tap((res) => {
         const data = res.data;
-        
+
         let role: typeof ROLE_ADMIN | typeof ROLE_SORTEADOR | typeof ROLE_USUARIO = ROLE_ADMIN;
         if (data.role) {
           const roles = Array.isArray(data.role) ? data.role : [data.role];

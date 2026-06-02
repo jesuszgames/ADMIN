@@ -22,7 +22,7 @@ import {
 })
 export class Draws {
   principalHeader = 'Sorteos de Rifas';
-  
+
   columns: TableColumn[] = [
     { field: 'title', header: 'Nombre Rifa' },
     { field: 'foundation', header: 'Fundación' },
@@ -42,7 +42,7 @@ export class Draws {
 
   filtroActual = 'all';
   selectedRaffleForTickets: Raffle | null = null;
-  
+
   rifasData: Raffle[] = MY_RAFFLES_DATA_MOCK;
   tableData: Raffle[] = [];
 
@@ -73,7 +73,7 @@ export class Draws {
       try {
         if (!raffle.goal) throw new Error();
         recStr = `${raffle.collected}/${raffle.goal} $`;
-      } catch {}
+      } catch { }
 
       return {
         ...raffle,

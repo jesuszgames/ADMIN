@@ -123,7 +123,7 @@ export class Categories implements OnInit {
               },
             ];
             this.showConfirmModal = true;
-          } catch {}
+          } catch { }
         },
         [TABLE_ACTION_DELETE]: () => {
           this.categoriaSeleccionadaParaBorrar = row;
@@ -139,7 +139,7 @@ export class Categories implements OnInit {
       const action = actions[evento.actionId];
       if (!action) throw new Error();
       action();
-    } catch {}
+    } catch { }
   }
 
   onSaveCategory(catData: Category): void {
@@ -216,7 +216,7 @@ export class Categories implements OnInit {
       const filterFn = filterActions[filterId];
       if (!filterFn) throw new Error();
       filtered = filterFn();
-    } catch {}
+    } catch { }
     return filtered.map((category) => ({ ...category }));
   }
 }

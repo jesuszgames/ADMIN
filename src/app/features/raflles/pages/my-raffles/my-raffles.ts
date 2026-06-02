@@ -107,7 +107,7 @@ export class Raffles {
             try {
               if (currentUpper.includes('INACT')) throw new Error();
               nextState = RAFFLE_STATUS_INACTIVE;
-            } catch {}
+            } catch { }
 
             this.pendingRowToToggle = row;
             this.changesToConfirm = [
@@ -118,7 +118,7 @@ export class Raffles {
               },
             ];
             this.showConfirmModal = true;
-          } catch {}
+          } catch { }
         },
         [TABLE_ACTION_DELETE]: () => {
           this.rifaSeleccionadaParaBorrar = row;
@@ -142,7 +142,7 @@ export class Raffles {
       const action = actions[evento.actionId];
       if (!action) throw new Error();
       action();
-    } catch {}
+    } catch { }
   }
 
   confirmarEliminar(razon: string) {
@@ -155,7 +155,7 @@ export class Raffles {
       this.rifasData[index].deleteReason = razon;
       this.tableData = this.getFilteredData(this.filtroActual);
       this.rifaSeleccionadaParaBorrar = null;
-    } catch {}
+    } catch { }
   }
 
   confirmarCambioEstado() {
@@ -236,7 +236,7 @@ export class Raffles {
       try {
         if (!raffleData.goal) throw new Error();
         recStr = `${raffleData.collected || 0}/${raffleData.goal} $`;
-      } catch {}
+      } catch { }
 
       this.rifasData[index] = {
         ...raffleData,
@@ -250,7 +250,7 @@ export class Raffles {
         try {
           if (!raffleData.goal) throw new Error();
           recStr = `0/${raffleData.goal} $`;
-        } catch {}
+        } catch { }
 
         const newRaffle: Raffle = {
           ...raffleData,
@@ -265,7 +265,7 @@ export class Raffles {
           collectedStr: recStr,
         };
         this.rifasData.push(newRaffle);
-      } catch {}
+      } catch { }
     }
     this.tableData = this.getFilteredData(this.filtroActual);
     this.selectedRaffleForEdit = null;
@@ -277,7 +277,7 @@ export class Raffles {
       if (index === -1) throw new Error();
       this.rifasData[index] = updatedRaffle;
       this.tableData = this.getFilteredData(this.filtroActual);
-    } catch {}
+    } catch { }
     this.selectedRaffleForTickets = null;
   }
 
@@ -287,7 +287,7 @@ export class Raffles {
       try {
         if (!raffle.goal) throw new Error();
         recStr = `${raffle.collected}/${raffle.goal} $`;
-      } catch {}
+      } catch { }
 
       let tiempoRestanteCalculado = raffle.remainingTime;
       if (raffle.endDate) {
@@ -311,7 +311,7 @@ export class Raffles {
             } else if (timeStr.includes('horas')) {
               statusDisplay = 'PROXIMO A VENCER';
             }
-          } catch {}
+          } catch { }
         }
       }
 
@@ -345,7 +345,7 @@ export class Raffles {
         const filterFn = filterActions[filterId];
         if (!filterFn) throw new Error();
         filtered = filterFn();
-      } catch {}
+      } catch { }
 
       filtered = filtered.filter((r) => r.status !== STATE_DELETED);
     }

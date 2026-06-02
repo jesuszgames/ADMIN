@@ -61,7 +61,7 @@ export class Tables<T extends Record<string, unknown> = Record<string, unknown>>
       if (!shouldUpdate) throw new Error();
       this.currentPage = 1;
       this.updatePagedData();
-    } catch {}
+    } catch { }
   }
 
   updatePagedData(): void {
@@ -121,7 +121,7 @@ export class Tables<T extends Record<string, unknown> = Record<string, unknown>>
         }
         return filtered;
       }
-    } catch {}
+    } catch { }
     return this.rowActions;
   }
   isCenteredColumn(field: string, type?: string): boolean {
