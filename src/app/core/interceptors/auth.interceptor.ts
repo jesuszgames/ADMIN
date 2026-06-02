@@ -1,10 +1,15 @@
 import { HttpInterceptorFn } from '@angular/common/http';
+import { SESSION_STORAGE_KEY_TOKEN } from '../helpers/global/auth.constants';
+
+const HEADER_API_KEY = 'x-api-key';
+const HEADER_AUTHORIZATION = 'Authorization';
+const BEARER_PREFIX = 'Bearer ';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   let token: string | null = null;
   try {
     if (typeof window !== 'undefined' && window.localStorage) {
-      token = localStorage.getItem('token');
+      token = localStorage.getItem(SESSION_STORAGE_KEY_TOKEN);
     }
   } catch (e) {
     console.warn('authInterceptor: LocalStorage access block.', e);
@@ -13,8 +18,8 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   if (token) {
     const authReq = req.clone({
       setHeaders: {
-        'x-api-key': token,
-        'Authorization': `Bearer ${token}`
+        [HEADER_API_KEY]: token,
+        [HEADER_AUTHORIZATION]: `${BEARER_PREFIX}${token}`
       },
     });
     return next(authReq);
@@ -22,3 +27,4 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(req);
 };
+

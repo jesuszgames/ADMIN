@@ -3,16 +3,27 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { User } from '../../interfaces/api/user.interface';
 import { environment } from '../../../../environments/environment';
+import {
+  BACKEND_ROLE_ADMIN,
+  BACKEND_ROLE_SORT,
+  BACKEND_ROLE_PLAYER,
+  BACKEND_STATUS_ACTIVE,
+  BACKEND_STATUS_INACTIVE,
+  BACKEND_STATUS_DELETED,
+  ROLE_ADMIN,
+  ROLE_SORTEADOR,
+} from '../../helpers/global/auth.constants';
+import { USER_STATUS_ACTIVE, USER_STATUS_INACTIVE, STATE_DELETED } from '../../helpers/global/user.constants';
 
 export interface BackendUserPayload {
   _id?: string;
   username?: string;
   password?: string;
-  role?: ('admin' | 'sort' | 'player')[];
+  role?: (typeof BACKEND_ROLE_ADMIN | typeof BACKEND_ROLE_SORT | typeof BACKEND_ROLE_PLAYER)[];
   name?: string;
   email?: string;
   phone?: string;
-  status?: 'ACTIVE' | 'INACTIVE' | 'DELETED';
+  status?: typeof BACKEND_STATUS_ACTIVE | typeof BACKEND_STATUS_INACTIVE | typeof BACKEND_STATUS_DELETED;
   [key: string]: unknown;
 }
 
@@ -77,23 +88,23 @@ export class UserService {
 
     if (role) {
       const r = String(role).toUpperCase();
-      if (r.includes('ADMIN')) {
-        mapped.role = ['admin'];
-      } else if (r.includes('SORTEADOR') || r.includes('SORT')) {
-        mapped.role = ['sort'];
+      if (r.includes(ROLE_ADMIN)) {
+        mapped.role = [BACKEND_ROLE_ADMIN];
+      } else if (r.includes(ROLE_SORTEADOR) || r.includes('SORT')) {
+        mapped.role = [BACKEND_ROLE_SORT];
       } else {
-        mapped.role = ['player'];
+        mapped.role = [BACKEND_ROLE_PLAYER];
       }
     }
 
     if (status) {
       const s = String(status).toUpperCase();
-      if (s === 'ACTIVO' || s === 'ACTIVE') {
-        mapped.status = 'ACTIVE';
-      } else if (s === 'INACTIVO' || s === 'INACTIVE') {
-        mapped.status = 'INACTIVE';
-      } else if (s === 'ELIMINADO' || s === 'DELETED') {
-        mapped.status = 'DELETED';
+      if (s === USER_STATUS_ACTIVE || s === BACKEND_STATUS_ACTIVE) {
+        mapped.status = BACKEND_STATUS_ACTIVE;
+      } else if (s === USER_STATUS_INACTIVE || s === BACKEND_STATUS_INACTIVE) {
+        mapped.status = BACKEND_STATUS_INACTIVE;
+      } else if (s === STATE_DELETED || s === BACKEND_STATUS_DELETED) {
+        mapped.status = BACKEND_STATUS_DELETED;
       }
     }
 

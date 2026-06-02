@@ -7,10 +7,19 @@ import { USERS_DATA_MOCK } from '../../helpers/global/user.constants';
 import {
   SESSION_STORAGE_KEY_LOGGED_IN,
   SESSION_STORAGE_KEY_USER_NAME,
+  SESSION_STORAGE_KEY_TOKEN,
+  SESSION_STORAGE_KEY_USER_ROLE,
   DEFAULT_USER_NAME,
   ROUTE_DASHBOARD,
   ROUTE_LOGIN,
   VALUE_TRUE,
+  ROLE_ADMIN,
+  ROLE_SORTEADOR,
+  ROLE_USUARIO,
+  BACKEND_ROLE_ADMIN,
+  BACKEND_ROLE_SORT,
+  ROUTE_DRAWS,
+  MSG_NO_PERMISSIONS,
 } from '../../helpers/global/auth.constants';
 
 export interface AuthResponse {
@@ -79,33 +88,33 @@ export class AuthService {
       tap((res) => {
         const data = res.data;
         
-        let role: 'ADMIN' | 'SORTEADOR' | 'USUARIO' = 'ADMIN';
+        let role: typeof ROLE_ADMIN | typeof ROLE_SORTEADOR | typeof ROLE_USUARIO = ROLE_ADMIN;
         if (data.role) {
           const roles = Array.isArray(data.role) ? data.role : [data.role];
-          if (roles.includes('admin')) {
-            role = 'ADMIN';
-          } else if (roles.includes('sort')) {
-            role = 'SORTEADOR';
+          if (roles.includes(BACKEND_ROLE_ADMIN)) {
+            role = ROLE_ADMIN;
+          } else if (roles.includes(BACKEND_ROLE_SORT)) {
+            role = ROLE_SORTEADOR;
           } else {
-            role = 'USUARIO';
+            role = ROLE_USUARIO;
           }
         }
 
-        if (role === 'USUARIO') {
+        if (role === ROLE_USUARIO) {
           this.logout();
-          throw { error: { message: 'No tienes permisos para acceder a esta plataforma.' } };
+          throw { error: { message: MSG_NO_PERMISSIONS } };
         }
 
         this.isAuthenticated.set(true);
         this.safeSetItem(SESSION_STORAGE_KEY_LOGGED_IN, VALUE_TRUE);
         this.safeSetItem(SESSION_STORAGE_KEY_USER_NAME, data.username || username || '');
         if (data.token) {
-          this.safeSetItem('token', data.token);
+          this.safeSetItem(SESSION_STORAGE_KEY_TOKEN, data.token);
         }
-        this.safeSetItem('userRole', role);
+        this.safeSetItem(SESSION_STORAGE_KEY_USER_ROLE, role);
 
-        if (role === 'SORTEADOR') {
-          this.router.navigate(['/draws']).catch((err) => {
+        if (role === ROLE_SORTEADOR) {
+          this.router.navigate([ROUTE_DRAWS]).catch((err) => {
             console.error('AuthService: Error al navegar a sorteos:', err);
           });
         } else {
@@ -121,8 +130,8 @@ export class AuthService {
     this.isAuthenticated.set(false);
     this.safeRemoveItem(SESSION_STORAGE_KEY_LOGGED_IN);
     this.safeRemoveItem(SESSION_STORAGE_KEY_USER_NAME);
-    this.safeRemoveItem('token');
-    this.safeRemoveItem('userRole');
+    this.safeRemoveItem(SESSION_STORAGE_KEY_TOKEN);
+    this.safeRemoveItem(SESSION_STORAGE_KEY_USER_ROLE);
     this.router.navigate([ROUTE_LOGIN]).catch((err) => {
       console.error('AuthService: Error al navegar a login:', err);
     });
@@ -132,10 +141,10 @@ export class AuthService {
     return this.safeGetItem(SESSION_STORAGE_KEY_USER_NAME) || DEFAULT_USER_NAME;
   }
 
-  getUserRole(): 'ADMIN' | 'SORTEADOR' | 'USUARIO' {
-    const savedRole = this.safeGetItem('userRole');
+  getUserRole(): typeof ROLE_ADMIN | typeof ROLE_SORTEADOR | typeof ROLE_USUARIO {
+    const savedRole = this.safeGetItem(SESSION_STORAGE_KEY_USER_ROLE);
     if (savedRole) {
-      return savedRole as 'ADMIN' | 'SORTEADOR' | 'USUARIO';
+      return savedRole as typeof ROLE_ADMIN | typeof ROLE_SORTEADOR | typeof ROLE_USUARIO;
     }
     const username = this.getUserName().toLowerCase().trim();
     const user = USERS_DATA_MOCK.find(
@@ -143,7 +152,8 @@ export class AuthService {
         u.name.toLowerCase().trim() === username ||
         u.email.toLowerCase().trim() === username
     );
-    return user ? (user.role as 'ADMIN' | 'SORTEADOR' | 'USUARIO') : 'ADMIN';
+    return user ? (user.role as typeof ROLE_ADMIN | typeof ROLE_SORTEADOR | typeof ROLE_USUARIO) : ROLE_ADMIN;
   }
 }
+
 

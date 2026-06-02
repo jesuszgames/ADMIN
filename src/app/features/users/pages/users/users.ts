@@ -23,8 +23,18 @@ import {
   USER_FILTER_DELETE,
   STATE_DELETED,
 } from '../../../../core/helpers/global/user.constants';
+import {
+  ROLE_ADMIN,
+  ROLE_SORTEADOR,
+  ROLE_USUARIO,
+  BACKEND_STATUS_ACTIVE,
+  BACKEND_STATUS_INACTIVE,
+  BACKEND_STATUS_DELETED,
+} from '../../../../core/helpers/global/auth.constants';
 import { User } from '../../../../core/interfaces/api/user.interface';
 import { UserService } from '../../../../core/services/api/user.service';
+
+const DEFAULT_USER_NAME_LABEL = 'Sin Nombre';
 
 @Component({
   selector: 'app-users',
@@ -66,24 +76,24 @@ export class Users implements OnInit {
     this.userService.getAll().subscribe({
       next: (res) => {
         this.usersData = res.data.map((u: User) => {
-          let statusMapped = 'ACTIVO';
+          let statusMapped: typeof USER_STATUS_ACTIVE | typeof USER_STATUS_INACTIVE | typeof STATE_DELETED = USER_STATUS_ACTIVE;
           const s = String(u.status || '').toUpperCase();
-          if (s === 'ACTIVE' || s === 'ACTIVO') {
-            statusMapped = 'ACTIVO';
-          } else if (s === 'INACTIVE' || s === 'INACTIVO') {
-            statusMapped = 'INACTIVO';
-          } else if (s === 'DELETED' || s === 'ELIMINADO') {
-            statusMapped = 'ELIMINADO';
+          if (s === BACKEND_STATUS_ACTIVE || s === USER_STATUS_ACTIVE) {
+            statusMapped = USER_STATUS_ACTIVE;
+          } else if (s === BACKEND_STATUS_INACTIVE || s === USER_STATUS_INACTIVE) {
+            statusMapped = USER_STATUS_INACTIVE;
+          } else if (s === BACKEND_STATUS_DELETED || s === STATE_DELETED) {
+            statusMapped = STATE_DELETED;
           }
 
           return {
             ...u,
-            name: u.name || u.username || 'Sin Nombre',
+            name: u.name || (u['username'] as string) || DEFAULT_USER_NAME_LABEL,
             status: statusMapped,
-            role: Array.isArray(u.role)
+            role: (Array.isArray(u.role)
               ? u.role.map((r: string) => r.toUpperCase()).join(', ')
-              : (u.role || 'USUARIO').toUpperCase(),
-          };
+              : (u.role || ROLE_USUARIO).toUpperCase()) as typeof ROLE_ADMIN | typeof ROLE_SORTEADOR | typeof ROLE_USUARIO,
+          } as User;
         });
         this.tableData = this.getFilteredData(this.filtroActual);
         this.loading = false;
@@ -118,7 +128,7 @@ export class Users implements OnInit {
             if (userIndex === -1) throw new Error();
             const current = this.usersData[userIndex].status;
 
-            let nextState: 'ACTIVO' | 'INACTIVO' = USER_STATUS_ACTIVE;
+            let nextState: typeof USER_STATUS_ACTIVE | typeof USER_STATUS_INACTIVE = USER_STATUS_ACTIVE;
             try {
               if (current === USER_STATUS_ACTIVE) throw new Error();
             } catch {
@@ -164,7 +174,7 @@ export class Users implements OnInit {
   confirmarCambioEstado() {
     if (this.pendingRowToToggle && this.changesToConfirm.length > 0) {
       const targetUser = this.pendingRowToToggle;
-      const nextStatus = this.changesToConfirm[0].nuevo as 'ACTIVO' | 'INACTIVO';
+      const nextStatus = this.changesToConfirm[0].nuevo as typeof USER_STATUS_ACTIVE | typeof USER_STATUS_INACTIVE;
       this.userService.update(targetUser._id, { status: nextStatus }).subscribe({
         next: () => {
           this.loadUsers();
