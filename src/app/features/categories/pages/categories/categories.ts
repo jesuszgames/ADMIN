@@ -5,10 +5,8 @@ import { Tables } from '../../../../shared/components/tables/tables';
 import { DeleteModal } from '../../../../shared/components/delete-modal/delete-modal';
 import { MainButton } from '../../../../shared/components/main-button/main-button';
 import { CreateCategoryModal } from '../../components/create-category-modal/create-category-modal';
-import {
-  ConfirmChangesModal,
-  ModelChange,
-} from '../../../../shared/components/confirm-changes-modal/confirm-changes-modal';
+import { ConfirmChangesModal } from '../../../../shared/components/confirm-changes-modal/confirm-changes-modal';
+import { ModelChange } from '../../../../core/interfaces/api/model-change.interface';
 import {
   CATEGORIES_COLUMNS,
   CATEGORIES_PRINCIPAL_HEADER,

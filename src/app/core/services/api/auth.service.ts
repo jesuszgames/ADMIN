@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { environment } from '../../../../environments/environment';
+import { AuthResponse } from '../../interfaces/api/auth-response.interface';
 import { USERS_DATA_MOCK } from '../../helpers/global/user.constants';
 import {
   SESSION_STORAGE_KEY_LOGGED_IN,
@@ -21,18 +22,6 @@ import {
   ROUTE_DRAWS,
   MSG_NO_PERMISSIONS,
 } from '../../helpers/global/auth.constants';
-
-export interface AuthResponse {
-  statusCode: number;
-  status: string;
-  message: string;
-  data: {
-    _id: string;
-    username: string;
-    role: string[];
-    token: string;
-  };
-}
 
 @Injectable({
   providedIn: 'root',

@@ -2,6 +2,9 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { User } from '../../interfaces/api/user.interface';
+import { ApiResponseEnvelope } from '../../interfaces/api/api-response-envelope.interface';
+import { BackendUserPayload } from '../../interfaces/api/backend-user-payload.interface';
+import { PaginatedResult } from '../../interfaces/api/paginated-result.interface';
 import { environment } from '../../../../environments/environment';
 import {
   BACKEND_ROLE_ADMIN,
@@ -14,32 +17,6 @@ import {
   ROLE_SORTEADOR,
 } from '../../helpers/global/auth.constants';
 import { USER_STATUS_ACTIVE, USER_STATUS_INACTIVE, STATE_DELETED } from '../../helpers/global/user.constants';
-
-export interface BackendUserPayload {
-  _id?: string;
-  username?: string;
-  password?: string;
-  role?: (typeof BACKEND_ROLE_ADMIN | typeof BACKEND_ROLE_SORT | typeof BACKEND_ROLE_PLAYER)[];
-  name?: string;
-  email?: string;
-  phone?: string;
-  status?: typeof BACKEND_STATUS_ACTIVE | typeof BACKEND_STATUS_INACTIVE | typeof BACKEND_STATUS_DELETED;
-  [key: string]: unknown;
-}
-
-export interface ApiResponseEnvelope<T> {
-  statusCode: number;
-  status: string;
-  message: string;
-  data: T;
-}
-
-export interface PaginatedResult<T> {
-  result: T[];
-  totalCount: number;
-  page?: number;
-  totalPages?: number;
-}
 
 @Injectable({
   providedIn: 'root',

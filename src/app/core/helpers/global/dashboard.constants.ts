@@ -1,6 +1,6 @@
 import { Raffle } from '../../interfaces/api/raffle.interface';
-import { TableColumn } from '../../../shared/components/tables/tables';
-import { DropdownAction } from '../../../shared/components/dropdown/dropdown';
+import { TableColumn } from '../../interfaces/api/table-column.interface';
+import { DropdownAction } from '../../interfaces/api/dropdown-action.interface';
 import {
   TABLE_ACTION_VIEW_DETAIL,
   TABLE_ACTION_VIEW_TICKETS,

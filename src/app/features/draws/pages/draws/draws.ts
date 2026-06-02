@@ -1,10 +1,12 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Filter, FilterOption } from '../../../../shared/components/filter/filter';
-import { Tables, TableColumn } from '../../../../shared/components/tables/tables';
+import { Filter } from '../../../../shared/components/filter/filter';
+import { Tables } from '../../../../shared/components/tables/tables';
 import { EditTicketsModal } from '../../../../shared/components/edit-tickets-modal/edit-tickets-modal';
 import { Raffle } from '../../../../core/interfaces/api/raffle.interface';
+import { FilterOption } from '../../../../core/interfaces/api/filter-option.interface';
+import { TableColumn } from '../../../../core/interfaces/api/table-column.interface';
 import {
   MY_RAFFLES_DATA_MOCK,
   METHOD_AUTOMATIC,

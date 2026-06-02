@@ -1,12 +1,7 @@
 import { Component, Input, Output, EventEmitter, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-
-export interface FilterOption {
-  id: string;
-  icon: string;
-  label: string;
-}
+import { FilterOption } from '../../../core/interfaces/api/filter-option.interface';
 
 @Component({
   selector: 'app-filter',

@@ -1,7 +1,8 @@
 import { Component, Input, Output, EventEmitter, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Pagination } from '../pagination/pagination';
-import { Dropdown, DropdownAction } from '../dropdown/dropdown';
+import { Dropdown } from '../dropdown/dropdown';
+import { DropdownAction } from '../../../core/interfaces/api/dropdown-action.interface';
 import {
   DEFAULT_ROW_ACTIONS,
   BADGE_BASE_CLASS,
@@ -11,13 +12,7 @@ import {
   DEFAULT_CURRENT_PAGE,
 } from '../../../core/helpers/ui/constants';
 import { Search } from '../search/search';
-
-export interface TableColumn {
-  field: string;
-  header: string;
-  type?: 'text' | 'badge' | 'actions' | 'icon-text';
-  iconField?: string;
-}
+import { TableColumn } from '../../../core/interfaces/api/table-column.interface';
 
 @Component({
   selector: 'app-tables',

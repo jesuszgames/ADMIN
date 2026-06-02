@@ -1,6 +1,6 @@
-import { FilterOption } from '../../../shared/components/filter/filter';
-import { TableColumn } from '../../../shared/components/tables/tables';
-import { DropdownAction } from '../../../shared/components/dropdown/dropdown';
+import { FilterOption } from '../../interfaces/api/filter-option.interface';
+import { TableColumn } from '../../interfaces/api/table-column.interface';
+import { DropdownAction } from '../../interfaces/api/dropdown-action.interface';
 import {
   TABLE_ACTION_VIEW_DETAIL,
   TABLE_ACTION_VIEW_TICKETS,
@@ -8,14 +8,10 @@ import {
   TABLE_ACTION_VIEW_UNLINK_LOGS,
 } from '../ui/constants';
 
-import { Raffle } from '../../interfaces/api/raffle.interface';
+import { HistoryRaffle } from '../../interfaces/api/history-raffle.interface';
 
 export const STATE_DELETED = 'ELIMINADO';
 export const METHOD_AUTOMATIC = 'AUTOMATICO';
-
-export interface HistoryRaffle extends Raffle {
-  goal: number;
-}
 
 export const HISTORY_PRINCIPAL_HEADER = 'Historial de rifas';
 

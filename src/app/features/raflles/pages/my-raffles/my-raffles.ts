@@ -8,7 +8,8 @@ import { MainButton } from '../../../../shared/components/main-button/main-butto
 import { CreateRaffleModal } from '../../components/create-raffle-modal/create-raffle-modal';
 import { EditTicketsModal } from '../../../../shared/components/edit-tickets-modal/edit-tickets-modal';
 import { UnlinkLogs } from '../../../../shared/components/unlink-logs/unlink-logs';
-import { ConfirmChangesModal, ModelChange } from '../../../../shared/components/confirm-changes-modal/confirm-changes-modal';
+import { ConfirmChangesModal } from '../../../../shared/components/confirm-changes-modal/confirm-changes-modal';
+import { ModelChange } from '../../../../core/interfaces/api/model-change.interface';
 import {
   TABLE_ACTION_CHANGE_STATE,
   TABLE_ACTION_DELETE,

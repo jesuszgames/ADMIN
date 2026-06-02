@@ -1,19 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
-import { Ticket } from '../../../core/interfaces/api/ticket.interface';
-
-
-export interface TicketHistoryData {
-  winnerName: string;
-  ticketsPurchased: number;
-  associatedNumbers: string;
-  email: string;
-  winnerTicket: string;
-  phone: string;
-  lastPurchaseDate: string;
-  tickets: Ticket[];
-}
+import { TicketHistoryData } from '../../../core/interfaces/api/ticket-history-data.interface';
 
 @Component({
   selector: 'app-history-ticket-model',

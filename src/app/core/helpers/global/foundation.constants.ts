@@ -1,6 +1,6 @@
-import { FilterOption } from '../../../shared/components/filter/filter';
-import { TableColumn } from '../../../shared/components/tables/tables';
-import { DropdownAction } from '../../../shared/components/dropdown/dropdown';
+import { FilterOption } from '../../interfaces/api/filter-option.interface';
+import { TableColumn } from '../../interfaces/api/table-column.interface';
+import { DropdownAction } from '../../interfaces/api/dropdown-action.interface';
 import {
   TABLE_ACTION_CHANGE_STATE,
   TABLE_ACTION_DELETE,
