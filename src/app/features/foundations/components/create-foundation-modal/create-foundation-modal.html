@@ -5,6 +5,7 @@
   aria-hidden="true"
   data-bs-backdrop="static"
   data-bs-keyboard="false"
+  (hidden.bs.modal)="onModalClosed()"
 >
   <div class="modal-dialog modal-xl modal-dialog-centered">
     <div
@@ -40,11 +41,17 @@
               <input
                 type="text"
                 class="form-control custom-dark-input py-2"
+                [class.is-invalid]="name && (name.trim().length < 3 || name.trim().length > 50)"
                 [(ngModel)]="name"
-                placeholder="ANCHO DE TEXTO PRUEBA DE ESCRITORIO"
+                placeholder="Nombre de la fundación"
                 [disabled]="isReadOnly"
                 required
               />
+              @if (name && (name.trim().length < 3 || name.trim().length > 50)) {
+                <div class="text-danger fs-8 mt-1" style="font-size: 0.75rem; color: #ef5350">
+                  El nombre debe tener entre 3 y 50 caracteres (actual: {{ name.trim().length }}).
+                </div>
+              }
             </div>
 
             <div>
@@ -53,11 +60,17 @@
               >
               <textarea
                 class="form-control custom-dark-input py-2 desc-textarea w-100"
+                [class.is-invalid]="description && (description.trim().length < 10 || description.trim().length > 500)"
                 [(ngModel)]="description"
-                placeholder="ANCHO DE TEXTO PRUEBA DE ESCRITORIO"
+                placeholder="Descripción de la fundación"
                 [disabled]="isReadOnly"
                 required
               ></textarea>
+              @if (description && (description.trim().length < 10 || description.trim().length > 500)) {
+                <div class="text-danger fs-8 mt-1" style="font-size: 0.75rem; color: #ef5350">
+                  La descripción debe tener entre 10 y 500 caracteres (actual: {{ description.trim().length }}).
+                </div>
+              }
             </div>
 
             <div class="row g-3">
@@ -90,12 +103,16 @@
                 <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
                   >Numero de Telefono</label
                 >
-                <div class="input-group">
+                <div class="input-group" [class.is-invalid]="phone && (phone.trim().length < 10 || phone.trim().length > 15 || !esNumero(phone))">
                   <input
                     type="text"
                     class="form-control custom-dark-input border-end-0 py-2"
+                    [class.is-invalid]="phone && (phone.trim().length < 10 || phone.trim().length > 15 || !esNumero(phone))"
                     [(ngModel)]="phone"
-                    placeholder="00-0000-0000-0000"
+                    (keypress)="soloNumeros($event)"
+                    inputmode="numeric"
+                    pattern="[0-9]*"
+                    placeholder="Número de teléfono (10-15 dígitos)"
                     [disabled]="isReadOnly"
                     required
                   />
@@ -103,6 +120,16 @@
                     <i class="bi bi-telephone"></i>
                   </span>
                 </div>
+                @if (phone && (phone.trim().length < 10 || phone.trim().length > 15)) {
+                  <div class="text-danger fs-8 mt-1" style="font-size: 0.75rem; color: #ef5350">
+                    El teléfono debe tener entre 10 y 15 dígitos (actual: {{ phone.trim().length }}).
+                  </div>
+                }
+                @if (phone && !esNumero(phone)) {
+                  <div class="text-danger fs-8 mt-1" style="font-size: 0.75rem; color: #ef5350">
+                    El teléfono solo debe contener números.
+                  </div>
+                }
               </div>
             </div>
           </div>
@@ -116,6 +143,11 @@
               [isReadOnly]="isReadOnly"
               style="min-height: 250px; height: 100%; max-height: 380px; display: block"
             ></app-image-cropper>
+            @if (!photo) {
+              <div class="text-warning fs-8 mt-2 text-center" style="font-size: 0.75rem; color: #ffb74d">
+                La imagen es obligatoria. Por favor, selecciona y recorta una foto.
+              </div>
+            }
           </div>
         </div>
       </div>

@@ -141,6 +141,7 @@ export class Users {
       this.usersData[index] = { ...userData };
       this.tableData = this.getFilteredData(this.filtroActual);
     } catch {}
+    this.selectedUserForEdit = null;
   }
 
   private getFilteredData(filterId: string): User[] {

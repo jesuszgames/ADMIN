@@ -16,6 +16,7 @@ export class CreateFoundationModal implements OnChanges {
   @Input() foundation: Foundation | null = null;
   @Input() isReadOnly = false;
   @Output() save = new EventEmitter<Foundation>();
+  @Output() closed = new EventEmitter<void>();
 
   name = '';
   description = '';
@@ -45,18 +46,37 @@ export class CreateFoundationModal implements OnChanges {
     }
   }
 
-
   isEmailValid(email: string): boolean {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return re.test(email.trim());
   }
 
+  esNumero(val: string): boolean {
+    return /^\d+$/.test((val || '').trim());
+  }
+
+  soloNumeros(event: KeyboardEvent): void {
+    const pattern = /[0-9]/;
+    const inputChar = String.fromCharCode(event.charCode || event.keyCode);
+    if (event.charCode !== 0 && !pattern.test(inputChar)) {
+      event.preventDefault();
+    }
+  }
+
   isFormValid(): boolean {
+    const trimmedName = (this.name || '').trim();
+    const trimmedDesc = (this.description || '').trim();
+    const trimmedEmail = (this.email || '').trim();
+    const trimmedPhone = (this.phone || '').trim();
+    const trimmedPhoto = (this.photo || '').trim();
+
     return (
-      this.name.trim() !== '' &&
-      this.description.trim() !== '' &&
-      this.isEmailValid(this.email) &&
-      this.phone.trim() !== ''
+      trimmedName.length >= 3 && trimmedName.length <= 50 &&
+      trimmedDesc.length >= 10 && trimmedDesc.length <= 500 &&
+      this.isEmailValid(trimmedEmail) &&
+      this.esNumero(trimmedPhone) &&
+      trimmedPhone.length >= 10 && trimmedPhone.length <= 15 &&
+      trimmedPhoto !== ''
     );
   }
 
@@ -68,10 +88,15 @@ export class CreateFoundationModal implements OnChanges {
     this.cambios = [];
 
     const checkChange = (campo: string, anterior: any, nuevo: any) => {
-      const normAnterior = (anterior === null || anterior === undefined) ? '' : String(anterior).trim();
-      const normNuevo = (nuevo === null || nuevo === undefined) ? '' : String(nuevo).trim();
+      const normAnterior =
+        anterior === null || anterior === undefined ? '' : String(anterior).trim();
+      const normNuevo = nuevo === null || nuevo === undefined ? '' : String(nuevo).trim();
       if (normAnterior !== normNuevo) {
-        this.cambios.push({ campo, anterior: normAnterior || '(Vacío)', nuevo: normNuevo || '(Vacío)' });
+        this.cambios.push({
+          campo,
+          anterior: normAnterior || '(Vacío)',
+          nuevo: normNuevo || '(Vacío)',
+        });
       }
     };
 
@@ -84,7 +109,7 @@ export class CreateFoundationModal implements OnChanges {
       this.cambios.push({
         campo: 'Imagen',
         anterior: this.foundation.photo ? 'Imagen Anterior' : '(Sin Imagen)',
-        nuevo: this.photo ? 'Nueva Imagen' : '(Sin Imagen)'
+        nuevo: this.photo ? 'Nueva Imagen' : '(Sin Imagen)',
       });
     }
 
@@ -124,16 +149,26 @@ export class CreateFoundationModal implements OnChanges {
 
     const data: Foundation = {
       _id: this.foundation?._id ?? '',
-      status: this.foundation?.status ?? 'ACTIVO',
+      status: this.foundation?.status ?? 'ACTIVE',
       actions: this.foundation?.actions ?? '',
       name: this.name.trim(),
       description: this.description.trim(),
-      email: this.email.trim(),
+      email: this.email.trim().toLowerCase(),
       phone: this.phone.trim(),
       photo: this.photo,
     };
 
+    // Omit photo if it is a saved URL and has not been updated
+    if (this.foundation && this.photo && !this.photo.startsWith('data:')) {
+      delete data.photo;
+    }
 
     this.save.emit(data);
+    this.resetForm();
+  }
+
+  onModalClosed(): void {
+    this.resetForm();
+    this.closed.emit();
   }
 }

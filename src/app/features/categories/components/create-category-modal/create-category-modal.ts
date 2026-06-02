@@ -16,6 +16,7 @@ export class CreateCategoryModal implements OnChanges {
   @Input() category: Category | null = null;
   @Input() isReadOnly = false;
   @Output() save = new EventEmitter<Category>();
+  @Output() closed = new EventEmitter<void>();
 
   name = '';
   description = '';
@@ -114,5 +115,10 @@ export class CreateCategoryModal implements OnChanges {
 
 
     this.save.emit(data);
+  }
+
+  onModalClosed() {
+    this.resetForm();
+    this.closed.emit();
   }
 }
