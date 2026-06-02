@@ -4,7 +4,7 @@ export interface Foundation {
   description: string;
   email: string;
   phone: string;
-  status: 'ACTIVO' | 'INACTIVO' | 'ELIMINADO';
+  status: 'ACTIVE' | 'INACTIVE' | 'DELETED';
   actions: string;
   photo?: string;
   deleteReason?: string;

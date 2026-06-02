@@ -111,6 +111,12 @@
         } @else {
           <span class="text-white-50 fs-7">Subir o arrastrar una foto</span>
           <span class="text-white-50 opacity-50 fs-8 mt-1">Formatos permitidos: PNG, JPG, WEBP</span>
+          @if (errorMessage) {
+            <div class="text-danger fs-8 mt-2 d-flex align-items-center gap-1 justify-content-center" style="font-size: 0.75rem; color: #ef5350">
+              <i class="bi bi-exclamation-triangle-fill"></i>
+              {{ errorMessage }}
+            </div>
+          }
         }
       </div>
     }

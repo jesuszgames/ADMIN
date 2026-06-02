@@ -16,6 +16,8 @@ export class EditUserModal implements OnChanges {
   @Input() isReadOnly = false;
   @Output() save = new EventEmitter<User>();
 
+  @Output() closed = new EventEmitter<void>();
+
   name: string = '';
   email: string = '';
   phone: string = '';
@@ -23,12 +25,24 @@ export class EditUserModal implements OnChanges {
   deleteReason: string = '';
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['user'] && this.user) {
+    if (changes['user']) {
+      this.resetForm();
+    }
+  }
+
+  resetForm(): void {
+    if (this.user) {
       this.name = this.user.name || '';
       this.email = this.user.email || '';
       this.phone = this.user.phone || '';
       this.role = this.user.role || 'USUARIO';
       this.deleteReason = this.user.deleteReason || '';
+    } else {
+      this.name = '';
+      this.email = '';
+      this.phone = '';
+      this.role = 'USUARIO';
+      this.deleteReason = '';
     }
   }
 
@@ -102,5 +116,10 @@ export class EditUserModal implements OnChanges {
       role: this.role,
     };
     this.save.emit(updatedUser);
+  }
+
+  onModalClosed(): void {
+    this.resetForm();
+    this.closed.emit();
   }
 }

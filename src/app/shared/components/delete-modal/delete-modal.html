@@ -20,10 +20,20 @@
           <textarea
             [attr.id]="'razon-' + id"
             class="form-control custom-dark-input w-100"
+            [class.is-invalid]="razon && razon.trim().length > 0 && !isReasonValid"
             rows="3"
             placeholder="Escribe el motivo de la eliminación..."
             [(ngModel)]="razon"
           ></textarea>
+          @if (razon && razon.trim().length > 0 && razon.trim().length < 10) {
+            <div class="text-danger fs-8 mt-1 text-start">
+              La razón debe tener al menos 10 caracteres (actual: {{ razon.trim().length }}).
+            </div>
+          } @else if (razon && razon.trim().length > 500) {
+            <div class="text-danger fs-8 mt-1 text-start">
+              La razón no puede exceder los 500 caracteres (actual: {{ razon.trim().length }}).
+            </div>
+          }
         </div>
       </div>
       <div class="modal-footer border-0 justify-content-center pb-4 pt-0 gap-3">
@@ -33,7 +43,7 @@
           class="btn btn-danger-custom px-4"
           data-bs-dismiss="modal"
           (click)="onConfirm()"
-          [disabled]="!razon || !razon.trim()"
+          [disabled]="!isReasonValid"
         >
           Sí, eliminar
         </button>

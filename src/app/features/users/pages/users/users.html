@@ -32,6 +32,7 @@
   [user]="selectedUserForEdit"
   [isReadOnly]="isReadOnlyView"
   (save)="onSaveUser($event)"
+  (closed)="selectedUserForEdit = null"
 ></app-edit-user-modal>
 <button
   id="btn-abrir-modal-edit-user"

@@ -92,7 +92,7 @@ export class Users implements OnInit {
       error: () => {
         this.loading = false;
         this.cdr.detectChanges();
-      }
+      },
     });
   }
 
@@ -181,19 +181,13 @@ export class Users implements OnInit {
   }
 
   onSaveUser(userData: User) {
-    if (userData._id) {
-      this.userService.update(userData._id, userData).subscribe({
-        next: () => {
-          this.loadUsers();
-        },
-      });
-    } else {
-      this.userService.create(userData).subscribe({
-        next: () => {
-          this.loadUsers();
-        },
-      });
-    }
+    try {
+      const index = this.usersData.findIndex((u) => u._id === userData._id);
+      if (index === -1) throw new Error();
+      this.usersData[index] = { ...userData };
+      this.tableData = this.getFilteredData(this.filtroActual);
+    } catch {}
+    this.selectedUserForEdit = null;
   }
 
   private getFilteredData(filterId: string): User[] {

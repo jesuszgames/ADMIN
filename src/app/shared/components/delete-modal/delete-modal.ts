@@ -15,8 +15,15 @@ export class DeleteModal {
 
   razon: string = '';
 
+  get isReasonValid(): boolean {
+    const trimmed = (this.razon || '').trim();
+    return trimmed.length >= 10 && trimmed.length <= 500;
+  }
+
   onConfirm(): void {
-    this.confirmDelete.emit(this.razon);
-    this.razon = '';
+    if (this.isReasonValid) {
+      this.confirmDelete.emit(this.razon);
+      this.razon = '';
+    }
   }
 }
