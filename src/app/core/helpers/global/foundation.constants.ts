@@ -9,9 +9,9 @@ import {
 
 import { Foundation } from '../../interfaces/api/foundation.interface';
 
-export const STATE_ACTIVE = 'ACTIVO';
-export const STATE_INACTIVE = 'INACTIVO';
-export const STATE_DELETED = 'ELIMINADO';
+export const STATE_ACTIVE = 'ACTIVE';
+export const STATE_INACTIVE = 'INACTIVE';
+export const STATE_DELETED = 'DELETED';
 
 export const MY_FOUNDATIONS_PRINCIPAL_HEADER = 'Fundaciones';
 
@@ -48,7 +48,7 @@ export const MY_FOUNDATIONS_DATA_MOCK: Foundation[] = [
       'Lorem ipsum dolor sit amet consectetur adipiscing elit quisque faucibus ex sapien vitae pellentesque sem.',
     email: 'lorem@example.com',
     phone: '0988769242',
-    status: 'ACTIVO',
+    status: 'ACTIVE',
     actions: '',
   },
   {
@@ -58,7 +58,7 @@ export const MY_FOUNDATIONS_DATA_MOCK: Foundation[] = [
       'Pulvinar vivamus fringilla lacus nec metus bibendum egestas, iaculis massa nisl malesuada lacinia integer nunc posuere.',
     email: 'ipsum@example.com',
     phone: '0988769242',
-    status: 'ACTIVO',
+    status: 'ACTIVE',
     actions: '',
   },
   {
@@ -68,7 +68,7 @@ export const MY_FOUNDATIONS_DATA_MOCK: Foundation[] = [
       'empus leo au aenean sed diam urna tempor. Pulvinar vivamus fringilla lacus nec metus bibendum egestas.',
     email: 'litora@example.com',
     phone: '0988769242',
-    status: 'ACTIVO',
+    status: 'ACTIVE',
     actions: '',
   },
   {
@@ -78,7 +78,7 @@ export const MY_FOUNDATIONS_DATA_MOCK: Foundation[] = [
       'Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque aptent taciti sociosqu sem placerat.',
     email: 'hendredit@example.com',
     phone: '0988769242',
-    status: 'ACTIVO',
+    status: 'ACTIVE',
     actions: '',
   },
   {
@@ -88,7 +88,7 @@ export const MY_FOUNDATIONS_DATA_MOCK: Foundation[] = [
       'empus leo au aenean sed diam urna tempor. Pulvinar vivamus fringilla lacus nec metus bibendum egestas.',
     email: 'empusco@example.com',
     phone: '0988769242',
-    status: 'ACTIVO',
+    status: 'ACTIVE',
     actions: '',
   },
   {
@@ -98,7 +98,7 @@ export const MY_FOUNDATIONS_DATA_MOCK: Foundation[] = [
       'Ut hendrerit semper vel class aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.',
     email: 'pacoso@example.com',
     phone: '0988769242',
-    status: 'INACTIVO',
+    status: 'INACTIVE',
     actions: '',
   },
   {
@@ -107,7 +107,7 @@ export const MY_FOUNDATIONS_DATA_MOCK: Foundation[] = [
     description: 'Distribución de despensas a familias vulnerables.',
     email: 'alimentos@example.com',
     phone: '0991234567',
-    status: 'ACTIVO',
+    status: 'ACTIVE',
     actions: '',
   },
   {
@@ -116,7 +116,7 @@ export const MY_FOUNDATIONS_DATA_MOCK: Foundation[] = [
     description: 'Ayuda humanitaria y desarrollo para niños a nivel mundial.',
     email: 'unicef@example.com',
     phone: '0987654321',
-    status: 'ACTIVO',
+    status: 'ACTIVE',
     actions: '',
   },
   {
@@ -125,7 +125,7 @@ export const MY_FOUNDATIONS_DATA_MOCK: Foundation[] = [
     description: 'Refugio y adopción para perros and gatos de la calle.',
     email: 'animales@example.com',
     phone: '0971234567',
-    status: 'ELIMINADO',
+    status: 'DELETED',
     actions: '',
     deleteReason: 'La fundación cesó operaciones en la localidad',
   },
@@ -135,7 +135,7 @@ export const MY_FOUNDATIONS_DATA_MOCK: Foundation[] = [
     description: 'Rehabilitación para niños con discapacidad neuromotora.',
     email: 'teleton@example.com',
     phone: '0961234567',
-    status: 'ACTIVO',
+    status: 'ACTIVE',
     actions: '',
   },
 ];

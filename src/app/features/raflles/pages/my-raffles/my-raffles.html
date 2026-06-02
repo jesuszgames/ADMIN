@@ -42,6 +42,7 @@
   [raffle]="selectedRaffleForEdit"
   [isReadOnly]="isReadOnlyView"
   (save)="onSaveRaffle($event)"
+  (closed)="selectedRaffleForEdit = null"
 ></app-create-raffle-modal>
 
 <button

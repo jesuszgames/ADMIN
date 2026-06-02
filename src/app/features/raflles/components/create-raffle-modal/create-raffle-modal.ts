@@ -15,7 +15,10 @@ import {
   DEFAULT_RAFFLE_METODO_SORTEO,
 } from '../../../../core/helpers/global/raffle.constants';
 import { Raffle } from '../../../../core/interfaces/api/raffle.interface';
-import { MY_CATEGORIES_DATA_MOCK, STATE_DELETED } from '../../../../core/helpers/global/category.constants';
+import {
+  MY_CATEGORIES_DATA_MOCK,
+  STATE_DELETED,
+} from '../../../../core/helpers/global/category.constants';
 import { MY_FOUNDATIONS_DATA_MOCK } from '../../../../core/helpers/global/foundation.constants';
 import { ConfirmChangesModal } from '../../../../shared/components/confirm-changes-modal/confirm-changes-modal';
 import { ImageCropperComponent } from '../../../../shared/components/image-cropper/image-cropper';
@@ -31,9 +34,10 @@ export class CreateRaffleModal implements OnChanges {
   @Input() raffle: Raffle | null = null;
   @Input() isReadOnly = false;
   @Output() save = new EventEmitter<Raffle>();
+  @Output() closed = new EventEmitter<void>();
 
   categories = MY_CATEGORIES_DATA_MOCK.filter((c) => c.status !== STATE_DELETED);
-  foundations = MY_FOUNDATIONS_DATA_MOCK.filter((f) => f.status !== 'ELIMINADO');
+  foundations = MY_FOUNDATIONS_DATA_MOCK.filter((f) => f.status !== STATE_DELETED);
 
   title = '';
   foundation = '';
@@ -106,7 +110,6 @@ export class CreateRaffleModal implements OnChanges {
     }
   }
 
-
   onBeneficiaryPercentageChange() {
     if (this.beneficiaryPercentage !== null) {
       if (this.beneficiaryPercentage < 0) this.beneficiaryPercentage = 0;
@@ -132,7 +135,12 @@ export class CreateRaffleModal implements OnChanges {
   }
 
   autoCalculateTicketPrice() {
-    if (this.goal !== null && this.goal > 0 && this.ticketsAvailable !== null && this.ticketsAvailable > 0) {
+    if (
+      this.goal !== null &&
+      this.goal > 0 &&
+      this.ticketsAvailable !== null &&
+      this.ticketsAvailable > 0
+    ) {
       this.ticketPrice = Math.round((this.goal / this.ticketsAvailable) * 100) / 100;
     }
   }
@@ -164,10 +172,15 @@ export class CreateRaffleModal implements OnChanges {
     this.cambios = [];
 
     const checkChange = (campo: string, anterior: any, nuevo: any) => {
-      const normAnterior = (anterior === null || anterior === undefined) ? '' : String(anterior).trim();
-      const normNuevo = (nuevo === null || nuevo === undefined) ? '' : String(nuevo).trim();
+      const normAnterior =
+        anterior === null || anterior === undefined ? '' : String(anterior).trim();
+      const normNuevo = nuevo === null || nuevo === undefined ? '' : String(nuevo).trim();
       if (normAnterior !== normNuevo) {
-        this.cambios.push({ campo, anterior: normAnterior || '(Vacío)', nuevo: normNuevo || '(Vacío)' });
+        this.cambios.push({
+          campo,
+          anterior: normAnterior || '(Vacío)',
+          nuevo: normNuevo || '(Vacío)',
+        });
       }
     };
 
@@ -180,7 +193,11 @@ export class CreateRaffleModal implements OnChanges {
     checkChange('Método de Sorteo', this.raffle.drawMethod, this.drawMethod);
     checkChange('Número de Boletos', this.raffle.totalTickets, this.ticketsAvailable);
     checkChange('Precio Boleto', this.raffle.ticketPrice, this.ticketPrice);
-    checkChange('Porcentaje Beneficiarios', this.raffle.beneficiaryPercentage, this.beneficiaryPercentage);
+    checkChange(
+      'Porcentaje Beneficiarios',
+      this.raffle.beneficiaryPercentage,
+      this.beneficiaryPercentage,
+    );
     checkChange('Porcentaje Ganadores', this.raffle.winnerPercentage, this.winnerPercentage);
     checkChange('Texto Card', this.raffle.blogCardText, this.blogCardText);
     checkChange('Texto Detalle', this.raffle.blogDetailText, this.blogDetailText);
@@ -189,7 +206,7 @@ export class CreateRaffleModal implements OnChanges {
       this.cambios.push({
         campo: 'Imagen',
         anterior: this.raffle.photo ? 'Imagen Anterior' : '(Sin Imagen)',
-        nuevo: this.photo ? 'Nueva Imagen' : '(Sin Imagen)'
+        nuevo: this.photo ? 'Nueva Imagen' : '(Sin Imagen)',
       });
     }
 
@@ -254,5 +271,10 @@ export class CreateRaffleModal implements OnChanges {
     };
 
     this.save.emit(data);
+  }
+
+  onModalClosed() {
+    this.resetForm();
+    this.closed.emit();
   }
 }

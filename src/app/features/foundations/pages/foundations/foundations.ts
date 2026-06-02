@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Filter } from '../../../../shared/components/filter/filter';
 import { Tables } from '../../../../shared/components/tables/tables';
@@ -14,7 +14,6 @@ import {
   FOUNDATION_FILTER_DELETE,
   FOUNDATION_ROW_ACTIONS,
   MY_FOUNDATIONS_COLUMNS,
-  MY_FOUNDATIONS_DATA_MOCK,
   MY_FOUNDATIONS_PRINCIPAL_HEADER,
   STATE_ACTIVE,
   STATE_INACTIVE,
@@ -26,7 +25,7 @@ import {
   TABLE_ACTION_DELETE,
   TABLE_ACTION_EDIT_DETAIL,
 } from '../../../../core/helpers/ui/constants';
-import { generateObjectId } from '../../../../core/helpers/ui/utils';
+import { FoundationService } from '../../../../core/services/api/foundation.service';
 
 @Component({
   selector: 'app-foundations',
@@ -34,7 +33,10 @@ import { generateObjectId } from '../../../../core/helpers/ui/utils';
   imports: [CommonModule, Filter, Tables, DeleteModal, MainButton, CreateFoundationModal, ConfirmChangesModal],
   templateUrl: './foundations.html',
 })
-export class Foundations {
+export class Foundations implements OnInit {
+  private readonly foundationService = inject(FoundationService);
+  private readonly cdr = inject(ChangeDetectorRef);
+
   principalHeader = MY_FOUNDATIONS_PRINCIPAL_HEADER;
   foundationColumns = MY_FOUNDATIONS_COLUMNS;
   foundationFilters = FOUNDATION_FILTERS;
@@ -52,17 +54,32 @@ export class Foundations {
   private readonly BTN_DELETE_FOUNDATION_ID = 'btn-abrir-modal-delete-foundation';
   private readonly BTN_CREATE_FOUNDATION_ID = 'btn-abrir-modal-create-foundation';
 
+  ngOnInit(): void {
+    this.loadFoundations();
+  }
+
+  loadFoundations(): void {
+    this.foundationService.getAll().subscribe({
+      next: (res) => {
+        if (res && res.data) {
+          this.foundationsData = res.data;
+          this.tableData = this.getFilteredData(this.filtroActual);
+          this.cdr.detectChanges();
+        }
+      },
+      error: (err) => {
+        console.error('API Error: No se pudo cargar fundaciones del backend.', err);
+      },
+    });
+  }
+
   filtrarPorCategoria(id: string): void {
     this.filtroActual = id;
     this.tableData = this.getFilteredData(id);
   }
 
-  foundationsData: Foundation[] = [...MY_FOUNDATIONS_DATA_MOCK];
+  foundationsData: Foundation[] = [];
   tableData: Foundation[] = [];
-
-  constructor() {
-    this.tableData = this.getFilteredData(this.filtroActual);
-  }
 
   abrirCrearFundacion(): void {
     this.selectedFoundationForEdit = null;
@@ -79,14 +96,7 @@ export class Foundations {
             const index = this.foundationsData.findIndex((f) => f._id === row._id);
             if (index === -1) throw new Error();
             const current = this.foundationsData[index].status;
-            const currentUpper = current.toUpperCase();
-
-            let nextState = STATE_ACTIVE;
-            try {
-              if (currentUpper.includes('ACTIV') && !currentUpper.includes('DESACTIV')) throw new Error();
-            } catch {
-              nextState = STATE_INACTIVE;
-            }
+            const nextState = current === STATE_ACTIVE ? STATE_INACTIVE : STATE_ACTIVE;
 
             this.pendingRowToToggle = row;
             this.changesToConfirm = [
@@ -117,54 +127,55 @@ export class Foundations {
   }
 
   onSaveFoundation(foundData: Foundation): void {
-    try {
-      const editFoundation = this.selectedFoundationForEdit;
-      if (!editFoundation) throw new Error('Create foundation flow');
-      const index = this.foundationsData.findIndex((f) => f._id === editFoundation._id);
-      if (index === -1) throw new Error();
-      this.foundationsData[index] = {
-        ...this.foundationsData[index],
-        ...foundData,
-      };
-    } catch {
-      try {
-        const newFound: Foundation = {
-          _id: generateObjectId(),
-          name: foundData.name,
-          description: foundData.description,
-          email: foundData.email,
-          phone: foundData.phone,
-          photo: foundData.photo,
-          status: STATE_ACTIVE,
-          actions: '',
-        };
-        this.foundationsData.push(newFound);
-      } catch {}
+    const editFoundation = this.selectedFoundationForEdit;
+    if (editFoundation) {
+      this.foundationService.update(editFoundation._id, foundData).subscribe({
+        next: () => {
+          this.loadFoundations();
+        },
+        error: (err) => {
+          console.error('API Error: No se pudo actualizar la fundación.', err);
+        },
+      });
+    } else {
+      this.foundationService.create(foundData).subscribe({
+        next: () => {
+          this.loadFoundations();
+        },
+        error: (err) => {
+          console.error('API Error: No se pudo crear la fundación.', err);
+        },
+      });
     }
-    this.tableData = this.getFilteredData(this.filtroActual);
     this.selectedFoundationForEdit = null;
   }
 
   confirmarEliminar(razon: string): void {
-    try {
-      const targetFound = this.fundacionSeleccionadaParaBorrar;
-      if (!targetFound) throw new Error();
-      const index = this.foundationsData.findIndex((f) => f._id === targetFound._id);
-      if (index === -1) throw new Error();
-      this.foundationsData[index].status = STATE_DELETED;
-      this.foundationsData[index].deleteReason = razon;
-      this.tableData = this.getFilteredData(this.filtroActual);
-      this.fundacionSeleccionadaParaBorrar = null;
-    } catch {}
+    const targetFound = this.fundacionSeleccionadaParaBorrar;
+    if (!targetFound) return;
+
+    this.foundationService.deleteFoundation(targetFound._id, razon).subscribe({
+      next: () => {
+        this.loadFoundations();
+      },
+      error: (err) => {
+        console.error('API Error: No se pudo eliminar la fundación del backend.', err);
+      },
+    });
+    this.fundacionSeleccionadaParaBorrar = null;
   }
 
   confirmarCambioEstado(): void {
     if (this.pendingRowToToggle && this.changesToConfirm.length > 0) {
-      const index = this.foundationsData.findIndex((f) => f._id === this.pendingRowToToggle!._id);
-      if (index !== -1) {
-        this.foundationsData[index].status = this.changesToConfirm[0].nuevo as 'ACTIVO' | 'INACTIVO' | 'ELIMINADO';
-        this.tableData = this.getFilteredData(this.filtroActual);
-      }
+      const nextStatus = this.changesToConfirm[0].nuevo as 'ACTIVE' | 'INACTIVE' | 'DELETED';
+      this.foundationService.update(this.pendingRowToToggle._id, { status: nextStatus }).subscribe({
+        next: () => {
+          this.loadFoundations();
+        },
+        error: (err) => {
+          console.error('API Error: No se pudo actualizar el estado de la fundación.', err);
+        },
+      });
     }
     this.cancelarCambioEstado();
   }
