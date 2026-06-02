@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -15,13 +15,13 @@ import {
   DEFAULT_RAFFLE_METODO_SORTEO,
 } from '../../../../core/helpers/global/raffle.constants';
 import { Raffle } from '../../../../core/interfaces/api/raffle.interface';
-import {
-  MY_CATEGORIES_DATA_MOCK,
-  STATE_DELETED,
-} from '../../../../core/helpers/global/category.constants';
-import { MY_FOUNDATIONS_DATA_MOCK } from '../../../../core/helpers/global/foundation.constants';
+import { STATE_DELETED } from '../../../../core/helpers/global/category.constants';
 import { ConfirmChangesModal } from '../../../../shared/components/confirm-changes-modal/confirm-changes-modal';
 import { ImageCropperComponent } from '../../../../shared/components/image-cropper/image-cropper';
+import { CategoryService } from '../../../../core/services/api/category.service';
+import { FoundationService } from '../../../../core/services/api/foundation.service';
+import { Category } from '../../../../core/interfaces/api/category.interface';
+import { Foundation } from '../../../../core/interfaces/api/foundation.interface';
 
 @Component({
   selector: 'app-create-raffle-modal',
@@ -30,14 +30,51 @@ import { ImageCropperComponent } from '../../../../shared/components/image-cropp
   templateUrl: './create-raffle-modal.html',
   styleUrl: './create-raffle-modal.scss',
 })
-export class CreateRaffleModal implements OnChanges {
+export class CreateRaffleModal implements OnChanges, OnInit {
   @Input() raffle: Raffle | null = null;
   @Input() isReadOnly = false;
   @Output() save = new EventEmitter<Raffle>();
   @Output() closed = new EventEmitter<void>();
 
-  categories = MY_CATEGORIES_DATA_MOCK.filter((c) => c.status !== STATE_DELETED);
-  foundations = MY_FOUNDATIONS_DATA_MOCK.filter((f) => f.status !== STATE_DELETED);
+  private readonly categoryService = inject(CategoryService);
+  private readonly foundationService = inject(FoundationService);
+
+  categories: Category[] = [];
+  foundations: Foundation[] = [];
+
+  ngOnInit() {
+    this.loadDropdownData();
+  }
+
+  loadDropdownData() {
+    this.categoryService.getAll().subscribe({
+      next: (res) => {
+        if (res && res.data) {
+          this.categories = res.data.filter((c) => c.status !== STATE_DELETED);
+          if (!this.raffle && this.categories.length > 0 && !this.category) {
+            this.category = this.categories[0].name;
+          }
+        }
+      },
+      error: (err) => {
+        console.error('CreateRaffleModal: Error al cargar categorías', err);
+      }
+    });
+
+    this.foundationService.getAll().subscribe({
+      next: (res) => {
+        if (res && res.data) {
+          this.foundations = res.data.filter((f) => f.status !== STATE_DELETED);
+          if (!this.raffle && this.foundations.length > 0 && !this.foundation) {
+            this.foundation = this.foundations[0].name;
+          }
+        }
+      },
+      error: (err) => {
+        console.error('CreateRaffleModal: Error al cargar fundaciones', err);
+      }
+    });
+  }
 
   title = '';
   foundation = '';

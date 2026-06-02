@@ -7,7 +7,7 @@ import {
   TABLE_ACTION_EDIT_DETAIL,
 } from '../ui/constants';
 
-import { Category, IconOption } from '../../interfaces/api/category.interface';
+import { IconOption } from '../../interfaces/api/category.interface';
 
 export const STATE_ACTIVE = 'ACTIVE';
 export const STATE_INACTIVE = 'INACTIVE';
@@ -60,88 +60,4 @@ export const CATEGORY_ROW_ACTIONS: DropdownAction[] = [
   { id: TABLE_ACTION_EDIT_DETAIL, icon: 'bi-pencil-square', label: 'Editar Categoría' },
   { id: TABLE_ACTION_CHANGE_STATE, icon: 'bi-arrow-repeat', label: 'Cambiar Estado' },
   { id: TABLE_ACTION_DELETE, icon: 'bi-trash', label: 'Eliminar' },
-];
-
-export const MY_CATEGORIES_DATA_MOCK: Category[] = [
-  {
-    _id: '603d21bf9f8b2c001f8ee3c1',
-    name: 'ANIMALES',
-    description: 'Gestión de especies, refugios y programas de adopción animal.',
-    icon: 'bi-tux',
-    status: 'ACTIVE',
-    actions: '',
-  },
-  {
-    _id: '603d21bf9f8b2c001f8ee3c2',
-    name: 'SALUD',
-    description: 'Proyectos destinados a la prevención y tratamiento de enfermedades.',
-    icon: 'bi-plus-square',
-    status: 'ACTIVE',
-    actions: '',
-  },
-  {
-    _id: '603d21bf9f8b2c001f8ee3c3',
-    name: 'EDUCACION',
-    description: 'Fomento del aprendizaje and apoyo a instituciones académicas.',
-    icon: 'bi-mortarboard',
-    status: 'ACTIVE',
-    actions: '',
-  },
-  {
-    _id: '603d21bf9f8b2c001f8ee3c4',
-    name: 'MEDIO AMBIENTE',
-    description: 'Iniciativas de conservación, reciclaje y cuidado del ecosistema.',
-    icon: 'bi-leaf',
-    status: 'ACTIVE',
-    actions: '',
-  },
-  {
-    _id: '603d21bf9f8b2c001f8ee3c5',
-    name: 'ASISTENCIA SOCIAL',
-    description: 'Apoyo comunitario, atención a grupos vulnerables y bienestar social.',
-    icon: 'bi-heart',
-    status: 'ACTIVE',
-    actions: '',
-  },
-  {
-    _id: '603d21bf9f8b2c001f8ee3c6',
-    name: 'TECNOLOGIA',
-    description: 'Soluciones digitales, innovación técnica',
-    icon: 'bi-cpu',
-    status: 'INACTIVE',
-    actions: '',
-  },
-  {
-    _id: '603d21bf9f8b2c001f8ee3c7',
-    name: 'DEPORTES',
-    description: 'Programas de fomento deportivo y vida saludable.',
-    icon: 'bi-trophy',
-    status: 'ACTIVE',
-    actions: '',
-  },
-  {
-    _id: '603d21bf9f8b2c001f8ee3c8',
-    name: 'CULTURA Y ARTE',
-    description: 'Eventos culturales, talleres artísticos y conservación de tradiciones.',
-    icon: 'bi-palette',
-    status: 'ACTIVE',
-    actions: '',
-  },
-  {
-    _id: '603d21bf9f8b2c001f8ee3c9',
-    name: 'CIENCIA',
-    description: 'Proyectos de investigación científica y desarrollo experimental.',
-    icon: 'bi-virus',
-    status: 'DELETED',
-    actions: '',
-    deleteReason: 'Falta de patrocinio y recursos asignados',
-  },
-  {
-    _id: '603d21bf9f8b2c001f8ee3ca',
-    name: 'MUSICA',
-    description: 'Talleres de formación musical y bandas juveniles.',
-    icon: 'bi-music-note-beamed',
-    status: 'ACTIVE',
-    actions: '',
-  },
 ];
