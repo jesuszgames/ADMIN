@@ -1,7 +1,8 @@
 import { Component, Input, Output, EventEmitter, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Pagination } from '../pagination/pagination';
-import { Dropdown, DropdownAction } from '../dropdown/dropdown';
+import { Dropdown } from '../dropdown/dropdown';
+import { DropdownAction } from '../../../core/interfaces/api/dropdown-action.interface';
 import {
   DEFAULT_ROW_ACTIONS,
   BADGE_BASE_CLASS,
@@ -11,13 +12,7 @@ import {
   DEFAULT_CURRENT_PAGE,
 } from '../../../core/helpers/ui/constants';
 import { Search } from '../search/search';
-
-export interface TableColumn {
-  field: string;
-  header: string;
-  type?: 'text' | 'badge' | 'actions' | 'icon-text';
-  iconField?: string;
-}
+import { TableColumn } from '../../../core/interfaces/api/table-column.interface';
 
 @Component({
   selector: 'app-tables',
@@ -30,6 +25,7 @@ export class Tables<T extends Record<string, unknown> = Record<string, unknown>>
   @Input() principalheader: string = '';
   @Input() columns: TableColumn[] = [];
   @Input() data: T[] = [];
+  @Input() loading: boolean = false;
   @Input() pageSize: number = DEFAULT_PAGE_SIZE;
   @Input() currentPage: number = DEFAULT_CURRENT_PAGE;
   totalItems: number = 0;
@@ -65,7 +61,7 @@ export class Tables<T extends Record<string, unknown> = Record<string, unknown>>
       if (!shouldUpdate) throw new Error();
       this.currentPage = 1;
       this.updatePagedData();
-    } catch {}
+    } catch { }
   }
 
   updatePagedData(): void {
@@ -125,7 +121,7 @@ export class Tables<T extends Record<string, unknown> = Record<string, unknown>>
         }
         return filtered;
       }
-    } catch {}
+    } catch { }
     return this.rowActions;
   }
   isCenteredColumn(field: string, type?: string): boolean {

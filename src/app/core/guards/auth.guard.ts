@@ -8,6 +8,12 @@ export const authGuard: CanActivateFn = (route, state) => {
 
   if (authService.isAuthenticated()) {
     const role = authService.getUserRole();
+
+    if (role === 'USUARIO') {
+      authService.logout();
+      return false;
+    }
+
     const isGoingToDraws = state.url.includes('/draws');
 
     if (role === 'SORTEADOR' && !isGoingToDraws) {

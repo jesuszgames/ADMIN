@@ -1,5 +1,5 @@
-import { TableColumn } from '../../../shared/components/tables/tables';
-import { FilterOption } from '../../../shared/components/filter/filter';
+import { TableColumn } from '../../interfaces/api/table-column.interface';
+import { FilterOption } from '../../interfaces/api/filter-option.interface';
 import { Raffle } from '../../interfaces/api/raffle.interface';
 
 export const RAFFLE_STATUS_ACTIVE = 'ACTIVA';

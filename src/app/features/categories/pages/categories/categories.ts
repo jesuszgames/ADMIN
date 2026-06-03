@@ -5,10 +5,8 @@ import { Tables } from '../../../../shared/components/tables/tables';
 import { DeleteModal } from '../../../../shared/components/delete-modal/delete-modal';
 import { MainButton } from '../../../../shared/components/main-button/main-button';
 import { CreateCategoryModal } from '../../components/create-category-modal/create-category-modal';
-import {
-  ConfirmChangesModal,
-  ModelChange,
-} from '../../../../shared/components/confirm-changes-modal/confirm-changes-modal';
+import { ConfirmChangesModal } from '../../../../shared/components/confirm-changes-modal/confirm-changes-modal';
+import { ModelChange } from '../../../../core/interfaces/api/model-change.interface';
 import {
   CATEGORIES_COLUMNS,
   CATEGORIES_PRINCIPAL_HEADER,
@@ -67,22 +65,28 @@ export class Categories implements OnInit {
 
   categoriesData: Category[] = [];
   tableData: Category[] = [];
+  loading: boolean = false;
 
   ngOnInit(): void {
     this.loadCategories();
   }
 
   loadCategories(): void {
+    this.loading = true;
+    this.cdr.detectChanges();
     this.categoryService.getAll().subscribe({
       next: (res) => {
         if (res && res.data) {
           this.categoriesData = res.data;
           this.tableData = this.getFilteredData(this.filtroActual);
-          this.cdr.detectChanges();
         }
+        this.loading = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('API Error: No se pudo cargar categorías del backend.', err);
+        this.loading = false;
+        this.cdr.detectChanges();
       },
     });
   }
@@ -90,6 +94,7 @@ export class Categories implements OnInit {
   filtrarPorCategoria(id: string): void {
     this.filtroActual = id;
     this.tableData = this.getFilteredData(id);
+    this.cdr.detectChanges();
   }
 
   abrirCrearCategoria(): void {
@@ -118,7 +123,7 @@ export class Categories implements OnInit {
               },
             ];
             this.showConfirmModal = true;
-          } catch {}
+          } catch { }
         },
         [TABLE_ACTION_DELETE]: () => {
           this.categoriaSeleccionadaParaBorrar = row;
@@ -134,7 +139,7 @@ export class Categories implements OnInit {
       const action = actions[evento.actionId];
       if (!action) throw new Error();
       action();
-    } catch {}
+    } catch { }
   }
 
   onSaveCategory(catData: Category): void {
@@ -211,7 +216,7 @@ export class Categories implements OnInit {
       const filterFn = filterActions[filterId];
       if (!filterFn) throw new Error();
       filtered = filterFn();
-    } catch {}
+    } catch { }
     return filtered.map((category) => ({ ...category }));
   }
 }

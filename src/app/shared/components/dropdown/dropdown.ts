@@ -1,11 +1,6 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
-export interface DropdownAction {
-  id: number;
-  label: string;
-  icon?: string;
-}
+import { DropdownAction } from '../../../core/interfaces/api/dropdown-action.interface';
 
 @Component({
   selector: 'app-dropdown',

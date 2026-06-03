@@ -23,11 +23,13 @@ export class LoginComponent {
       return;
     }
 
-    const success = this.authService.login(this.username, this.password);
-    if (!success) {
-      this.errorMessage.set('Usuario o contraseña incorrectos.');
-    } else {
-      this.errorMessage.set(null);
-    }
+    this.authService.login(this.username, this.password).subscribe({
+      next: () => {
+        this.errorMessage.set(null);
+      },
+      error: (err) => {
+        this.errorMessage.set(err.error?.message || 'Usuario o contraseña incorrectos.');
+      }
+    });
   }
 }

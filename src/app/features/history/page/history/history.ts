@@ -3,15 +3,11 @@ import { Component } from '@angular/core';
 import { Filter } from '../../../../shared/components/filter/filter';
 import { Tables } from '../../../../shared/components/tables/tables';
 import { DeleteModal } from '../../../../shared/components/delete-modal/delete-modal';
-import {
-  HistoryRafflesModal,
-  RaffleDetail,
-} from '../../../../shared/components/history-raffles-modal/history-raffles-modal';
-import {
-  HistoryTicketModel,
-  TicketHistoryData,
-} from '../../../../shared/components/history-ticket-model/history-ticket-model';
+import { HistoryRafflesModal } from '../../../../shared/components/history-raffles-modal/history-raffles-modal';
+import { HistoryTicketModel } from '../../../../shared/components/history-ticket-model/history-ticket-model';
 import { Ticket } from '../../../../core/interfaces/api/ticket.interface';
+import { RaffleDetail } from '../../../../core/interfaces/api/raffle-detail.interface';
+import { TicketHistoryData } from '../../../../core/interfaces/api/ticket-history-data.interface';
 import {
   DEFAULT_MONEY_GOAL,
   BENEFICIARY_PERCENTAGE,
@@ -29,10 +25,10 @@ import {
   HISTORY_FILTER_GOAL,
   HISTORY_FILTER_DELETE,
   MY_HISTORY_DATA_MOCK,
-  HistoryRaffle,
   STATE_DELETED,
   METHOD_AUTOMATIC,
 } from '../../../../core/helpers/global/history.constants';
+import { HistoryRaffle } from '../../../../core/interfaces/api/history-raffle.interface';
 import { UnlinkLogs } from '../../../../shared/components/unlink-logs/unlink-logs';
 import { Raffle } from '../../../../core/interfaces/api/raffle.interface';
 import {
@@ -101,7 +97,7 @@ export class History {
       const action = actions[evento.actionId];
       if (!action) throw new Error();
       action();
-    } catch {}
+    } catch { }
   }
 
   confirmarEliminar(razon: string): void {
@@ -114,7 +110,7 @@ export class History {
       this.historyData[index].deleteReason = razon;
       this.tableData = this.getFilteredData(this.filtroActual);
       this.rifaSeleccionadaParaBorrar = null;
-    } catch {}
+    } catch { }
   }
 
   onViewTicketDetails(raffle: HistoryRaffle): void {
@@ -208,7 +204,7 @@ export class History {
       const filterFn = filterActions[filterId];
       if (!filterFn) throw new Error();
       filtered = filterFn();
-    } catch {}
+    } catch { }
 
     return filtered.map((raffle) => ({
       ...raffle,

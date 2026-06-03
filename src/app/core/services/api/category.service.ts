@@ -21,7 +21,7 @@ export class CategoryService {
       map((res) => ({
         ...res,
         data: res?.data?.result || (Array.isArray(res?.data) ? res.data : []),
-      }))
+      })),
     );
   }
 

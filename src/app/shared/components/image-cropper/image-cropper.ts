@@ -11,6 +11,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-image-cropper',
@@ -20,9 +21,9 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './image-cropper.scss',
 })
 export class ImageCropperComponent implements OnChanges {
-  @Input() photo = '';
+  @Input() photo: string | Blob | File | null = null;
   @Input() isReadOnly = false;
-  @Output() photoChange = new EventEmitter<string>();
+  @Output() photoChange = new EventEmitter<Blob | File | string | null>();
 
   @ViewChild('viewport', { static: false }) viewportElement!: ElementRef<HTMLDivElement>;
   @ViewChild('editImage', { static: false }) editImageElement!: ElementRef<HTMLImageElement>;
@@ -30,8 +31,11 @@ export class ImageCropperComponent implements OnChanges {
 
   originalPhoto = '';
   tempImageSrc = '';
+  previewUrl = '';
   isEditing = false;
   errorMessage = '';
+  pendingFileToCompress: File | null = null;
+  isCompressing = false;
 
   viewportWidth = 0;
   viewportHeight = 0;
@@ -54,13 +58,39 @@ export class ImageCropperComponent implements OnChanges {
       if (!this.photo) {
         this.originalPhoto = '';
         this.tempImageSrc = '';
+        this.previewUrl = '';
         this.isEditing = false;
+        this.pendingFileToCompress = null;
+        this.isCompressing = false;
         if (this.fileInputElement) {
           this.fileInputElement.nativeElement.value = '';
         }
-      } else if (!this.isEditing) {
-        if (!this.originalPhoto || this.photo !== this.tempImageSrc) {
-          this.originalPhoto = this.photo;
+      } else {
+        if (typeof this.photo === 'string') {
+          if (
+            this.photo.startsWith('/') &&
+            !this.photo.startsWith('http') &&
+            !this.photo.startsWith('data:')
+          ) {
+            try {
+              const origin = new URL(environment.apiUrl).origin;
+              this.previewUrl = origin + this.photo;
+            } catch (e) {
+              this.previewUrl = this.photo;
+            }
+          } else {
+            this.previewUrl = this.photo;
+          }
+        } else {
+          if (this.previewUrl && this.previewUrl.startsWith('blob:')) {
+            URL.revokeObjectURL(this.previewUrl);
+          }
+          this.previewUrl = URL.createObjectURL(this.photo);
+        }
+
+        if (!this.isEditing) {
+          this.originalPhoto = this.previewUrl;
+          this.tempImageSrc = this.previewUrl;
         }
       }
     }
@@ -91,36 +121,115 @@ export class ImageCropperComponent implements OnChanges {
 
   private readFile(file: File) {
     this.errorMessage = '';
-    const maxSizeBytes = 500 * 1024;
+    this.pendingFileToCompress = null;
+    const maxSizeBytes = 800 * 1024;
     if (file.size > maxSizeBytes) {
-      this.errorMessage = 'El archivo supera el tamaño máximo permitido de 500 KB.';
+      this.errorMessage = 'El archivo supera el tamaño máximo permitido de 800 KB.';
+      this.pendingFileToCompress = file;
       if (this.fileInputElement) {
         this.fileInputElement.nativeElement.value = '';
       }
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      this.originalPhoto = reader.result as string;
-      this.tempImageSrc = this.originalPhoto;
-      this.isEditing = true;
-    };
-    reader.onerror = (error) => {
-      console.error('ImageCropperComponent: Error al leer el archivo:', error);
-    };
-    reader.readAsDataURL(file);
+    this.loadPhotoIntoCropper(file);
+  }
+
+  private loadPhotoIntoCropper(file: Blob | File) {
+    if (this.tempImageSrc && this.tempImageSrc.startsWith('blob:')) {
+      URL.revokeObjectURL(this.tempImageSrc);
+    }
+
+    this.originalPhoto = URL.createObjectURL(file);
+    this.tempImageSrc = this.originalPhoto;
+    this.isEditing = true;
+    this.pendingFileToCompress = null;
+  }
+
+  compressPendingFile() {
+    if (!this.pendingFileToCompress) return;
+    this.isCompressing = true;
+    this.errorMessage = '';
+
+    this.compressImage(this.pendingFileToCompress)
+      .then((compressedBlob) => {
+        this.isCompressing = false;
+        const maxSizeBytes = 800 * 1024;
+        if (compressedBlob.size > maxSizeBytes) {
+          this.errorMessage =
+            'No se pudo comprimir el archivo por debajo de 800 KB. Por favor, elige otra imagen.';
+          this.pendingFileToCompress = null;
+          return;
+        }
+        this.loadPhotoIntoCropper(compressedBlob);
+      })
+      .catch((error) => {
+        this.isCompressing = false;
+        this.errorMessage = 'Error al procesar y comprimir la imagen: ' + error.message;
+        this.pendingFileToCompress = null;
+      });
+  }
+
+  private compressImage(file: File): Promise<Blob> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+
+          const maxDimension = 1600;
+          if (width > maxDimension || height > maxDimension) {
+            if (width > height) {
+              height = Math.round((height * maxDimension) / width);
+              width = maxDimension;
+            } else {
+              width = Math.round((width * maxDimension) / height);
+              height = maxDimension;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, width, height);
+            canvas.toBlob(
+              (blob) => {
+                if (blob) {
+                  resolve(blob);
+                } else {
+                  reject(new Error('Error al generar el archivo comprimido.'));
+                }
+              },
+              'image/webp',
+              0.9,
+            );
+          } else {
+            reject(new Error('No se pudo inicializar el motor de compresión.'));
+          }
+        };
+        img.onerror = () => reject(new Error('El archivo no es una imagen válida.'));
+        img.src = e.target.result;
+      };
+      reader.onerror = () => reject(new Error('Error de lectura del archivo.'));
+      reader.readAsDataURL(file);
+    });
   }
 
   startEditing() {
     if (this.isReadOnly || !this.photo) return;
-    this.tempImageSrc = this.originalPhoto || this.photo;
+    this.tempImageSrc = this.originalPhoto;
     this.isEditing = true;
   }
 
   cancelEditing() {
     this.isEditing = false;
     this.tempImageSrc = '';
+    this.pendingFileToCompress = null;
+    this.isCompressing = false;
     if (this.fileInputElement) {
       this.fileInputElement.nativeElement.value = '';
     }
@@ -267,7 +376,7 @@ export class ImageCropperComponent implements OnChanges {
     const sw = this.viewportWidth / totalScale;
     const sh = this.viewportHeight / totalScale;
 
-    const canvasWidth = Math.min(sw, 500);
+    const canvasWidth = Math.min(sw, 1200);
     const canvasHeight = canvasWidth * (this.viewportHeight / this.viewportWidth);
 
     const canvas = document.createElement('canvas');
@@ -281,10 +390,24 @@ export class ImageCropperComponent implements OnChanges {
 
       ctx.drawImage(image, sx, sy, sw, sh, 0, 0, canvasWidth, canvasHeight);
 
-      const croppedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+      canvas.toBlob(
+        (blob) => {
+          if (blob) {
+            if (this.previewUrl && this.previewUrl.startsWith('blob:')) {
+              URL.revokeObjectURL(this.previewUrl);
+            }
+            const blobUrl = URL.createObjectURL(blob);
+            this.photo = blob;
+            this.previewUrl = blobUrl;
+            this.photoChange.emit(blob);
 
-      this.photo = croppedBase64;
-      this.photoChange.emit(croppedBase64);
+            this.originalPhoto = blobUrl;
+            this.tempImageSrc = blobUrl;
+          }
+        },
+        'image/webp',
+        0.85,
+      );
     }
 
     this.isEditing = false;

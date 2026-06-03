@@ -1,11 +1,6 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
-export interface ModelChange {
-  campo: string;
-  anterior: string | number;
-  nuevo: string | number;
-}
+import { ModelChange } from '../../../core/interfaces/api/model-change.interface';
 
 @Component({
   selector: 'app-confirm-changes-modal',
