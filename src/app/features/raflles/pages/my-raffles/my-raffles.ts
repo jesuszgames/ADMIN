@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RaffleService } from '../../../../core/services/api/raffle.service';
 import { RouterModule } from '@angular/router';
 import { Filter } from '../../../../shared/components/filter/filter';
 import { Tables } from '../../../../shared/components/tables/tables';
@@ -57,7 +58,9 @@ import { generateObjectId } from '../../../../core/helpers/ui/utils';
   ],
   templateUrl: './my-raffles.html',
 })
-export class Raffles {
+export class Raffles implements OnInit {
+  private readonly raffleService = inject(RaffleService);
+
   principalHeader = MY_RAFFLES_PRINCIPAL_HEADER;
   dashboardColumns = MY_RAFFLES_COLUMNS;
   misFiltrosRifas = MY_RAFFLES_FILTERS;
@@ -77,14 +80,31 @@ export class Raffles {
   private readonly BTN_CREATE_RAFFLE_ID = 'btn-abrir-modal-create-raffle';
   private readonly BTN_EDIT_TICKETS_ID = 'btn-abrir-modal-edit-tickets';
 
+  rifasData: Raffle[] = [];
+  tableData: Raffle[] = [];
+
+  ngOnInit(): void {
+    this.cargarRifas();
+  }
+
+  cargarRifas(): void {
+    this.raffleService.getAll().subscribe({
+      next: (res) => {
+        if (res && res.data) {
+          this.rifasData = res.data;
+          this.tableData = this.getFilteredData(this.filtroActual);
+        }
+      },
+      error: (err) => {
+        console.error('API Error: No se pudo cargar rifas del backend.', err);
+      },
+    });
+  }
+
   filtrarPorCategoria(id: string) {
     this.filtroActual = id;
     this.tableData = this.getFilteredData(id);
   }
-
-  rifasData: Raffle[] = [...MY_RAFFLES_DATA_MOCK];
-
-  tableData: Raffle[] = this.getFilteredData(RAFFLE_FILTER_ALL);
 
   abrirCrearRifa() {
     this.selectedRaffleForEdit = null;
@@ -146,25 +166,31 @@ export class Raffles {
   }
 
   confirmarEliminar(razon: string) {
-    try {
-      const targetRaffle = this.rifaSeleccionadaParaBorrar;
-      if (!targetRaffle) throw new Error();
-      const index = this.rifasData.findIndex((r) => r._id === targetRaffle._id);
-      if (index === -1) throw new Error();
-      this.rifasData[index].status = STATE_DELETED;
-      this.rifasData[index].deleteReason = razon;
-      this.tableData = this.getFilteredData(this.filtroActual);
-      this.rifaSeleccionadaParaBorrar = null;
-    } catch { }
+    const targetRaffle = this.rifaSeleccionadaParaBorrar;
+    if (!targetRaffle) return;
+
+    this.raffleService.deleteRaffle(targetRaffle._id, razon).subscribe({
+      next: () => {
+        this.cargarRifas();
+      },
+      error: (err) => {
+        console.error('API Error: No se pudo eliminar la rifa.', err);
+      },
+    });
+    this.rifaSeleccionadaParaBorrar = null;
   }
 
   confirmarCambioEstado() {
     if (this.pendingRowToToggle && this.changesToConfirm.length > 0) {
-      const index = this.rifasData.findIndex((r) => r._id === this.pendingRowToToggle!._id);
-      if (index !== -1) {
-        this.rifasData[index].status = this.changesToConfirm[0].nuevo as string;
-        this.tableData = this.getFilteredData(this.filtroActual);
-      }
+      const nextStatus = this.changesToConfirm[0].nuevo as string;
+      this.raffleService.update(this.pendingRowToToggle._id, { status: nextStatus }).subscribe({
+        next: () => {
+          this.cargarRifas();
+        },
+        error: (err) => {
+          console.error('API Error: No se pudo cambiar el estado de la rifa.', err);
+        },
+      });
     }
     this.cancelarCambioEstado();
   }
@@ -226,58 +252,31 @@ export class Raffles {
   }
 
   onSaveRaffle(raffleData: Raffle) {
-    try {
-      const targetId = raffleData._id;
-      if (!targetId) throw new Error('Create raffle flow');
-      const index = this.rifasData.findIndex((r) => r._id === targetId);
-      if (index === -1) throw new Error();
-
-      let recStr = `${raffleData.collected || 0}$`;
-      try {
-        if (!raffleData.goal) throw new Error();
-        recStr = `${raffleData.collected || 0}/${raffleData.goal} $`;
-      } catch { }
-
-      this.rifasData[index] = {
-        ...raffleData,
-        soldTicketsStr: `${raffleData.soldTickets || 0}/${raffleData.totalTickets || 100}`,
-        collectedStr: recStr,
-        remainingTime: this.calculateRemainingTime(raffleData.endDate || ''),
-      };
-    } catch {
-      try {
-        let recStr = `0$`;
-        try {
-          if (!raffleData.goal) throw new Error();
-          recStr = `0/${raffleData.goal} $`;
-        } catch { }
-
-        const newRaffle: Raffle = {
-          ...raffleData,
-          _id: generateObjectId(),
-          status: RAFFLE_STATUS_ACTIVE,
-          soldTickets: 0,
-          collected: 0,
-          winner: '',
-          remainingTime: this.calculateRemainingTime(raffleData.endDate || ''),
-          actions: '',
-          soldTicketsStr: `0/${raffleData.totalTickets || 100}`,
-          collectedStr: recStr,
-        };
-        this.rifasData.push(newRaffle);
-      } catch { }
+    const editRaffle = this.selectedRaffleForEdit;
+    if (editRaffle) {
+      this.raffleService.update(editRaffle._id, raffleData).subscribe({
+        next: () => {
+          this.cargarRifas();
+        },
+        error: (err) => {
+          console.error('API Error: No se pudo actualizar la rifa.', err);
+        },
+      });
+    } else {
+      this.raffleService.create(raffleData).subscribe({
+        next: () => {
+          this.cargarRifas();
+        },
+        error: (err) => {
+          console.error('API Error: No se pudo crear la rifa.', err);
+        },
+      });
     }
-    this.tableData = this.getFilteredData(this.filtroActual);
     this.selectedRaffleForEdit = null;
   }
 
   onSaveTickets(updatedRaffle: Raffle) {
-    try {
-      const index = this.rifasData.findIndex((r) => r._id === updatedRaffle._id);
-      if (index === -1) throw new Error();
-      this.rifasData[index] = updatedRaffle;
-      this.tableData = this.getFilteredData(this.filtroActual);
-    } catch { }
+    this.cargarRifas();
     this.selectedRaffleForTickets = null;
   }
 

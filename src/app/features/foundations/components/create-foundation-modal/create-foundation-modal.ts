@@ -22,7 +22,7 @@ export class CreateFoundationModal implements OnChanges {
   description = '';
   email = '';
   phone = '';
-  photo = '';
+  photo: string | Blob | File | null = null;
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['foundation']) {
@@ -36,13 +36,13 @@ export class CreateFoundationModal implements OnChanges {
       this.description = this.foundation.description || '';
       this.email = this.foundation.email || '';
       this.phone = this.foundation.phone || '';
-      this.photo = this.foundation.photo || '';
+      this.photo = this.foundation.photo || null;
     } else {
       this.name = '';
       this.description = '';
       this.email = '';
       this.phone = '';
-      this.photo = '';
+      this.photo = null;
     }
   }
 
@@ -68,7 +68,7 @@ export class CreateFoundationModal implements OnChanges {
     const trimmedDesc = (this.description || '').trim();
     const trimmedEmail = (this.email || '').trim();
     const trimmedPhone = (this.phone || '').trim();
-    const trimmedPhoto = (this.photo || '').trim();
+    const hasPhoto = this.photo !== null && this.photo !== '';
 
     return (
       trimmedName.length >= 3 && trimmedName.length <= 50 &&
@@ -76,7 +76,7 @@ export class CreateFoundationModal implements OnChanges {
       this.isEmailValid(trimmedEmail) &&
       this.esNumero(trimmedPhone) &&
       trimmedPhone.length >= 10 && trimmedPhone.length <= 15 &&
-      trimmedPhoto !== ''
+      hasPhoto
     );
   }
 
@@ -158,8 +158,7 @@ export class CreateFoundationModal implements OnChanges {
       photo: this.photo,
     };
 
-    // Omit photo if it is a saved URL and has not been updated
-    if (this.foundation && this.photo && !this.photo.startsWith('data:')) {
+    if (this.foundation && this.photo && typeof this.photo === 'string' && !this.photo.startsWith('blob:')) {
       delete data.photo;
     }
 

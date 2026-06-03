@@ -9,7 +9,7 @@ import { environment } from '../../../../environments/environment';
 })
 export class CategoryService {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = `${environment.apiUrl}/adminpanel/category`;
+  private readonly apiUrl = `${environment.apiUrl}/category`;
 
   getAll(page?: number, limit?: number, search?: string): Observable<{ data: Category[] }> {
     let params = new HttpParams();

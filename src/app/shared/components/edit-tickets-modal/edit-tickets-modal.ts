@@ -1,13 +1,20 @@
-import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, inject } from '@angular/core';
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  OnChanges,
+  SimpleChanges,
+  inject,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { forkJoin, of, Observable, switchMap } from 'rxjs';
 import { AuthService } from '../../../core/services/api/auth.service';
 import { Raffle } from '../../../core/interfaces/api/raffle.interface';
 import { Ticket, BuyerInfo } from '../../../core/interfaces/api/ticket.interface';
-import {
-  DEFAULT_RAFFLE_TICKET_PRICE,
-  DEFAULT_RAFFLE_TICKETS_TOTAL,
-} from '../../../core/helpers/global/raffle.constants';
+import { TicketService } from '../../../core/services/api/ticket.service';
+import { DrawService } from '../../../core/services/api/draw.service';
 
 @Component({
   selector: 'app-edit-tickets-modal',
@@ -22,6 +29,8 @@ export class EditTicketsModal implements OnChanges {
   @Output() save = new EventEmitter<Raffle>();
 
   private readonly authService = inject(AuthService);
+  private readonly ticketService = inject(TicketService);
+  private readonly drawService = inject(DrawService);
   userRole = this.authService.getUserRole();
 
   tickets: Ticket[] = [];
@@ -79,48 +88,23 @@ export class EditTicketsModal implements OnChanges {
     this.winnerBuyer = null;
 
     const raffle = this.raffle;
-    if (!raffle) {
+    if (!raffle || !raffle._id) {
       this.tickets = [];
       return;
     }
 
-    if (raffle.tickets && Array.isArray(raffle.tickets)) {
-      this.tickets = JSON.parse(JSON.stringify(raffle.tickets));
-      return;
-    }
-
-    const count = raffle.totalTickets || 100;
-
-    const mockBuyer: BuyerInfo = {
-      id: 'COMPRA-123',
-      name: raffle.winnerName || 'Paco Briones Macias',
-      email: raffle.winnerEmail || 'example@gmail.com',
-      phone: raffle.winnerPhone || '0998452318',
-      purchaseDate: '12/05/2026',
-      tickets: ['05', '07', '14'],
-    };
-
-    this.tickets = Array.from({ length: count }, (_, i) => {
-      const numStr = (i + 1).toString().padStart(2, '0');
-      let status: 'available' | 'selected' | 'winner' = 'available';
-      let buyer: BuyerInfo | undefined;
-
-      if (mockBuyer.tickets.includes(numStr)) {
-        status = numStr === raffle.winner ? 'winner' : 'selected';
-        buyer = mockBuyer;
-      } else if (numStr === raffle.winner && raffle.winner) {
-        status = 'winner';
-        buyer = {
-          id: 'COMPRA-123',
-          name: raffle.winnerName || 'Ganador Oficial',
-          email: raffle.winnerEmail || 'ganador@gmail.com',
-          phone: raffle.winnerPhone || '0999999999',
-          purchaseDate: '14/05/2026',
-          tickets: [numStr],
-        };
-      }
-
-      return { number: numStr, status, buyer };
+    this.ticketService.getTicketsByRaffle(raffle._id).subscribe({
+      next: (res) => {
+        if (res && res.data) {
+          this.tickets = res.data;
+        } else {
+          this.tickets = [];
+        }
+      },
+      error: (err) => {
+        console.error('API Error: No se pudieron cargar los boletos del backend.', err);
+        this.tickets = [];
+      },
     });
   }
 
@@ -167,10 +151,7 @@ export class EditTicketsModal implements OnChanges {
       const email = (b.buyer.email || '').toUpperCase();
       const phone = b.buyer.phone || '';
       return (
-        id.includes(query) ||
-        name.includes(query) ||
-        email.includes(query) ||
-        phone.includes(query)
+        id.includes(query) || name.includes(query) || email.includes(query) || phone.includes(query)
       );
     });
 
@@ -256,49 +237,34 @@ export class EditTicketsModal implements OnChanges {
 
   confirmSubmit() {
     this.showConfirmModal = false;
-    this.onSubmit();
-    document.getElementById('btn-cerrar-modal-editar-boletos')?.click();
-  }
-
-  onSubmit() {
     const raffle = this.raffle;
-    if (!raffle) return;
+    if (!raffle || !raffle._id) return;
 
-    const soldCount = this.tickets.filter((b) => b.status !== 'available').length;
-    const newRecaudado = soldCount * (raffle.ticketPrice || DEFAULT_RAFFLE_TICKET_PRICE);
+    const unlinkCalls = this.unlinkedLogs.map((log) =>
+      this.ticketService.unlinkTicket(raffle._id, log.number, this.unlinkReason.trim()),
+    );
 
-    const existingLogs = raffle.unlinks || [];
-    const now = new Date();
-    const formattedDate = `${now.getDate().toString().padStart(2, '0')}/${(now.getMonth() + 1).toString().padStart(2, '0')}/${now.getFullYear()} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+    const unlink$: Observable<any> = unlinkCalls.length > 0 ? forkJoin(unlinkCalls) : of(null);
 
-    const newLogs = this.unlinkedLogs.map((log) => ({
-      number: log.number,
-      user: log.user,
-      purchaseId: log.purchaseId,
-      reason: this.unlinkReason.trim(),
-      date: formattedDate,
-    }));
-
-    const updatedRaffle: Raffle = {
-      ...raffle,
-      tickets: this.tickets,
-      soldTickets: soldCount,
-      collected: newRecaudado,
-      soldTicketsStr: `${soldCount}/${raffle.totalTickets || DEFAULT_RAFFLE_TICKETS_TOTAL}`,
-      collectedStr: raffle.goal ? `${newRecaudado}/${raffle.goal} $` : `${newRecaudado}$`,
-      unlinks: [...existingLogs, ...newLogs],
-    };
-
-    if (this.winnerTicketNumber) {
-      updatedRaffle.winner = this.winnerTicketNumber;
-      if (this.winnerBuyer) {
-        updatedRaffle.winnerName = this.winnerBuyer.name;
-        updatedRaffle.winnerEmail = this.winnerBuyer.email;
-        updatedRaffle.winnerPhone = this.winnerBuyer.phone;
-      }
-      updatedRaffle.status = 'FINALIZADA';
-    }
-
-    this.save.emit(updatedRaffle);
+    unlink$
+      .pipe(
+        switchMap(() => {
+          if (this.hasWinnerChanged && this.winnerTicketNumber) {
+            return this.drawService.executeDraw(raffle._id, this.winnerTicketNumber);
+          }
+          return of(null);
+        }),
+      )
+      .subscribe({
+        next: () => {
+          this.save.emit(raffle);
+          document.getElementById('btn-cerrar-modal-editar-boletos')?.click();
+        },
+        error: (err: any) => {
+          console.error('Error al guardar cambios de boletos/sorteo:', err);
+          this.save.emit(raffle);
+          document.getElementById('btn-cerrar-modal-editar-boletos')?.click();
+        },
+      });
   }
 }

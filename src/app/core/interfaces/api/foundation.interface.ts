@@ -6,7 +6,7 @@ export interface Foundation {
   phone: string;
   status: 'ACTIVE' | 'INACTIVE' | 'DELETED';
   actions: string;
-  photo?: string;
+  photo?: string | Blob | File | null;
   deleteReason?: string;
   createdAt?: string;
   updatedAt?: string;

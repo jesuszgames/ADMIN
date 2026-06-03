@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Filter } from '../../../../shared/components/filter/filter';
@@ -7,8 +7,8 @@ import { EditTicketsModal } from '../../../../shared/components/edit-tickets-mod
 import { Raffle } from '../../../../core/interfaces/api/raffle.interface';
 import { FilterOption } from '../../../../core/interfaces/api/filter-option.interface';
 import { TableColumn } from '../../../../core/interfaces/api/table-column.interface';
+import { RaffleService } from '../../../../core/services/api/raffle.service';
 import {
-  MY_RAFFLES_DATA_MOCK,
   METHOD_AUTOMATIC,
   STATE_DELETED,
 } from '../../../../core/helpers/global/raffle.constants';
@@ -20,7 +20,9 @@ import {
   templateUrl: './draws.html',
   styleUrl: './draws.scss',
 })
-export class Draws {
+export class Draws implements OnInit {
+  private readonly raffleService = inject(RaffleService);
+
   principalHeader = 'Sorteos de Rifas';
 
   columns: TableColumn[] = [
@@ -43,15 +45,29 @@ export class Draws {
   filtroActual = 'all';
   selectedRaffleForTickets: Raffle | null = null;
 
-  rifasData: Raffle[] = MY_RAFFLES_DATA_MOCK;
+  rifasData: Raffle[] = [];
   tableData: Raffle[] = [];
 
   rowActions = [
     { id: 1, icon: 'bi-trophy', label: 'Realizar Sorteo' }
   ];
 
-  constructor() {
-    this.filtrar(this.filtroActual);
+  ngOnInit(): void {
+    this.cargarDatos();
+  }
+
+  cargarDatos() {
+    this.raffleService.getAll().subscribe({
+      next: (res) => {
+        if (res && res.data) {
+          this.rifasData = res.data;
+          this.updateTableData();
+        }
+      },
+      error: (err) => {
+        console.error('API Error: No se pudieron cargar las rifas para sorteo.', err);
+      }
+    });
   }
 
   filtrar(id: string) {
@@ -96,15 +112,7 @@ export class Draws {
   }
 
   onSaveTickets(updatedRaffle: Raffle) {
-    const index = this.rifasData.findIndex((r) => r._id === updatedRaffle._id);
-    if (index !== -1) {
-      this.rifasData[index] = updatedRaffle;
-      const mockIndex = MY_RAFFLES_DATA_MOCK.findIndex((r) => r._id === updatedRaffle._id);
-      if (mockIndex !== -1) {
-        MY_RAFFLES_DATA_MOCK[mockIndex] = updatedRaffle;
-      }
-      this.updateTableData();
-    }
+    this.cargarDatos();
     this.selectedRaffleForTickets = null;
   }
 }
