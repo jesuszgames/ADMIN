@@ -22,7 +22,7 @@ export class FoundationService {
 
     if (foundation.photo) {
       if (foundation.photo instanceof Blob) {
-        const ext = foundation.photo.type.split('/')[1] || 'png';
+        const ext = foundation.photo.type.split('/')[1] || 'webp';
         formData.append('photo', foundation.photo, `photo-${Date.now()}.${ext}`);
       } else if (typeof foundation.photo === 'string') {
         formData.append('photo', foundation.photo);
