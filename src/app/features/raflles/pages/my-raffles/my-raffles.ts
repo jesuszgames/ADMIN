@@ -82,21 +82,25 @@ export class Raffles implements OnInit {
 
   rifasData: Raffle[] = [];
   tableData: Raffle[] = [];
+  loading: boolean = false;
 
   ngOnInit(): void {
     this.cargarRifas();
   }
 
   cargarRifas(): void {
+    this.loading = true;
     this.raffleService.getAll().subscribe({
       next: (res) => {
         if (res && res.data) {
           this.rifasData = res.data;
           this.tableData = this.getFilteredData(this.filtroActual);
         }
+        this.loading = false;
       },
       error: (err) => {
         console.error('API Error: No se pudo cargar rifas del backend.', err);
+        this.loading = false;
       },
     });
   }

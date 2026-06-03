@@ -73,6 +73,15 @@ export class Users implements OnInit {
     this.cdr.detectChanges();
     this.userService.getAll().subscribe({
       next: (res) => {
+        console.log('UserService.getAll response in component:', res);
+        if (!res || !res.data) {
+          console.warn('UserService.getAll returned empty or invalid data');
+          this.usersData = [];
+          this.tableData = [];
+          this.loading = false;
+          this.cdr.detectChanges();
+          return;
+        }
         this.usersData = res.data.map((u: User) => {
           let statusMapped: typeof USER_STATUS_ACTIVE | typeof USER_STATUS_INACTIVE | typeof STATE_DELETED = USER_STATUS_ACTIVE;
           const s = String(u.status || '').toUpperCase();
@@ -97,7 +106,8 @@ export class Users implements OnInit {
         this.loading = false;
         this.cdr.detectChanges();
       },
-      error: () => {
+      error: (err) => {
+        console.error('UserService.getAll failed with error:', err);
         this.loading = false;
         this.cdr.detectChanges();
       },
