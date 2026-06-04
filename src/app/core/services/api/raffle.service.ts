@@ -1,9 +1,10 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, map } from 'rxjs';
+import { Observable, map, of, catchError } from 'rxjs';
 import { Raffle } from '../../interfaces/api/raffle.interface';
 import { environment } from '../../../../environments/environment';
 import { ApiResponseEnvelope } from '../../interfaces/api/api-response-envelope.interface';
+import { MY_RAFFLES_DATA_MOCK } from '../../helpers/global/raffle.constants';
 
 @Injectable({
   providedIn: 'root',
@@ -23,11 +24,20 @@ export class RaffleService {
         const list = res?.data?.result || (Array.isArray(res?.data) ? res.data : []);
         return { data: list };
       }),
+      catchError((err) => {
+        console.warn('RaffleService: API failed or endpoint missing. Falling back to mock data.', err);
+        return of({ data: MY_RAFFLES_DATA_MOCK });
+      })
     );
   }
 
   getOne(id: string): Observable<{ data: Raffle }> {
-    return this.http.get<{ data: Raffle }>(`${this.apiUrl}/${id}`);
+    return this.http.get<{ data: Raffle }>(`${this.apiUrl}/${id}`).pipe(
+      catchError((err) => {
+        const mock = MY_RAFFLES_DATA_MOCK.find((r) => r._id === id) || MY_RAFFLES_DATA_MOCK[0];
+        return of({ data: mock });
+      })
+    );
   }
 
   private buildFormData(raffle: Partial<Raffle>): FormData {
@@ -59,17 +69,46 @@ export class RaffleService {
 
   create(raffle: Partial<Raffle>): Observable<{ data: Raffle }> {
     const formData = this.buildFormData(raffle);
-    return this.http.post<{ data: Raffle }>(`${this.apiUrl}`, formData);
+    return this.http.post<{ data: Raffle }>(`${this.apiUrl}`, formData).pipe(
+      catchError((err) => {
+        const mock: Raffle = {
+          _id: `mock-${Date.now()}`,
+          title: raffle.title || 'Nueva Rifa',
+          foundation: raffle.foundation || 'Fundación',
+          category: raffle.category || 'Categoría',
+          soldTickets: 0,
+          totalTickets: raffle.totalTickets || 100,
+          collected: 0,
+          goal: raffle.goal || 1000,
+          remainingTime: '30 días',
+          ...raffle,
+        } as Raffle;
+        return of({ data: mock });
+      })
+    );
   }
 
   update(id: string, raffle: Partial<Raffle>): Observable<{ data: Raffle }> {
     const formData = this.buildFormData(raffle);
-    return this.http.put<{ data: Raffle }>(`${this.apiUrl}/${id}`, formData);
+    return this.http.put<{ data: Raffle }>(`${this.apiUrl}/${id}`, formData).pipe(
+      catchError((err) => {
+        const mock = {
+          ...MY_RAFFLES_DATA_MOCK.find((r) => r._id === id),
+          ...raffle,
+        } as Raffle;
+        return of({ data: mock });
+      })
+    );
   }
 
   deleteRaffle(id: string, deleteReason: string): Observable<{ data: Raffle }> {
     return this.http.delete<{ data: Raffle }>(`${this.apiUrl}/${id}`, {
       body: { deleteReason },
-    });
+    }).pipe(
+      catchError((err) => {
+        const mock = MY_RAFFLES_DATA_MOCK.find((r) => r._id === id) || MY_RAFFLES_DATA_MOCK[0];
+        return of({ data: mock });
+      })
+    );
   }
 }

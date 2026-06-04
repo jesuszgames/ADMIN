@@ -6,7 +6,10 @@
   left: 270px;
   right: 0;
   height: 84px;
-  background-color: var.$container-bg;
+  background-color: rgba(22, 27, 34, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   display: flex;
   align-items: center;
   justify-content: flex-end;
