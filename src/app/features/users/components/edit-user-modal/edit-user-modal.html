@@ -22,11 +22,18 @@
             <input
               type="text"
               class="form-control custom-dark-input py-2"
+              [class.is-invalid]="touchedFields['name'] && (name.trim().length < 3 || name.trim().length > 50)"
               [(ngModel)]="name"
+              (blur)="touchedFields['name'] = true"
               placeholder="Ej. Juan Pérez"
               [disabled]="isReadOnly"
               required
             />
+            @if (touchedFields['name'] && (name.trim().length < 3 || name.trim().length > 50)) {
+              <div class="text-danger fs-8 mt-1" style="font-size: 0.75rem; color: #ef5350">
+                El nombre debe tener entre 3 y 50 caracteres.
+              </div>
+            }
           </div>
 
           <div class="col-md-6 col-12">
@@ -34,11 +41,18 @@
             <input
               type="email"
               class="form-control custom-dark-input py-2"
+              [class.is-invalid]="touchedFields['email'] && !isEmailValid(email)"
               [(ngModel)]="email"
+              (blur)="touchedFields['email'] = true"
               placeholder="Ej. juan@correo.com"
               [disabled]="isReadOnly"
               required
             />
+            @if (touchedFields['email'] && !isEmailValid(email)) {
+              <div class="text-danger fs-8 mt-1" style="font-size: 0.75rem; color: #ef5350">
+                Por favor, ingresa un correo electrónico válido.
+              </div>
+            }
           </div>
 
           <div class="col-md-6 col-12">
@@ -46,11 +60,26 @@
             <input
               type="text"
               class="form-control custom-dark-input py-2"
+              [class.is-invalid]="touchedFields['phone'] && (phone.trim().length < 10 || phone.trim().length > 15 || !esNumero(phone))"
               [(ngModel)]="phone"
-              placeholder="Ej. 0998765432"
+              (keypress)="soloNumeros($event)"
+              (blur)="touchedFields['phone'] = true"
+              inputmode="numeric"
+              pattern="[0-9]*"
+              placeholder="Ej. 0998765432 (10-15 dígitos)"
               [disabled]="isReadOnly"
               required
             />
+            @if (touchedFields['phone'] && (phone.trim().length < 10 || phone.trim().length > 15)) {
+              <div class="text-danger fs-8 mt-1" style="font-size: 0.75rem; color: #ef5350">
+                El teléfono debe tener entre 10 y 15 dígitos.
+              </div>
+            }
+            @if (touchedFields['phone'] && !esNumero(phone)) {
+              <div class="text-danger fs-8 mt-1" style="font-size: 0.75rem; color: #ef5350">
+                El teléfono solo debe contener números.
+              </div>
+            }
           </div>
 
           <div class="col-md-6 col-12">

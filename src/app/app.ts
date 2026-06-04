@@ -3,6 +3,7 @@ import { Sidebar } from "./shared/components/sidebar/sidebar";
 import { RouterOutlet } from '@angular/router';
 import { Navbar } from './shared/components/navbar/navbar';
 import { AuthService } from './core/services/api/auth.service';
+import { ErrorNotificationService } from './core/services/ui/error-notification.service';
 
 @Component({
   selector: 'app-root',
@@ -13,4 +14,5 @@ import { AuthService } from './core/services/api/auth.service';
 export class App {
   protected readonly title = signal('ADMIN');
   protected readonly authService = inject(AuthService);
+  protected readonly errorService = inject(ErrorNotificationService);
 }

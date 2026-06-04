@@ -22,7 +22,7 @@ export class RaffleService {
       map((res) => {
         const list = res?.data?.result || (Array.isArray(res?.data) ? res.data : []);
         return { data: list };
-      })
+      }),
     );
   }
 
@@ -30,12 +30,41 @@ export class RaffleService {
     return this.http.get<{ data: Raffle }>(`${this.apiUrl}/${id}`);
   }
 
+  private buildFormData(raffle: Partial<Raffle>): FormData {
+    const formData = new FormData();
+    Object.keys(raffle).forEach((key) => {
+      const val = (raffle as any)[key];
+      if (
+        key !== 'photo' &&
+        key !== 'tickets' &&
+        key !== 'unlinks' &&
+        val !== undefined &&
+        val !== null
+      ) {
+        formData.append(key, val.toString());
+      }
+    });
+
+    if (raffle.photo) {
+      const photoVal = raffle.photo as any;
+      if (photoVal instanceof Blob) {
+        const ext = photoVal.type.split('/')[1] || 'webp';
+        formData.append('photo', photoVal, `photo-${Date.now()}.${ext}`);
+      } else if (typeof raffle.photo === 'string') {
+        formData.append('photo', raffle.photo);
+      }
+    }
+    return formData;
+  }
+
   create(raffle: Partial<Raffle>): Observable<{ data: Raffle }> {
-    return this.http.post<{ data: Raffle }>(`${this.apiUrl}`, raffle);
+    const formData = this.buildFormData(raffle);
+    return this.http.post<{ data: Raffle }>(`${this.apiUrl}`, formData);
   }
 
   update(id: string, raffle: Partial<Raffle>): Observable<{ data: Raffle }> {
-    return this.http.put<{ data: Raffle }>(`${this.apiUrl}/${id}`, raffle);
+    const formData = this.buildFormData(raffle);
+    return this.http.put<{ data: Raffle }>(`${this.apiUrl}/${id}`, formData);
   }
 
   deleteRaffle(id: string, deleteReason: string): Observable<{ data: Raffle }> {

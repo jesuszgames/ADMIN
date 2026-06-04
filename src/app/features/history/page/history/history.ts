@@ -1,5 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
+import { RaffleService } from '../../../../core/services/api/raffle.service';
+import { TicketService } from '../../../../core/services/api/ticket.service';
 import { Filter } from '../../../../shared/components/filter/filter';
 import { Tables } from '../../../../shared/components/tables/tables';
 import { DeleteModal } from '../../../../shared/components/delete-modal/delete-modal';
@@ -8,13 +10,7 @@ import { HistoryTicketModel } from '../../../../shared/components/history-ticket
 import { Ticket } from '../../../../core/interfaces/api/ticket.interface';
 import { RaffleDetail } from '../../../../core/interfaces/api/raffle-detail.interface';
 import { TicketHistoryData } from '../../../../core/interfaces/api/ticket-history-data.interface';
-import {
-  DEFAULT_MONEY_GOAL,
-  BENEFICIARY_PERCENTAGE,
-  WINNER_PERCENTAGE,
-  TICKETS_TOTAL_COUNT,
-  DEFAULT_RAFFLE_PHOTO,
-} from '../../../../core/helpers/global/dashboard.constants';
+import { mapRaffleDetails, mapTicketDetails } from '../../../../core/helpers/ui/utils';
 import {
   HISTORY_COLUMNS,
   HISTORY_FILTERS,
@@ -45,7 +41,10 @@ import {
   templateUrl: './history.html',
   styleUrl: './history.scss',
 })
-export class History {
+export class History implements OnInit {
+  private readonly raffleService = inject(RaffleService);
+  private readonly ticketService = inject(TicketService);
+
   principalHeader = HISTORY_PRINCIPAL_HEADER;
   historyColumns = HISTORY_COLUMNS;
   historyFilters = HISTORY_FILTERS;
@@ -61,16 +60,33 @@ export class History {
   private readonly BTN_TICKETS_MODAL_ID = 'btn-abrir-modal-tickets';
   private readonly BTN_DELETE_HISTORY_ID = 'btn-abrir-modal-delete-history';
 
+  historyData: HistoryRaffle[] = [];
+  tableData: HistoryRaffle[] = [];
+
+  ngOnInit(): void {
+    this.cargarRifas();
+  }
+
+  cargarRifas(): void {
+    this.raffleService.getAll().subscribe({
+      next: (res) => {
+        if (res && res.data) {
+          this.historyData = res.data.map((r: any) => ({
+            ...r,
+            goal: r.goal || 0
+          }));
+          this.tableData = this.getFilteredData(this.filtroActual);
+        }
+      },
+      error: (err) => {
+        console.error('API Error: No se pudieron cargar las rifas para el historial.', err);
+      }
+    });
+  }
+
   filtrarPorCategoria(id: string): void {
     this.filtroActual = id;
     this.tableData = this.getFilteredData(id);
-  }
-
-  historyData: HistoryRaffle[] = [...MY_HISTORY_DATA_MOCK];
-  tableData: HistoryRaffle[] = [];
-
-  constructor() {
-    this.tableData = this.getFilteredData(this.filtroActual);
   }
 
   manejarAccion(evento: { actionId: number; row: HistoryRaffle }): void {
@@ -101,114 +117,78 @@ export class History {
   }
 
   confirmarEliminar(razon: string): void {
-    try {
-      const targetRaffle = this.rifaSeleccionadaParaBorrar;
-      if (!targetRaffle) throw new Error();
-      const index = this.historyData.findIndex((r) => r._id === targetRaffle._id);
-      if (index === -1) throw new Error();
-      this.historyData[index].status = STATE_DELETED;
-      this.historyData[index].deleteReason = razon;
-      this.tableData = this.getFilteredData(this.filtroActual);
-      this.rifaSeleccionadaParaBorrar = null;
-    } catch { }
+    const targetRaffle = this.rifaSeleccionadaParaBorrar;
+    if (!targetRaffle) return;
+
+    this.raffleService.deleteRaffle(targetRaffle._id, razon).subscribe({
+      next: () => {
+        this.cargarRifas();
+      },
+      error: (err) => {
+        console.error('API Error: No se pudo eliminar la rifa.', err);
+      },
+    });
+    this.rifaSeleccionadaParaBorrar = null;
   }
 
   onViewTicketDetails(raffle: HistoryRaffle): void {
-    const ticketsTotalCount = raffle.totalTickets || TICKETS_TOTAL_COUNT;
-    const generatedTickets: Ticket[] = Array.from({ length: ticketsTotalCount }, (_, i) => {
-      const numStr = (i + 1).toString().padStart(2, '0');
-      let status: 'available' | 'selected' | 'winner' = 'available';
-
-      if (numStr === (raffle.winner || '07')) {
-        status = 'winner';
-      } else if (raffle.associatedNumbers && raffle.associatedNumbers.includes(`[${numStr}]`)) {
-        status = 'selected';
-      } else if (!raffle.associatedNumbers && (numStr === '05' || numStr === '14')) {
-        status = 'selected';
-      }
-
-      return { number: numStr, status };
+    this.selectedTicketData = null;
+    this.ticketService.getTicketsByRaffle(raffle._id).subscribe({
+      next: (res) => {
+        if (res && res.data) {
+          this.selectedTicketData = mapTicketDetails(res.data, raffle);
+        }
+      },
+      error: (err) => {
+        console.error('API Error: No se pudieron cargar los boletos del backend.', err);
+      },
     });
-
-    const associatedNumbers = raffle.associatedNumbers || '[05] [07] [14]';
-    const ticketsPurchased = raffle.associatedNumbers
-      ? associatedNumbers.split(']').filter(Boolean).length
-      : 3;
-
-    this.selectedTicketData = {
-      winnerName: raffle.winnerName || 'Paco Briones Macias',
-      ticketsPurchased: ticketsPurchased,
-      associatedNumbers: associatedNumbers,
-      email: raffle.winnerEmail || 'example@gmail.com',
-      winnerTicket: raffle.winner || '07',
-      phone: raffle.winnerPhone || '0998452318',
-      lastPurchaseDate: '12/05/2026',
-      tickets: generatedTickets,
-    };
   }
 
   onViewDetails(raffle: HistoryRaffle): void {
-    const totalCollected = raffle.collected;
-    const moneyGoal = raffle.goal || DEFAULT_MONEY_GOAL;
-    const beneficiaryPercentage =
-      raffle.beneficiaryPercentage !== undefined
-        ? raffle.beneficiaryPercentage
-        : BENEFICIARY_PERCENTAGE;
-    const winnerPercentage =
-      raffle.winnerPercentage !== undefined ? raffle.winnerPercentage : WINNER_PERCENTAGE;
-
-    const beneficiaryAmount = (totalCollected * beneficiaryPercentage) / 100;
-    const winnerAmount = (totalCollected * winnerPercentage) / 100;
-
-    this.selectedRaffle = {
-      name: raffle.title,
-      foundation: raffle.foundation,
-      startDate: raffle.startDate || '10/05/2026',
-      endDate: raffle.endDate || '14/05/2026',
-      category: raffle.category,
-      ticketPrice: raffle.ticketPrice || 30,
-      winningTicket: raffle.winner,
-      moneyGoal: moneyGoal,
-      ticketsSold: raffle.soldTickets,
-      ticketsAvailable: raffle.totalTickets,
-      totalCollected: totalCollected,
-      photo: raffle.photo || DEFAULT_RAFFLE_PHOTO,
-      beneficiaryAmount,
-      beneficiaryPercentage: beneficiaryPercentage,
-      winnerAmount,
-      winnerPercentage: winnerPercentage,
-      blogCardText: raffle.blogCardText || 'Ayuda a reforestar 10,000 hectáreas en el Amazonas.',
-      blogDetailText:
-        raffle.blogDetailText ||
-        'Detalle completo de la rifa se muestra aquí...\nPuedes añadir toda la información detallada que necesites sobre los premios, mecánicas y condiciones de participación de la rifa en esta sección interactiva.',
-      drawMethod: raffle.drawMethod,
-      deleteReason: raffle.deleteReason || '',
-      unlinks: raffle.unlinks || [],
-    };
+    this.selectedRaffle = mapRaffleDetails(raffle);
   }
 
   private getFilteredData(filterId: string): HistoryRaffle[] {
-    let filtered = this.historyData;
+    const historyRaffles = this.historyData.filter((r) => {
+      const statusUpper = (r.status || '').toUpperCase();
+      return (
+        statusUpper === 'FINISHED' ||
+        statusUpper === 'FINALIZADA' ||
+        statusUpper === 'FINALIZADO' ||
+        statusUpper === 'PENDING_DRAW' ||
+        statusUpper === 'DELETED' ||
+        statusUpper === 'ELIMINADO' ||
+        statusUpper === 'ELIMINADA'
+      );
+    });
+
+    const isDeleted = (status: string) => {
+      const s = (status || '').toUpperCase();
+      return s === 'DELETED' || s === 'ELIMINADO' || s === 'ELIMINADA';
+    };
+
+    let filtered = historyRaffles;
     try {
       const filterActions: Record<string, () => HistoryRaffle[]> = {
-        [HISTORY_FILTER_ALL]: () => this.historyData.filter((r) => r.status !== STATE_DELETED),
-        [HISTORY_FILTER_TICKETS]: () => this.historyData.filter(
-          (r) => r.status !== STATE_DELETED && r.soldTickets === r.totalTickets,
-        ),
-        [HISTORY_FILTER_GOAL]: () => this.historyData.filter(
-          (r) => r.status !== STATE_DELETED && r.collected === r.goal,
-        ),
-        [HISTORY_FILTER_DELETE]: () => this.historyData.filter((r) => r.status === STATE_DELETED),
+        [HISTORY_FILTER_ALL]: () => historyRaffles,
+        [HISTORY_FILTER_TICKETS]: () =>
+          historyRaffles.filter((r) => !isDeleted(r.status) && r.soldTickets === r.totalTickets),
+        [HISTORY_FILTER_GOAL]: () =>
+          historyRaffles.filter((r) => !isDeleted(r.status) && r.collected === r.goal),
+        [HISTORY_FILTER_DELETE]: () =>
+          historyRaffles.filter((r) => isDeleted(r.status)),
       };
 
       const filterFn = filterActions[filterId];
-      if (!filterFn) throw new Error();
-      filtered = filterFn();
+      if (filterFn) {
+        filtered = filterFn();
+      }
     } catch { }
 
     return filtered.map((raffle) => ({
       ...raffle,
-      drawMethod: raffle.drawMethod || (METHOD_AUTOMATIC as 'AUTOMATICO' | 'MANUAL'),
+      drawMethod: raffle.drawMethod || (METHOD_AUTOMATIC as 'AUTOMATIC' | 'MANUAL'),
       soldTicketsStr: `${raffle.soldTickets}/${raffle.totalTickets}`,
       collectedStr: `${raffle.collected}/${raffle.goal} $`,
     }));

@@ -79,9 +79,21 @@ export class Draws implements OnInit {
     let filtered = this.rifasData.filter((r) => r.status !== STATE_DELETED && r.drawMethod === 'MANUAL');
 
     if (this.filtroActual === 'active') {
-      filtered = filtered.filter((r) => r.status === 'ACTIVO' || r.status === 'ACTIVA' || !r.winner);
+      filtered = filtered.filter(
+        (r) =>
+          r.status === 'ACTIVE' ||
+          r.status === 'ACTIVO' ||
+          r.status === 'ACTIVA' ||
+          !r.winner
+      );
     } else if (this.filtroActual === 'finished') {
-      filtered = filtered.filter((r) => r.status === 'FINALIZADO' || r.status === 'FINALIZADA' || !!r.winner);
+      filtered = filtered.filter(
+        (r) =>
+          r.status === 'FINISHED' ||
+          r.status === 'FINALIZADO' ||
+          r.status === 'FINALIZADA' ||
+          !!r.winner
+      );
     }
 
     this.tableData = filtered.map((raffle) => {
@@ -93,7 +105,7 @@ export class Draws implements OnInit {
 
       return {
         ...raffle,
-        drawMethod: raffle.drawMethod || (METHOD_AUTOMATIC as 'AUTOMATICO' | 'MANUAL'),
+        drawMethod: raffle.drawMethod || (METHOD_AUTOMATIC as 'AUTOMATIC' | 'MANUAL'),
         soldTicketsStr: `${raffle.soldTickets}/${raffle.totalTickets}`,
         collectedStr: recStr,
         ganadorText: raffle.winner ? `Boleto ${raffle.winner} (${raffle.winnerName || 'Sin Nombre'})` : 'Pendiente Sorteo',

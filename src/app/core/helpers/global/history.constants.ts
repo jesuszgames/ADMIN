@@ -11,7 +11,7 @@ import {
 import { HistoryRaffle } from '../../interfaces/api/history-raffle.interface';
 
 export const STATE_DELETED = 'ELIMINADO';
-export const METHOD_AUTOMATIC = 'AUTOMATICO';
+export const METHOD_AUTOMATIC = 'AUTOMATIC';
 
 export const HISTORY_PRINCIPAL_HEADER = 'Historial de rifas';
 
@@ -59,7 +59,7 @@ export const MY_HISTORY_DATA_MOCK: HistoryRaffle[] = [
     goal: 3000,
     winner: '07',
     actions: '',
-    drawMethod: 'AUTOMATICO',
+    drawMethod: 'AUTOMATIC',
     unlinks: [
       {
         number: '14',
@@ -103,7 +103,7 @@ export const MY_HISTORY_DATA_MOCK: HistoryRaffle[] = [
     goal: 2000,
     winner: '50',
     actions: '',
-    drawMethod: 'AUTOMATICO',
+    drawMethod: 'AUTOMATIC',
   },
   {
     _id: '603d21bf9f8b2c001f8ee3d4',

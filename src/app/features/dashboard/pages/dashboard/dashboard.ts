@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { SimpleCard } from '../../components/simple-card/simple-card';
 import { Tables } from '../../../../shared/components/tables/tables';
 import { DeleteModal } from '../../../../shared/components/delete-modal/delete-modal';
@@ -8,17 +8,14 @@ import { HistoryTicketModel } from '../../../../shared/components/history-ticket
 import { Ticket } from '../../../../core/interfaces/api/ticket.interface';
 import { RaffleDetail } from '../../../../core/interfaces/api/raffle-detail.interface';
 import { TicketHistoryData } from '../../../../core/interfaces/api/ticket-history-data.interface';
+import { RaffleService } from '../../../../core/services/api/raffle.service';
+import { TicketService } from '../../../../core/services/api/ticket.service';
+import { mapRaffleDetails, mapTicketDetails } from '../../../../core/helpers/ui/utils';
 import {
   DEFAULT_USER_NAME,
   DASHBOARD_PRINCIPAL_HEADER,
   DASHBOARD_CARDS,
   DASHBOARD_COLUMNS,
-  DEFAULT_MONEY_GOAL,
-  BENEFICIARY_PERCENTAGE,
-  WINNER_PERCENTAGE,
-  TICKETS_TOTAL_COUNT,
-  RECENT_RAFFLES_MOCK,
-  DEFAULT_RAFFLE_PHOTO,
   PERSO_PAGE_SIZE,
   HISTORY_ROW_ACTIONS,
 } from '../../../../core/helpers/global/dashboard.constants';
@@ -51,6 +48,9 @@ import { Raffle } from '../../../../core/interfaces/api/raffle.interface';
   styleUrl: './dashboard.scss',
 })
 export class Dashboard implements OnInit {
+  private readonly raffleService = inject(RaffleService);
+  private readonly ticketService = inject(TicketService);
+
   userName = DEFAULT_USER_NAME;
   principalHeader = DASHBOARD_PRINCIPAL_HEADER;
   selectedRaffle: RaffleDetail | null = null;
@@ -71,7 +71,65 @@ export class Dashboard implements OnInit {
 
   ngOnInit(): void {
     this.initWelcomeMessage();
-    this.updateCardMetrics();
+    this.cargarRifas();
+  }
+
+  cargarRifas(): void {
+    this.raffleService.getAll().subscribe({
+      next: (res) => {
+        if (res && res.data) {
+          this.recentRaffles = res.data;
+          this.updateTableData();
+          this.updateCardMetrics();
+        }
+      },
+      error: (err) => {
+        console.error('API Error: No se pudieron cargar las rifas para el dashboard.', err);
+      }
+    });
+  }
+
+  updateTableData(): void {
+    const nowTime = Date.now();
+    this.tableData = this.recentRaffles
+      .filter((r) => {
+        const statusUpper = (r.status || '').toUpperCase();
+        const isEnded =
+          statusUpper === 'FINISHED' ||
+          statusUpper === 'FINALIZADO' ||
+          statusUpper === 'FINALIZADA' ||
+          statusUpper === 'PENDING_DRAW';
+
+        if (!isEnded) return false;
+
+        if (
+          r.status === STATE_DELETED ||
+          r.status === 'DELETED' ||
+          r.status === 'ELIMINADO' ||
+          r.status === 'ELIMINADA'
+        ) {
+          return false;
+        }
+
+        const completionDate = r.updatedAt ? new Date(r.updatedAt) : (r.endDate ? new Date(r.endDate) : null);
+        if (completionDate) {
+          const diffMs = nowTime - completionDate.getTime();
+          return diffMs >= 0 && diffMs <= 24 * 60 * 60 * 1000;
+        }
+        return true;
+      })
+      .map((raffle) => {
+        let recStr = `${raffle.collected}$`;
+        try {
+          if (!raffle.goal) throw new Error();
+          recStr = `${raffle.collected}/${raffle.goal} $`;
+        } catch { }
+        return {
+          ...raffle,
+          drawMethod: raffle.drawMethod || (METHOD_AUTOMATIC as 'AUTOMATIC' | 'MANUAL'),
+          collectedStr: recStr,
+        };
+      });
   }
 
   private initWelcomeMessage() {
@@ -118,18 +176,25 @@ export class Dashboard implements OnInit {
       // Calculate active raffles (state !== 'FINALIZADO' && state !== 'FINALIZADA')
       const totalActive = activeRaffles.filter((r) => {
         const est = String(r.status).toUpperCase();
-        return est !== 'FINALIZADO' && est !== 'FINALIZADA' && est !== 'ELIMINADO';
+        return (
+          est !== 'FINALIZADO' &&
+          est !== 'FINALIZADA' &&
+          est !== 'ELIMINADO' &&
+          est !== 'FINISHED' &&
+          est !== 'DELETED'
+        );
       }).length;
 
       // Calculate raffles without tickets (sold out)
-      const totalNoTickets = activeRaffles.filter(
-        (r) => String(r.status).toUpperCase() === 'SIN BOLETOS',
-      ).length;
+      const totalNoTickets = activeRaffles.filter((r) => {
+        const est = String(r.status).toUpperCase();
+        return est === 'SIN BOLETOS' || est === 'NO TICKETS';
+      }).length;
 
       // Calculate finished raffles (finalizado/finalizada)
       const totalFinished = activeRaffles.filter((r) => {
         const est = String(r.status).toUpperCase();
-        return est === 'FINALIZADO' || est === 'FINALIZADA';
+        return est === 'FINALIZADO' || est === 'FINALIZADA' || est === 'FINISHED';
       }).length;
 
       this.cards = [
@@ -208,114 +273,38 @@ export class Dashboard implements OnInit {
   }
 
   confirmarEliminar(razon: string) {
-    try {
-      const targetRaffle = this.rifaSeleccionadaParaBorrar;
-      if (!targetRaffle) throw new Error();
-      const index = this.recentRaffles.findIndex((r) => r._id === targetRaffle._id);
-      if (index === -1) throw new Error();
-      this.recentRaffles[index].status = STATE_DELETED;
-      this.recentRaffles[index].deleteReason = razon;
+    const targetRaffle = this.rifaSeleccionadaParaBorrar;
+    if (!targetRaffle) return;
 
-      this.tableData = this.recentRaffles
-        .filter((r) => r.status !== STATE_DELETED)
-        .map((raffle) => {
-          let recStr = `${raffle.collected}$`;
-          try {
-            if (!raffle.goal) throw new Error();
-            recStr = `${raffle.collected}/${raffle.goal} $`;
-          } catch { }
-          return {
-            ...raffle,
-            drawMethod: raffle.drawMethod || METHOD_AUTOMATIC,
-            collectedStr: recStr,
-          };
-        });
-      this.updateCardMetrics();
-      this.rifaSeleccionadaParaBorrar = null;
-    } catch { }
+    this.raffleService.deleteRaffle(targetRaffle._id, razon).subscribe({
+      next: () => {
+        this.cargarRifas();
+      },
+      error: (err) => {
+        console.error('API Error: No se pudo eliminar la rifa.', err);
+      },
+    });
+    this.rifaSeleccionadaParaBorrar = null;
   }
 
   onViewTicketDetails(raffle: Raffle) {
-    const ticketsTotalCount = raffle.totalTickets || TICKETS_TOTAL_COUNT;
-    const generatedTickets: Ticket[] = Array.from({ length: ticketsTotalCount }, (_, i) => {
-      const numStr = (i + 1).toString().padStart(2, '0');
-      let status: 'available' | 'selected' | 'winner' = 'available';
-
-      if (numStr === (raffle.winner || '07')) {
-        status = 'winner';
-      } else if (raffle.associatedNumbers && raffle.associatedNumbers.includes(`[${numStr}]`)) {
-        status = 'selected';
-      } else if (!raffle.associatedNumbers && (numStr === '05' || numStr === '14')) {
-        status = 'selected';
-      }
-
-      return { number: numStr, status };
+    this.selectedTicketData = null;
+    this.ticketService.getTicketsByRaffle(raffle._id).subscribe({
+      next: (res) => {
+        if (res && res.data) {
+          this.selectedTicketData = mapTicketDetails(res.data, raffle);
+        }
+      },
+      error: (err) => {
+        console.error('API Error: No se pudieron cargar los boletos del backend.', err);
+      },
     });
-
-    const associatedNumbers = raffle.associatedNumbers || '[05] [07] [14]';
-    const ticketsPurchased = raffle.associatedNumbers
-      ? associatedNumbers.split(']').filter(Boolean).length
-      : 3;
-
-    this.selectedTicketData = {
-      winnerName: raffle.winnerName || 'Paco Briones Macias',
-      ticketsPurchased: ticketsPurchased,
-      associatedNumbers: associatedNumbers,
-      email: raffle.winnerEmail || 'example@gmail.com',
-      winnerTicket: raffle.winner || '07',
-      phone: raffle.winnerPhone || '0998452318',
-      lastPurchaseDate: '12/05/2026',
-      tickets: generatedTickets,
-    };
   }
 
   onViewDetails(raffle: Raffle) {
-    const totalCollected = raffle.collected;
-    const moneyGoal = raffle.goal || DEFAULT_MONEY_GOAL;
-    const beneficiaryPercentage =
-      raffle.beneficiaryPercentage !== undefined
-        ? raffle.beneficiaryPercentage
-        : BENEFICIARY_PERCENTAGE;
-    const winnerPercentage =
-      raffle.winnerPercentage !== undefined ? raffle.winnerPercentage : WINNER_PERCENTAGE;
-
-    const beneficiaryAmount = (totalCollected * beneficiaryPercentage) / 100;
-    const winnerAmount = (totalCollected * winnerPercentage) / 100;
-
-    this.selectedRaffle = {
-      name: raffle.title,
-      foundation: raffle.foundation,
-      startDate: raffle.startDate || '10/05/2026',
-      endDate: raffle.endDate || '14/05/2026',
-      category: raffle.category,
-      ticketPrice: raffle.ticketPrice || 30,
-      winningTicket: raffle.winner,
-      moneyGoal: moneyGoal,
-      ticketsSold: raffle.soldTickets,
-      ticketsAvailable: raffle.totalTickets,
-      totalCollected: totalCollected,
-      photo: raffle.photo || DEFAULT_RAFFLE_PHOTO,
-      beneficiaryAmount,
-      beneficiaryPercentage: beneficiaryPercentage,
-      winnerAmount,
-      winnerPercentage: winnerPercentage,
-      blogCardText: raffle.blogCardText || 'Ayuda a reforestar 10,000 hectáreas en el Amazonas.',
-      blogDetailText:
-        raffle.blogDetailText ||
-        'Detalle completo de la rifa se muestra aquí...\nPuedes añadir toda la información detallada que necesites sobre los premios, mecánicas y condiciones de participación de la rifa en esta sección interactiva.',
-      drawMethod: raffle.drawMethod,
-      deleteReason: raffle.deleteReason || '',
-      unlinks: raffle.unlinks || [],
-    };
+    this.selectedRaffle = mapRaffleDetails(raffle);
   }
 
-  recentRaffles: Raffle[] = RECENT_RAFFLES_MOCK;
-
-  tableData = this.recentRaffles
-    .filter((r) => r.status !== STATE_DELETED)
-    .map((raffle) => ({
-      ...raffle,
-      drawMethod: raffle.drawMethod || 'AUTOMATICO',
-      collectedStr: raffle.goal ? `${raffle.collected}/${raffle.goal} $` : `${raffle.collected}$`,
-    }));
+  recentRaffles: Raffle[] = [];
+  tableData: Raffle[] = [];
 }

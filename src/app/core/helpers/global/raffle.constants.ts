@@ -2,13 +2,13 @@ import { TableColumn } from '../../interfaces/api/table-column.interface';
 import { FilterOption } from '../../interfaces/api/filter-option.interface';
 import { Raffle } from '../../interfaces/api/raffle.interface';
 
-export const RAFFLE_STATUS_ACTIVE = 'ACTIVA';
-export const RAFFLE_STATUS_INACTIVE = 'INACTIVO';
-export const RAFFLE_STATUS_NO_TICKETS = 'SIN BOLETOS';
-export const RAFFLE_STATUS_PROX_EXPIRED = 'PROXIMO A VENCER';
-export const RAFFLE_STATUS_META_COMPLETED = 'META COMPLETADA';
-export const STATE_DELETED = 'ELIMINADO';
-export const METHOD_AUTOMATIC = 'AUTOMATICO';
+export const RAFFLE_STATUS_ACTIVE = 'ACTIVE';
+export const RAFFLE_STATUS_INACTIVE = 'INACTIVE';
+export const RAFFLE_STATUS_NO_TICKETS = 'NO TICKETS';
+export const RAFFLE_STATUS_PROX_EXPIRED = 'SOON TO EXPIRE';
+export const RAFFLE_STATUS_META_COMPLETED = 'GOAL COMPLETED';
+export const STATE_DELETED = 'DELETED';
+export const METHOD_AUTOMATIC = 'AUTOMATIC';
 export const METHOD_MANUAL = 'MANUAL';
 
 export const DEFAULT_RAFFLE_START_DATE = '2026-05-10';
@@ -21,7 +21,7 @@ export const DEFAULT_RAFFLE_WINNER_PERCENT = 20;
 export const DEFAULT_RAFFLE_BLOG_CARD = 'Ayuda a personas necesitadas.';
 export const DEFAULT_RAFFLE_BLOG_DETAIL = 'Esta rifa apoya la causa social.';
 export const DEFAULT_RAFFLE_TIME_LEFT = '15 dias';
-export const DEFAULT_RAFFLE_METODO_SORTEO: 'AUTOMATICO' | 'MANUAL' = 'AUTOMATICO';
+export const DEFAULT_RAFFLE_METODO_SORTEO: 'AUTOMATIC' | 'MANUAL' = 'AUTOMATIC';
 
 export const MY_RAFFLES_PRINCIPAL_HEADER = 'Rifas Activas';
 
@@ -32,7 +32,7 @@ export const MY_RAFFLES_COLUMNS: TableColumn[] = [
   { field: 'soldTicketsStr', header: 'Boletos Vendidos' },
   { field: 'collectedStr', header: 'Total Recaudado' },
   { field: 'drawMethod', header: 'Sorteo', type: 'badge' },
-  { field: 'status', header: 'Estado', type: 'badge' },
+  { field: 'statusDisplay', header: 'Estado', type: 'badge' },
   { field: 'remainingTime', header: 'Tiempo Restante' },
   { field: 'actions', header: 'Acciones', type: 'actions' },
 ];
@@ -52,7 +52,6 @@ export const MY_RAFFLES_FILTERS: FilterOption[] = [
   { id: RAFFLE_FILTER_NO_TICKETS, icon: 'bi-ticket-perforated', label: 'Sin Boletos' },
   { id: RAFFLE_FILTER_PROX_EXPIRED, icon: 'bi-hourglass', label: 'Próximo a vencer' },
   { id: RAFFLE_FILTER_META_COMPLETED, icon: 'bi-check-all', label: 'Meta Completada' },
-  { id: RAFFLE_FILTER_DELETE, icon: 'bi-trash', label: 'Eliminadas' },
 ];
 
 export const MY_RAFFLES_DATA_MOCK: Raffle[] = [
@@ -63,7 +62,7 @@ export const MY_RAFFLES_DATA_MOCK: Raffle[] = [
     foundationId: '603d21bf9f8b2c001f8ee3f7',
     category: 'ASISTENCIA SOCIAL',
     categoryId: '603d21bf9f8b2c001f8ee3c5',
-    status: 'ACTIVA',
+    status: 'ACTIVE',
     soldTickets: 100,
     totalTickets: 100,
     collected: 10000,
@@ -80,7 +79,7 @@ export const MY_RAFFLES_DATA_MOCK: Raffle[] = [
     blogDetailText: 'Esta rifa apoya a Caritas Tijuana A.C. en sus comedores sociales.',
     photo:
       'https://images.unsplash.com/photo-1516841273335-e39b37888115?auto=format&fit=crop&q=80&w=400',
-    drawMethod: 'AUTOMATICO',
+    drawMethod: 'AUTOMATIC',
     unlinks: [
       {
         number: '14',
@@ -105,7 +104,7 @@ export const MY_RAFFLES_DATA_MOCK: Raffle[] = [
     foundationId: '603d21bf9f8b2c001f8ee3fa',
     category: 'TECNOLOGIA',
     categoryId: '603d21bf9f8b2c001f8ee3c6',
-    status: 'ACTIVA',
+    status: 'ACTIVE',
     soldTickets: 95,
     totalTickets: 100,
     collected: 9500,
@@ -131,7 +130,7 @@ export const MY_RAFFLES_DATA_MOCK: Raffle[] = [
     foundationId: '603d21bf9f8b2c001f8ee3f7',
     category: 'ASISTENCIA SOCIAL',
     categoryId: '603d21bf9f8b2c001f8ee3c5',
-    status: 'ACTIVA',
+    status: 'ACTIVE',
     soldTickets: 100,
     totalTickets: 100,
     collected: 10000,
@@ -148,7 +147,7 @@ export const MY_RAFFLES_DATA_MOCK: Raffle[] = [
     blogDetailText: 'Esta rifa apoya con insumos médicos y calefactores para el Asilo San Pedro.',
     photo:
       'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&q=80&w=400',
-    drawMethod: 'AUTOMATICO',
+    drawMethod: 'AUTOMATIC',
   },
   {
     _id: '603d21bf9f8b2c001f8ee3b4',
@@ -157,7 +156,7 @@ export const MY_RAFFLES_DATA_MOCK: Raffle[] = [
     foundationId: '603d21bf9f8b2c001f8ee3f7',
     category: 'ASISTENCIA SOCIAL',
     categoryId: '603d21bf9f8b2c001f8ee3c5',
-    status: 'ACTIVA',
+    status: 'ACTIVE',
     soldTickets: 50,
     totalTickets: 100,
     collected: 5000,
@@ -173,7 +172,7 @@ export const MY_RAFFLES_DATA_MOCK: Raffle[] = [
     foundationId: '603d21bf9f8b2c001f8ee3f7',
     category: 'ASISTENCIA SOCIAL',
     categoryId: '603d21bf9f8b2c001f8ee3c5',
-    status: 'ACTIVA',
+    status: 'ACTIVE',
     soldTickets: 50,
     totalTickets: 100,
     collected: 5000,
@@ -189,7 +188,7 @@ export const MY_RAFFLES_DATA_MOCK: Raffle[] = [
     foundationId: '603d21bf9f8b2c001f8ee3f7',
     category: 'ASISTENCIA SOCIAL',
     categoryId: '603d21bf9f8b2c001f8ee3c5',
-    status: 'ACTIVA',
+    status: 'ACTIVE',
     soldTickets: 50,
     totalTickets: 100,
     collected: 5000,
@@ -205,7 +204,7 @@ export const MY_RAFFLES_DATA_MOCK: Raffle[] = [
     foundationId: '603d21bf9f8b2c001f8ee3f7',
     category: 'ASISTENCIA SOCIAL',
     categoryId: '603d21bf9f8b2c001f8ee3c5',
-    status: 'ACTIVA',
+    status: 'ACTIVE',
     soldTickets: 50,
     totalTickets: 100,
     collected: 5000,
@@ -221,7 +220,7 @@ export const MY_RAFFLES_DATA_MOCK: Raffle[] = [
     foundationId: '603d21bf9f8b2c001f8ee3f7',
     category: 'ASISTENCIA SOCIAL',
     categoryId: '603d21bf9f8b2c001f8ee3c5',
-    status: 'ACTIVA',
+    status: 'ACTIVE',
     soldTickets: 50,
     totalTickets: 100,
     collected: 5000,
@@ -237,7 +236,7 @@ export const MY_RAFFLES_DATA_MOCK: Raffle[] = [
     foundationId: '603d21bf9f8b2c001f8ee3f7',
     category: 'ASISTENCIA SOCIAL',
     categoryId: '603d21bf9f8b2c001f8ee3c5',
-    status: 'ACTIVA',
+    status: 'ACTIVE',
     soldTickets: 50,
     totalTickets: 100,
     collected: 5000,
@@ -253,7 +252,7 @@ export const MY_RAFFLES_DATA_MOCK: Raffle[] = [
     foundationId: '603d21bf9f8b2c001f8ee3f7',
     category: 'ASISTENCIA SOCIAL',
     categoryId: '603d21bf9f8b2c001f8ee3c5',
-    status: 'ACTIVA',
+    status: 'ACTIVE',
     soldTickets: 50,
     totalTickets: 100,
     collected: 5000,
@@ -269,7 +268,7 @@ export const MY_RAFFLES_DATA_MOCK: Raffle[] = [
     foundationId: '603d21bf9f8b2c001f8ee3f7',
     category: 'ASISTENCIA SOCIAL',
     categoryId: '603d21bf9f8b2c001f8ee3c5',
-    status: 'ACTIVA',
+    status: 'ACTIVE',
     soldTickets: 50,
     totalTickets: 100,
     collected: 5000,
@@ -285,7 +284,7 @@ export const MY_RAFFLES_DATA_MOCK: Raffle[] = [
     foundationId: '603d21bf9f8b2c001f8ee3f7',
     category: 'ASISTENCIA SOCIAL',
     categoryId: '603d21bf9f8b2c001f8ee3c5',
-    status: 'ACTIVA',
+    status: 'ACTIVE',
     soldTickets: 50,
     totalTickets: 100,
     collected: 5000,
@@ -301,7 +300,7 @@ export const MY_RAFFLES_DATA_MOCK: Raffle[] = [
     foundationId: '603d21bf9f8b2c001f8ee3f7',
     category: 'ASISTENCIA SOCIAL',
     categoryId: '603d21bf9f8b2c001f8ee3c5',
-    status: 'ACTIVA',
+    status: 'ACTIVE',
     soldTickets: 50,
     totalTickets: 100,
     collected: 5000,
@@ -317,7 +316,7 @@ export const MY_RAFFLES_DATA_MOCK: Raffle[] = [
     foundationId: '603d21bf9f8b2c001f8ee3f7',
     category: 'ASISTENCIA SOCIAL',
     categoryId: '603d21bf9f8b2c001f8ee3c5',
-    status: 'ACTIVA',
+    status: 'ACTIVE',
     soldTickets: 50,
     totalTickets: 100,
     collected: 5000,
@@ -333,7 +332,7 @@ export const MY_RAFFLES_DATA_MOCK: Raffle[] = [
     foundationId: '603d21bf9f8b2c001f8ee3f7',
     category: 'ASISTENCIA SOCIAL',
     categoryId: '603d21bf9f8b2c001f8ee3c5',
-    status: 'ACTIVA',
+    status: 'ACTIVE',
     soldTickets: 50,
     totalTickets: 100,
     collected: 5000,
@@ -349,7 +348,7 @@ export const MY_RAFFLES_DATA_MOCK: Raffle[] = [
     foundationId: '603d21bf9f8b2c001f8ee3f7',
     category: 'ASISTENCIA SOCIAL',
     categoryId: '603d21bf9f8b2c001f8ee3c5',
-    status: 'ACTIVA',
+    status: 'ACTIVE',
     soldTickets: 50,
     totalTickets: 100,
     collected: 5000,
@@ -365,7 +364,7 @@ export const MY_RAFFLES_DATA_MOCK: Raffle[] = [
     foundationId: '603d21bf9f8b2c001f8ee3f7',
     category: 'ASISTENCIA SOCIAL',
     categoryId: '603d21bf9f8b2c001f8ee3c5',
-    status: 'ACTIVA',
+    status: 'ACTIVE',
     soldTickets: 50,
     totalTickets: 100,
     collected: 5000,
@@ -381,7 +380,7 @@ export const MY_RAFFLES_DATA_MOCK: Raffle[] = [
     foundationId: '603d21bf9f8b2c001f8ee3f7',
     category: 'ASISTENCIA SOCIAL',
     categoryId: '603d21bf9f8b2c001f8ee3c5',
-    status: 'ACTIVA',
+    status: 'ACTIVE',
     soldTickets: 50,
     totalTickets: 100,
     collected: 5000,
@@ -397,7 +396,7 @@ export const MY_RAFFLES_DATA_MOCK: Raffle[] = [
     foundationId: '603d21bf9f8b2c001f8ee3f7',
     category: 'ASISTENCIA SOCIAL',
     categoryId: '603d21bf9f8b2c001f8ee3c5',
-    status: 'ACTIVA',
+    status: 'ACTIVE',
     soldTickets: 50,
     totalTickets: 100,
     collected: 5000,
@@ -413,7 +412,7 @@ export const MY_RAFFLES_DATA_MOCK: Raffle[] = [
     foundationId: '603d21bf9f8b2c001f8ee3f7',
     category: 'ASISTENCIA SOCIAL',
     categoryId: '603d21bf9f8b2c001f8ee3c5',
-    status: 'ACTIVA',
+    status: 'ACTIVE',
     soldTickets: 50,
     totalTickets: 100,
     collected: 5000,

@@ -19,7 +19,7 @@ export interface RaffleDetail {
   winnerPercentage: number;
   blogCardText: string;
   blogDetailText: string;
-  drawMethod?: 'AUTOMATICO' | 'MANUAL';
+  drawMethod?: 'AUTOMATIC' | 'MANUAL';
   deleteReason?: string;
   unlinks?: UnlinkLog[];
 }

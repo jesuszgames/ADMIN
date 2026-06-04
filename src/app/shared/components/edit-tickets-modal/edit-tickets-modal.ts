@@ -37,6 +37,36 @@ export class EditTicketsModal implements OnChanges {
   selectedTicket: Ticket | null = null;
   searchPurchaseId = '';
 
+  currentPage = 1;
+  pageSize = 100;
+
+  get totalPages(): number {
+    return Math.ceil(this.tickets.length / this.pageSize);
+  }
+
+  get paginatedTickets(): Ticket[] {
+    const startIndex = (this.currentPage - 1) * this.pageSize;
+    return this.tickets.slice(startIndex, startIndex + this.pageSize);
+  }
+
+  nextPage() {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+    }
+  }
+
+  prevPage() {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+    }
+  }
+
+  setPage(page: number) {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+    }
+  }
+
   showOptions = false;
   unlinkedLogs: { number: string; user: string; purchaseId: string }[] = [];
   showConfirmModal = false;
@@ -80,6 +110,7 @@ export class EditTicketsModal implements OnChanges {
   initializeTickets() {
     this.selectedTicket = null;
     this.searchPurchaseId = '';
+    this.currentPage = 1;
     this.clearForm();
     this.unlinkedLogs = [];
     this.showConfirmModal = false;
@@ -156,6 +187,10 @@ export class EditTicketsModal implements OnChanges {
     });
 
     if (found) {
+      const index = this.tickets.indexOf(found);
+      if (index !== -1) {
+        this.currentPage = Math.floor(index / this.pageSize) + 1;
+      }
       this.selectTicket(found);
     } else {
       this.selectedTicket = null;
@@ -217,6 +252,12 @@ export class EditTicketsModal implements OnChanges {
     this.clearForm();
     this.selectedTicket = null;
     this.showOptions = false;
+  }
+
+  get isUnlinkReasonValid(): boolean {
+    if (this.unlinkedLogs.length === 0) return true;
+    const trimmed = (this.unlinkReason || '').trim();
+    return trimmed.length >= 5 && trimmed.length <= 500;
   }
 
   get hasWinnerChanged(): boolean {
