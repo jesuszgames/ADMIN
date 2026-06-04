@@ -1,109 +1,128 @@
 @use '../../../../assets/scss/utils/variables.scss' as var;
+
 .custom-table {
+  border-collapse: separate;
+  border-spacing: 0;
+
   th {
-    font-size: var(--fs-8);
-    letter-spacing: 0.05em;
-    font-weight: 400;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var.$secondary-text;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.04) !important;
+    padding: 0.85rem 1rem !important;
   }
 
   td {
-    font-size: var(--fs-8);
+    font-size: 0.82rem;
     font-weight: 400;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03) !important;
+    padding: 0.75rem 1rem !important;
+    transition: var.$transition-fast;
+  }
+
+  tr {
+    transition: var.$transition-fast;
+
+    &:hover td {
+      background-color: rgba(255, 255, 255, 0.015) !important;
+      color: #ffffff !important;
+    }
   }
 
   .badge-text {
     font-size: 0.7rem;
-    font-weight: 400;
+    font-weight: 500;
   }
 
-  // Modernized pill badge layout
   // Modernized pill badge layout
   .badge {
     display: inline-block;
     text-align: center;
     border-radius: 6px;
-    padding: 0.35rem 0.65rem;
-    font-weight: 500;
+    padding: 0.3rem 0.6rem;
+    font-weight: 600;
     letter-spacing: 0.03em;
     text-transform: uppercase;
     font-family: var(--font-monospace, monospace);
-    transition: all 0.2s ease;
+    transition: var.$transition-fast;
   }
 
-  // Custom Color Themes for Badges (Dark Mode Sleek Theme)
-
+  // Custom Color Themes for Badges (Dark Mode Premium Themes)
+  
   // 1. ACTIVE (Activo) - Cool vibrant Blue
   .badge-active {
-    background-color: rgba(56, 189, 248, 0.1) !important;
+    background-color: rgba(56, 189, 248, 0.08) !important;
     color: #38bdf8 !important;
     border: 1px solid rgba(56, 189, 248, 0.2) !important;
   }
 
   // 2. INACTIVE / DESACTIVADO - Sleek Cool Grey
   .badge-inactive {
-    background-color: rgba(148, 163, 184, 0.1) !important;
+    background-color: rgba(148, 163, 184, 0.08) !important;
     color: #94a3b8 !important;
     border: 1px solid rgba(148, 163, 184, 0.2) !important;
   }
 
   // 3. META COMPLETADA - Fresh Emerald Green
   .badge-meta-completed {
-    background-color: rgba(52, 211, 153, 0.1) !important;
+    background-color: rgba(52, 211, 153, 0.08) !important;
     color: #34d399 !important;
     border: 1px solid rgba(52, 211, 153, 0.2) !important;
   }
 
   // 4. SIN BOLETOS - Amber Yellow
   .badge-no-tickets {
-    background-color: rgba(251, 191, 36, 0.1) !important;
+    background-color: rgba(251, 191, 36, 0.08) !important;
     color: #fbbf24 !important;
     border: 1px solid rgba(251, 191, 36, 0.2) !important;
   }
 
   // 5. PROXIMO A VENCER - Warm Warning Orange
   .badge-prox-expired {
-    background-color: rgba(249, 115, 22, 0.1) !important;
+    background-color: rgba(249, 115, 22, 0.08) !important;
     color: #f97316 !important;
     border: 1px solid rgba(249, 115, 22, 0.2) !important;
   }
 
   // 6. ELIMINADO / CANCELADO - Soft Red
   .badge-deleted {
-    background-color: rgba(248, 113, 113, 0.1) !important;
+    background-color: rgba(248, 113, 113, 0.08) !important;
     color: #f87171 !important;
     border: 1px solid rgba(248, 113, 113, 0.2) !important;
   }
 
   // 7. AUTOMATICO (Draw Method) - Neon Tech Purple
   .badge-automatico {
-    background-color: rgba(139, 92, 246, 0.12) !important;
+    background-color: rgba(139, 92, 246, 0.08) !important;
     color: #c084fc !important;
-    border: 1px solid rgba(139, 92, 246, 0.25) !important;
+    border: 1px solid rgba(139, 92, 246, 0.2) !important;
   }
 
   // 8. MANUAL (Draw Method) - Vibrant Pink
   .badge-manual {
-    background-color: rgba(244, 114, 182, 0.12) !important;
+    background-color: rgba(244, 114, 182, 0.08) !important;
     color: #f472b6 !important;
-    border: 1px solid rgba(244, 114, 182, 0.25) !important;
+    border: 1px solid rgba(244, 114, 182, 0.2) !important;
   }
 
   // 9. DEFAULT / OTHERS
   .badge-default {
-    background-color: rgba(255, 255, 255, 0.05) !important;
+    background-color: rgba(255, 255, 255, 0.04) !important;
     color: #e6edf3 !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
   }
 }
 
 .skeleton-cell {
-  height: 1.25rem;
+  height: 1.1rem;
   width: 80%;
   background: linear-gradient(
     90deg,
-    rgba(255, 255, 255, 0.03) 25%,
-    rgba(255, 255, 255, 0.08) 50%,
-    rgba(255, 255, 255, 0.03) 75%
+    rgba(255, 255, 255, 0.02) 25%,
+    rgba(255, 255, 255, 0.06) 50%,
+    rgba(255, 255, 255, 0.02) 75%
   );
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite linear;
@@ -119,3 +138,4 @@
     background-position: -200% 0;
   }
 }
+

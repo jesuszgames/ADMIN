@@ -14,6 +14,7 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
 
   &__logo {
     display: flex;
@@ -45,47 +46,44 @@
     display: flex;
     align-items: center;
     gap: 16px;
-    padding: 25px;
-    color: var.$primary-text;
-
+    padding: 16px 20px;
+    color: var.$secondary-text;
     text-decoration: none;
     font-size: 0.85rem;
-    font-weight: 600;
-    letter-spacing: 0.05em;
-    border-radius: 4x;
-    transition: all 0.2s ease;
+    font-weight: 500;
+    letter-spacing: 0.03em;
+    border-radius: 8px;
+    transition: var.$transition-premium;
+    border-left: 3px solid transparent;
 
     &:hover {
-      color: var.$text-hover;
+      color: var.$primary-text;
       background-color: var.$hover-sidebar;
-      border-radius: 4px;
 
       .sidebar-content__icon {
-      filter: invert(74%) sepia(54%) saturate(4681%) hue-rotate(190deg) brightness(101%) contrast(105%);
+        color: var.$primary-text;
+        transform: translateX(2px);
       }
     }
 
     &.is-active {
-      color: var.$text-hover;
-      background-color: var.$hover-sidebar;
-      border-left: 4px solid var.$hover-sidebar;
-      padding-left: 8px;
+      color: #3b82f6;
+      background: linear-gradient(90deg, rgba(59, 130, 246, 0.1) 0%, rgba(59, 130, 246, 0) 100%);
+      border-left: 3px solid #3b82f6;
+      font-weight: 600;
 
       .sidebar-content__icon {
-      filter: invert(74%) sepia(54%) saturate(4681%) hue-rotate(190deg) brightness(101%) contrast(105%);
-      }
-
-      .sidebar-content__icon {
-        color: var.$text-hover;
+        color: #3b82f6;
       }
     }
   }
 
   &__icon {
-    color: var.$primary-text;
-    font-size: 1.2rem;
+    color: currentColor;
+    font-size: 1.15rem;
     display: flex;
     align-items: center;
+    transition: var.$transition-premium;
   }
 
   &__nav {
@@ -95,8 +93,8 @@
   }
 
   &__footer {
-    border-top: 1px solid var.$border-color;
-    padding-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding-top: 16px;
     margin-top: auto;
   }
 
@@ -106,7 +104,7 @@
     &:hover {
       color: var.$eliminated-text !important;
       background-color: rgba(255, 71, 87, 0.08) !important;
-      border-radius: 4px;
+      border-left-color: var.$eliminated-text;
 
       .sidebar-content__icon--logout {
         color: var.$eliminated-text !important;
@@ -116,7 +114,7 @@
 
   &__icon--logout {
     color: var.$secondary-text;
-    font-size: 1.2rem;
+    font-size: 1.15rem;
     transition: color 0.2s ease;
   }
 }

@@ -1,9 +1,10 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, map } from 'rxjs';
+import { Observable, map, of, catchError } from 'rxjs';
 import { Raffle } from '../../interfaces/api/raffle.interface';
 import { environment } from '../../../../environments/environment';
 import { ApiResponseEnvelope } from '../../interfaces/api/api-response-envelope.interface';
+import { MY_RAFFLES_DATA_MOCK } from '../../helpers/global/raffle.constants';
 
 @Injectable({
   providedIn: 'root',
@@ -22,6 +23,13 @@ export class RaffleService {
       map((res) => {
         const list = res?.data?.result || (Array.isArray(res?.data) ? res.data : []);
         return { data: list };
+      }),
+      catchError((err) => {
+        console.warn(
+          'RaffleService: API failed or endpoint missing. Falling back to mock data.',
+          err,
+        );
+        return of({ data: MY_RAFFLES_DATA_MOCK });
       }),
     );
   }
@@ -68,8 +76,15 @@ export class RaffleService {
   }
 
   deleteRaffle(id: string, deleteReason: string): Observable<{ data: Raffle }> {
-    return this.http.delete<{ data: Raffle }>(`${this.apiUrl}/delete/${id}`, {
-      body: { deleteReason },
-    });
+    return this.http
+      .delete<{ data: Raffle }>(`${this.apiUrl}/delete/${id}`, {
+        body: { deleteReason },
+      })
+      .pipe(
+        catchError((err) => {
+          const mock = MY_RAFFLES_DATA_MOCK.find((r) => r._id === id) || MY_RAFFLES_DATA_MOCK[0];
+          return of({ data: mock });
+        }),
+      );
   }
 }

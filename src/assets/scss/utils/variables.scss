@@ -70,6 +70,11 @@
   --color-secondary-accent-bg: rgba(148, 163, 184, 0.12);
   --color-secondary-accent-shadow: rgba(148, 163, 184, 0.2);
   --color-secondary-accent-border: rgba(148, 163, 184, 0.3);
+  
+  // Premium transitions & visual polish
+  --transition-premium: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  --transition-fast: all 0.15s ease-in-out;
+  --border-glow-blue: rgba(59, 130, 246, 0.15);
 }
 
 //bg-principal-secundario
@@ -156,3 +161,8 @@ $color-secondary-accent: var(--color-secondary-accent);
 $color-secondary-accent-bg: var(--color-secondary-accent-bg);
 $color-secondary-accent-shadow: var(--color-secondary-accent-shadow);
 $color-secondary-accent-border: var(--color-secondary-accent-border);
+
+$transition-premium: var(--transition-premium);
+$transition-fast: var(--transition-fast);
+$border-glow-blue: var(--border-glow-blue);
+
