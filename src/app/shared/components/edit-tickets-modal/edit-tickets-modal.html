@@ -1,4 +1,11 @@
-<div class="modal fade" id="modalEditarBoletos" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+<div
+  class="modal fade"
+  id="modalEditarBoletos"
+  tabindex="-1"
+  aria-hidden="true"
+  data-bs-backdrop="static"
+  data-bs-keyboard="false"
+>
   <div class="modal-dialog modal-xl modal-dialog-centered">
     <div
       class="modal-content custom-modal-bg border-secondary border-opacity-25 rounded-3 shadow-lg"
@@ -13,9 +20,14 @@
                   type="button"
                   class="ticket-btn"
                   [ngClass]="{
-                    'ticket-comprado': ticket.buyer && (!selectedTicket?.buyer || ticket.buyer.id !== selectedTicket?.buyer?.id),
-                    'ticket-seleccionado': ticket.buyer && selectedTicket?.buyer && ticket.buyer.id === selectedTicket?.buyer?.id,
-                    'ticket-active': selectedTicket?.number === ticket.number
+                    'ticket-comprado':
+                      ticket.buyer &&
+                      (!selectedTicket?.buyer || ticket.buyer.id !== selectedTicket?.buyer?.id),
+                    'ticket-seleccionado':
+                      ticket.buyer &&
+                      selectedTicket?.buyer &&
+                      ticket.buyer.id === selectedTicket?.buyer?.id,
+                    'ticket-active': selectedTicket?.number === ticket.number,
                   }"
                   (click)="selectTicket(ticket)"
                 >
@@ -26,7 +38,9 @@
 
             <!-- Paginación de Boletos -->
             @if (totalPages > 1) {
-              <div class="d-flex justify-content-between align-items-center mt-4 bg-dark bg-opacity-25 p-2 px-3 rounded-3 border border-secondary border-opacity-10">
+              <div
+                class="d-flex justify-content-between align-items-center mt-4 bg-dark bg-opacity-25 p-2 px-3 rounded-3 border border-secondary border-opacity-10"
+              >
                 <button
                   type="button"
                   class="btn btn-sm btn-outline-secondary text-white border-secondary border-opacity-25 py-1 px-3 d-flex align-items-center gap-1"
@@ -178,10 +192,16 @@
               </div>
 
               <div class="col-md-6 d-flex flex-column">
-                <label class="form-label text-white-50 text-uppercase fs-7 mb-2 d-flex align-items-center justify-content-between">
+                <label
+                  class="form-label text-white-50 text-uppercase fs-7 mb-2 d-flex align-items-center justify-content-between"
+                >
                   <span>Número Seleccionado</span>
                   @if (winnerTicketNumber === selectedTicket?.number && selectedTicket?.number) {
-                    <span class="badge bg-success text-white text-uppercase py-1 px-2" style="font-size: 0.65rem; border-radius: 4px;">Ganador</span>
+                    <span
+                      class="badge bg-success text-white text-uppercase py-1 px-2"
+                      style="font-size: 0.65rem; border-radius: 4px"
+                      >Ganador</span
+                    >
                   }
                 </label>
                 <div class="input-group mt-auto">
@@ -222,7 +242,15 @@
                         Establecer como Boleto Ganador
                       </button>
                     }
-                    @if (mode === 'rifas' && userRole !== 'SORTEADOR' && raffle?.status !== 'ELIMINADO' && raffle?.status !== 'DELETED' && raffle?.status !== 'FINALIZADO' && raffle?.status !== 'FINALIZADA' && raffle?.status !== 'FINISHED') {
+                    @if (
+                      mode === 'rifas' &&
+                      userRole !== 'SORTEADOR' &&
+                      raffle?.status !== 'ELIMINADO' &&
+                      raffle?.status !== 'DELETED' &&
+                      raffle?.status !== 'FINALIZADO' &&
+                      raffle?.status !== 'FINALIZADA' &&
+                      raffle?.status !== 'FINISHED'
+                    ) {
                       <button
                         type="button"
                         class="btn btn-option text-start w-100 py-2 px-3 fs-7 text-white"
@@ -267,15 +295,22 @@
 
       @if (showConfirmModal) {
         <div class="confirm-modal-overlay">
-          <div class="confirm-modal-content p-4 rounded-3 shadow-lg" style="max-width: 500px; width: 95%;">
+          <div
+            class="confirm-modal-content p-4 rounded-3 shadow-lg"
+            style="max-width: 500px; width: 95%"
+          >
             <h4 class="text-white fw-bold mb-3 d-flex align-items-center gap-2">
               <i class="bi bi-exclamation-triangle-fill text-warning"></i>
               Confirmar Cambios en Boletería
             </h4>
-            <p class="text-white-50 fs-7 mb-3 text-start">Por favor, confirma las siguientes acciones antes de guardar:</p>
+            <p class="text-white-50 fs-7 mb-3 text-start">
+              Por favor, confirma las siguientes acciones antes de guardar:
+            </p>
 
             @if (hasWinnerChanged && winnerTicketNumber) {
-              <div class="mb-4 p-3 rounded-3 bg-success bg-opacity-10 border border-success border-opacity-25 text-start">
+              <div
+                class="mb-4 p-3 rounded-3 bg-success bg-opacity-10 border border-success border-opacity-25 text-start"
+              >
                 <h5 class="text-success fw-bold fs-7 mb-2 d-flex align-items-center gap-2">
                   <i class="bi bi-trophy-fill"></i> Establecer Ganador
                 </h5>
@@ -284,17 +319,20 @@
                 </p>
                 @if (winnerBuyer) {
                   <p class="text-white-50 fs-8 mb-0">
-                    Comprador: <strong>{{ winnerBuyer.name }}</strong><br>
+                    Comprador: <strong>{{ winnerBuyer.name }}</strong
+                    ><br />
                     Contacto: {{ winnerBuyer.email }} | {{ winnerBuyer.phone }}
                   </p>
                 } @else {
                   <p class="text-white-50 fs-8 mb-0">
-                    Comprador: <strong>{{ buyerName }}</strong><br>
+                    Comprador: <strong>{{ buyerName }}</strong
+                    ><br />
                     Contacto: {{ buyerEmail }} | {{ buyerPhone }}
                   </p>
                 }
                 <div class="text-warning fs-8 mt-2 fw-semibold d-flex align-items-center gap-1">
-                  <i class="bi bi-exclamation-triangle-fill"></i> Esta acción dará por finalizado el sorteo.
+                  <i class="bi bi-exclamation-triangle-fill"></i> Esta acción dará por finalizado el
+                  sorteo.
                 </div>
               </div>
             }
@@ -308,27 +346,50 @@
                   @for (log of unlinkedLogs; track log.number) {
                     <div class="unlinked-item text-white fs-7 py-2 d-flex align-items-center">
                       <i class="bi bi-x-circle text-danger me-2"></i>
-                      <span>Boleto <strong>{{ log.number }}</strong> de <strong>{{ log.user }}</strong> (ID: {{ log.purchaseId }})</span>
+                      <span
+                        >Boleto <strong>{{ log.number }}</strong> de
+                        <strong>{{ log.user }}</strong> (ID: {{ log.purchaseId }})</span
+                      >
                     </div>
                   }
                 </div>
-                
+
                 <div class="mb-2">
-                  <label class="form-label text-white-50 text-uppercase fs-8 mb-2">Razón de la desvinculación</label>
+                  <label class="form-label text-white-50 text-uppercase fs-8 mb-2"
+                    >Razón de la desvinculación</label
+                  >
                   <textarea
                     class="form-control custom-dark-input py-2 w-100 fs-7"
-                    [class.is-invalid]="unlinkedLogs.length > 0 && unlinkReason && unlinkReason.trim().length > 0 && !isUnlinkReasonValid"
+                    [class.is-invalid]="
+                      unlinkedLogs.length > 0 &&
+                      unlinkReason &&
+                      unlinkReason.trim().length > 0 &&
+                      !isUnlinkReasonValid
+                    "
                     rows="2"
                     [(ngModel)]="unlinkReason"
                     placeholder="Escribe la razón de la desvinculación (ej: Error en pago, cambio de boleto...)"
-                    style="resize: none;"
+                    style="resize: none"
                   ></textarea>
-                  @if (unlinkedLogs.length > 0 && unlinkReason && unlinkReason.trim().length > 0 && unlinkReason.trim().length < 5) {
-                    <div class="text-danger fs-8 mt-1 text-start" style="font-size: 0.75rem; color: #ef5350">
+                  @if (
+                    unlinkedLogs.length > 0 &&
+                    unlinkReason &&
+                    unlinkReason.trim().length > 0 &&
+                    unlinkReason.trim().length < 5
+                  ) {
+                    <div
+                      class="text-danger fs-8 mt-1 text-start"
+                      style="font-size: 0.75rem; color: #ef5350"
+                    >
                       La razón debe tener al menos 5 caracteres.
                     </div>
-                  } @else if (unlinkedLogs.length > 0 && unlinkReason && unlinkReason.trim().length > 500) {
-                    <div class="text-danger fs-8 mt-1 text-start" style="font-size: 0.75rem; color: #ef5350">
+                  } @else if (
+                    unlinkedLogs.length > 0 && unlinkReason && unlinkReason.trim().length > 500
+                  ) {
+                    <div
+                      class="text-danger fs-8 mt-1 text-start"
+                      style="font-size: 0.75rem; color: #ef5350"
+                    >
                       La razón no puede exceder los 500 caracteres.
                     </div>
                   }
@@ -337,7 +398,13 @@
             }
 
             <div class="d-flex justify-content-end gap-3">
-              <button type="button" class="btn px-3 py-2 fs-7 text-uppercase custom-btn-secondary" (click)="cancelConfirm()">Cancelar</button>
+              <button
+                type="button"
+                class="btn px-3 py-2 fs-7 text-uppercase custom-btn-secondary"
+                (click)="cancelConfirm()"
+              >
+                Cancelar
+              </button>
               <button
                 type="button"
                 class="btn px-3 py-2 fs-7 text-uppercase"

@@ -19,21 +19,32 @@ export function generateObjectId(): string {
 export function parseDateString(dateStr: string): Date | null {
   if (!dateStr) return null;
   try {
+    // 1. Intentar parsear directamente (p. ej. cadenas ISO completas)
+    const directDate = new Date(dateStr);
+    if (!isNaN(directDate.getTime())) {
+      return directDate;
+    }
+
+    // 2. Si falla, intentar parseo manual
     if (dateStr.includes('-')) {
-      const [year, month, day] = dateStr.split('-').map(Number);
-      return new Date(year, month - 1, day);
+      const parts = dateStr.split('T')[0].split('-');
+      const [year, month, day] = parts.map(Number);
+      const parsed = new Date(year, month - 1, day);
+      if (!isNaN(parsed.getTime())) return parsed;
     }
     if (dateStr.includes('/')) {
       const parts = dateStr.split('/');
       if (parts[0].length === 4) {
         const [year, month, day] = parts.map(Number);
-        return new Date(year, month - 1, day);
+        const parsed = new Date(year, month - 1, day);
+        if (!isNaN(parsed.getTime())) return parsed;
       } else {
         const [day, month, year] = parts.map(Number);
-        return new Date(year, month - 1, day);
+        const parsed = new Date(year, month - 1, day);
+        if (!isNaN(parsed.getTime())) return parsed;
       }
     }
-    return new Date(dateStr);
+    return null;
   } catch {
     return null;
   }
@@ -52,7 +63,7 @@ export function calculateRemainingTime(endDateStr: string, status?: string): str
     return '0 días';
   }
   const end = parseDateString(endDateStr);
-  if (!end) return '0 días';
+  if (!end || isNaN(end.getTime())) return '0 días';
 
   try {
     const today = new Date();
@@ -61,12 +72,13 @@ export function calculateRemainingTime(endDateStr: string, status?: string): str
 
     const diffDays = Math.round((end.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 
+    if (isNaN(diffDays)) return '0 días';
     if (diffDays < 0) return '0 días';
     if (diffDays === 0) return `${24 - new Date().getHours()} horas`;
     if (diffDays === 1) return '1 día';
     return `${diffDays} días`;
   } catch {
-    return '';
+    return '0 días';
   }
 }
 

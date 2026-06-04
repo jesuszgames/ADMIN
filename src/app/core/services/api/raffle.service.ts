@@ -18,7 +18,7 @@ export class RaffleService {
     if (limit) params = params.set('limit', limit.toString());
     if (search) params = params.set('search', search);
 
-    return this.http.get<any>(`${this.apiUrl}`, { params }).pipe(
+    return this.http.get<any>(`${this.apiUrl}/get-all`, { params }).pipe(
       map((res) => {
         const list = res?.data?.result || (Array.isArray(res?.data) ? res.data : []);
         return { data: list };
@@ -27,7 +27,7 @@ export class RaffleService {
   }
 
   getOne(id: string): Observable<{ data: Raffle }> {
-    return this.http.get<{ data: Raffle }>(`${this.apiUrl}/${id}`);
+    return this.http.get<{ data: Raffle }>(`${this.apiUrl}/get-one/${id}`);
   }
 
   private buildFormData(raffle: Partial<Raffle>): FormData {
@@ -59,16 +59,16 @@ export class RaffleService {
 
   create(raffle: Partial<Raffle>): Observable<{ data: Raffle }> {
     const formData = this.buildFormData(raffle);
-    return this.http.post<{ data: Raffle }>(`${this.apiUrl}`, formData);
+    return this.http.post<{ data: Raffle }>(`${this.apiUrl}/create`, formData);
   }
 
   update(id: string, raffle: Partial<Raffle>): Observable<{ data: Raffle }> {
     const formData = this.buildFormData(raffle);
-    return this.http.put<{ data: Raffle }>(`${this.apiUrl}/${id}`, formData);
+    return this.http.put<{ data: Raffle }>(`${this.apiUrl}/update/${id}`, formData);
   }
 
   deleteRaffle(id: string, deleteReason: string): Observable<{ data: Raffle }> {
-    return this.http.delete<{ data: Raffle }>(`${this.apiUrl}/${id}`, {
+    return this.http.delete<{ data: Raffle }>(`${this.apiUrl}/delete/${id}`, {
       body: { deleteReason },
     });
   }
