@@ -23,6 +23,7 @@ export class EditUserModal implements OnChanges {
   phone: string = '';
   role: 'ADMIN' | 'SORTEADOR' | 'USUARIO' = 'USUARIO';
   deleteReason: string = '';
+  touchedFields: { [key: string]: boolean } = {};
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['user']) {
@@ -31,6 +32,7 @@ export class EditUserModal implements OnChanges {
   }
 
   resetForm(): void {
+    this.touchedFields = {};
     if (this.user) {
       this.name = this.user.name || '';
       this.email = this.user.email || '';
@@ -46,11 +48,33 @@ export class EditUserModal implements OnChanges {
     }
   }
 
+  isEmailValid(email: string): boolean {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email.trim());
+  }
+
+  esNumero(val: string): boolean {
+    return /^\d+$/.test((val || '').trim());
+  }
+
+  soloNumeros(event: KeyboardEvent): void {
+    const pattern = /[0-9]/;
+    const inputChar = String.fromCharCode(event.charCode || event.keyCode);
+    if (event.charCode !== 0 && !pattern.test(inputChar)) {
+      event.preventDefault();
+    }
+  }
+
   isFormValid(): boolean {
+    const trimmedName = (this.name || '').trim();
+    const trimmedEmail = (this.email || '').trim();
+    const trimmedPhone = (this.phone || '').trim();
+
     return (
-      this.name.trim().length > 0 &&
-      this.email.trim().length > 0 &&
-      this.phone.trim().length > 0 &&
+      trimmedName.length >= 3 && trimmedName.length <= 50 &&
+      this.isEmailValid(trimmedEmail) &&
+      this.esNumero(trimmedPhone) &&
+      trimmedPhone.length >= 10 && trimmedPhone.length <= 15 &&
       (this.role === 'USUARIO' || this.role === 'SORTEADOR' || this.role === 'ADMIN')
     );
   }

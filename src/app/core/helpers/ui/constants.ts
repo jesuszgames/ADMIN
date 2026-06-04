@@ -39,6 +39,7 @@ export const STATUS_CLASSES = {
   DELETED: 'badge-deleted',
   CANCELLED: 'badge-deleted',
   AUTOMATICO: 'badge-automatico',
+  AUTOMATIC: 'badge-automatico',
   MANUAL: 'badge-manual',
   DEFAULT: 'badge-default',
 };
@@ -48,14 +49,20 @@ export const BADGE_MAP: Record<string, keyof typeof STATUS_CLASSES> = {
   DESACTIV: 'INACTIVE',
   ACTIV: 'ACTIVE',
   PROX: 'PROX_EXPIRED',
+  SOON: 'PROX_EXPIRED',
+  EXPIRE: 'PROX_EXPIRED',
   META: 'META_COMPLETED',
+  GOAL: 'META_COMPLETED',
+  COMPLET: 'META_COMPLETED',
   FINALIZ: 'FINALIZED',
   ELIMIN: 'CANCELLED',
   CANCE: 'CANCELLED',
   DELET: 'DELETED',
   SIN: 'NO_TICKETS',
+  TICKET: 'NO_TICKETS',
   PEND: 'NO_TICKETS',
   AUTOMATICO: 'AUTOMATICO',
+  AUTOMATIC: 'AUTOMATIC',
   MANUAL: 'MANUAL',
 };
 

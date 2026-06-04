@@ -51,9 +51,6 @@ export class CreateRaffleModal implements OnChanges, OnInit {
       next: (res) => {
         if (res && res.data) {
           this.categories = res.data.filter((c) => c.status !== STATE_DELETED);
-          if (!this.raffle && this.categories.length > 0 && !this.category) {
-            this.category = this.categories[0].name;
-          }
         }
       },
       error: (err) => {
@@ -65,9 +62,6 @@ export class CreateRaffleModal implements OnChanges, OnInit {
       next: (res) => {
         if (res && res.data) {
           this.foundations = res.data.filter((f) => f.status !== STATE_DELETED);
-          if (!this.raffle && this.foundations.length > 0 && !this.foundation) {
-            this.foundation = this.foundations[0].name;
-          }
         }
       },
       error: (err) => {
@@ -89,12 +83,37 @@ export class CreateRaffleModal implements OnChanges, OnInit {
   blogCardText = '';
   blogDetailText = '';
   photo = '';
-  drawMethod: 'AUTOMATICO' | 'MANUAL' = 'AUTOMATICO';
+  drawMethod: 'AUTOMATIC' | 'MANUAL' = 'AUTOMATIC';
 
   activeTab: 'card' | 'detalle' = 'card';
+  touchedFields: { [key: string]: boolean } = {};
+  isSaving = false;
+
+  formatDateToYYYYMMDD(dateVal: any): string {
+    if (!dateVal) return '';
+    if (typeof dateVal === 'string') {
+      if (dateVal.includes('T')) {
+        return dateVal.split('T')[0];
+      }
+      if (/^\d{4}-\d{2}-\d{2}$/.test(dateVal)) {
+        return dateVal;
+      }
+    }
+    try {
+      const date = new Date(dateVal);
+      if (isNaN(date.getTime())) return '';
+      const year = date.getUTCFullYear();
+      const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+      const day = String(date.getUTCDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    } catch {
+      return '';
+    }
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['raffle']) {
+      this.isSaving = false;
       this.resetForm();
     }
   }
@@ -104,12 +123,14 @@ export class CreateRaffleModal implements OnChanges, OnInit {
   }
 
   resetForm() {
+    this.isSaving = false;
+    this.touchedFields = {};
     if (this.raffle) {
       this.title = this.raffle.title || '';
       this.foundation = this.raffle.foundation || '';
       this.category = this.raffle.category || '';
-      this.startDate = this.raffle.startDate || DEFAULT_RAFFLE_START_DATE;
-      this.endDate = this.raffle.endDate || DEFAULT_RAFFLE_END_DATE;
+      this.startDate = this.formatDateToYYYYMMDD(this.raffle.startDate);
+      this.endDate = this.formatDateToYYYYMMDD(this.raffle.endDate);
       this.goal =
         this.raffle.goal !== undefined && this.raffle.goal !== null
           ? this.raffle.goal
@@ -131,8 +152,8 @@ export class CreateRaffleModal implements OnChanges, OnInit {
       this.drawMethod = this.raffle.drawMethod || DEFAULT_RAFFLE_METODO_SORTEO;
     } else {
       this.title = '';
-      this.foundation = this.foundations.length > 0 ? this.foundations[0].name : '';
-      this.category = this.categories.length > 0 ? this.categories[0].name : '';
+      this.foundation = '';
+      this.category = '';
       this.startDate = '';
       this.endDate = '';
       this.goal = null;
@@ -184,7 +205,8 @@ export class CreateRaffleModal implements OnChanges, OnInit {
 
   isFormValid(): boolean {
     return (
-      this.title.trim() !== '' &&
+      this.title.trim().length >= 3 &&
+      this.title.trim().length <= 100 &&
       this.foundation !== '' &&
       this.category !== '' &&
       this.startDate !== '' &&
@@ -197,7 +219,12 @@ export class CreateRaffleModal implements OnChanges, OnInit {
       this.ticketPrice !== null &&
       this.ticketPrice > 0 &&
       this.beneficiaryPercentage !== null &&
-      this.winnerPercentage !== null
+      this.beneficiaryPercentage >= 0 &&
+      this.beneficiaryPercentage <= 100 &&
+      this.winnerPercentage !== null &&
+      this.winnerPercentage >= 0 &&
+      this.winnerPercentage <= 100 &&
+      this.photo !== ''
     );
   }
 
@@ -279,11 +306,17 @@ export class CreateRaffleModal implements OnChanges, OnInit {
   }
 
   onSubmit() {
-    if (!this.isFormValid()) return;
+    if (!this.isFormValid() || this.isSaving) return;
+    this.isSaving = true;
+
+    // Temporizador de seguridad de 5 segundos para restablecer isSaving si ocurre un error
+    setTimeout(() => {
+      this.isSaving = false;
+    }, 5000);
 
     const data: Raffle = {
       _id: this.raffle?._id ?? '',
-      status: this.raffle?.status ?? '',
+      status: this.raffle?.status || 'ACTIVE',
 
       soldTickets: this.raffle?.soldTickets ?? 0,
       collected: this.raffle?.collected ?? 0,

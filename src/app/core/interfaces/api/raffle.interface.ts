@@ -31,7 +31,7 @@ export interface Raffle {
   photo?: string;
   tickets?: Ticket[];
   associatedNumbers?: string;
-  drawMethod?: 'AUTOMATICO' | 'MANUAL';
+  drawMethod?: 'AUTOMATIC' | 'MANUAL';
   deleteReason?: string;
   unlinks?: UnlinkLog[];
   createdAt?: string;

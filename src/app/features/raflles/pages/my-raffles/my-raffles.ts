@@ -39,7 +39,7 @@ import {
   METHOD_AUTOMATIC,
 } from '../../../../core/helpers/global/raffle.constants';
 import { Raffle } from '../../../../core/interfaces/api/raffle.interface';
-import { generateObjectId } from '../../../../core/helpers/ui/utils';
+import { generateObjectId, calculateRemainingTime } from '../../../../core/helpers/ui/utils';
 
 @Component({
   selector: 'app-raffles',
@@ -146,7 +146,11 @@ export class Raffles implements OnInit {
         },
         [TABLE_ACTION_EDIT_DETAIL]: () => {
           this.selectedRaffleForEdit = row;
-          this.isReadOnlyView = row.status === STATE_DELETED;
+          this.isReadOnlyView =
+            row.status === STATE_DELETED ||
+            row.status === 'DELETED' ||
+            row.status === 'ELIMINADO' ||
+            row.status === 'ELIMINADA';
           document.getElementById(this.BTN_CREATE_RAFFLE_ID)?.click();
         },
         [TABLE_ACTION_EDIT_TICKETS]: () => {
@@ -201,55 +205,7 @@ export class Raffles implements OnInit {
     this.pendingRowToToggle = null;
   }
 
-  calculateRemainingTime(endDateStr: string): string {
-    if (!endDateStr) return '0 días';
-    try {
-      let end: Date;
-      if (endDateStr.includes('-')) {
-        const parts = endDateStr.split('-');
-        const year = parseInt(parts[0], 10);
-        const month = parseInt(parts[1], 10) - 1;
-        const day = parseInt(parts[2], 10);
-        end = new Date(year, month, day);
-      } else if (endDateStr.includes('/')) {
-        const parts = endDateStr.split('/');
-        if (parts[0].length === 4) {
-          const year = parseInt(parts[0], 10);
-          const month = parseInt(parts[1], 10) - 1;
-          const day = parseInt(parts[2], 10);
-          end = new Date(year, month, day);
-        } else {
-          const day = parseInt(parts[0], 10);
-          const month = parseInt(parts[1], 10) - 1;
-          const year = parseInt(parts[2], 10);
-          end = new Date(year, month, day);
-        }
-      } else {
-        end = new Date(endDateStr);
-      }
 
-      const today = new Date();
-
-      end.setHours(0, 0, 0, 0);
-      today.setHours(0, 0, 0, 0);
-
-      const diffTime = end.getTime() - today.getTime();
-      const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
-
-      if (diffDays < 0) {
-        return '0 días';
-      } else if (diffDays === 0) {
-        const hours = 24 - new Date().getHours();
-        return `${hours} horas`;
-      } else if (diffDays === 1) {
-        return '1 día';
-      } else {
-        return `${diffDays} días`;
-      }
-    } catch {
-      return '';
-    }
-  }
 
   onSaveRaffle(raffleData: Raffle) {
     const editRaffle = this.selectedRaffleForEdit;
@@ -290,25 +246,29 @@ export class Raffles implements OnInit {
 
       let tiempoRestanteCalculado = raffle.remainingTime;
       if (raffle.endDate) {
-        tiempoRestanteCalculado = this.calculateRemainingTime(raffle.endDate);
+        tiempoRestanteCalculado = calculateRemainingTime(raffle.endDate, raffle.status);
       }
 
       let statusDisplay = raffle.status;
-      if (raffle.status === 'ACTIVA' || raffle.status === 'ACTIVO') {
+      if (
+        raffle.status === 'ACTIVE' ||
+        raffle.status === 'ACTIVA' ||
+        raffle.status === 'ACTIVO'
+      ) {
         if (raffle.soldTickets === raffle.totalTickets) {
-          statusDisplay = 'SIN BOLETOS';
+          statusDisplay = RAFFLE_STATUS_NO_TICKETS;
         } else if (raffle.collected && raffle.goal && raffle.collected >= raffle.goal) {
-          statusDisplay = 'META COMPLETADA';
+          statusDisplay = RAFFLE_STATUS_META_COMPLETED;
         } else {
           try {
             const timeStr = tiempoRestanteCalculado || '';
             if (timeStr.includes('días') || timeStr.includes('día')) {
               const days = parseInt(timeStr);
               if (!isNaN(days) && days <= 2) {
-                statusDisplay = 'PROXIMO A VENCER';
+                statusDisplay = RAFFLE_STATUS_PROX_EXPIRED;
               }
             } else if (timeStr.includes('horas')) {
-              statusDisplay = 'PROXIMO A VENCER';
+              statusDisplay = RAFFLE_STATUS_PROX_EXPIRED;
             }
           } catch { }
         }
@@ -316,7 +276,7 @@ export class Raffles implements OnInit {
 
       return {
         ...raffle,
-        drawMethod: raffle.drawMethod || (METHOD_AUTOMATIC as 'AUTOMATICO' | 'MANUAL'),
+        drawMethod: raffle.drawMethod || (METHOD_AUTOMATIC as 'AUTOMATIC' | 'MANUAL'),
         soldTicketsStr: `${raffle.soldTickets}/${raffle.totalTickets}`,
         collectedStr: recStr,
         remainingTime: tiempoRestanteCalculado,
@@ -324,32 +284,40 @@ export class Raffles implements OnInit {
       };
     });
 
-    let filtered = mappedRaffles;
-    if (filterId === RAFFLE_FILTER_DELETE) {
-      filtered = mappedRaffles.filter((r) => r.status === STATE_DELETED);
-    } else {
-      try {
-        const filterActions: Record<string, () => typeof mappedRaffles> = {
-          [RAFFLE_FILTER_MANUAL]: () => mappedRaffles.filter((r) => r.drawMethod === 'MANUAL'),
-          [RAFFLE_FILTER_AUTOMATIC]: () =>
-            mappedRaffles.filter((r) => r.drawMethod === 'AUTOMATICO'),
-          [RAFFLE_FILTER_NO_TICKETS]: () =>
-            mappedRaffles.filter((r) => r.statusDisplay === 'SIN BOLETOS'),
-          [RAFFLE_FILTER_PROX_EXPIRED]: () =>
-            mappedRaffles.filter((r) => r.statusDisplay === 'PROXIMO A VENCER'),
-          [RAFFLE_FILTER_META_COMPLETED]: () =>
-            mappedRaffles.filter((r) => r.statusDisplay === 'META COMPLETADA'),
-        };
+    const activeRaffles = mappedRaffles.filter((r) => {
+      const statusUpper = (r.status || '').toUpperCase();
+      return (
+        statusUpper !== 'FINISHED' &&
+        statusUpper !== 'FINALIZADA' &&
+        statusUpper !== 'FINALIZADO' &&
+        statusUpper !== 'PENDING_DRAW' &&
+        statusUpper !== 'DELETED' &&
+        statusUpper !== 'ELIMINADO' &&
+        statusUpper !== 'ELIMINADA'
+      );
+    });
 
-        const filterFn = filterActions[filterId];
-        if (!filterFn) throw new Error();
+    let filtered = activeRaffles;
+    try {
+      const filterActions: Record<string, () => typeof activeRaffles> = {
+        [RAFFLE_FILTER_MANUAL]: () => activeRaffles.filter((r) => r.drawMethod === 'MANUAL'),
+        [RAFFLE_FILTER_AUTOMATIC]: () =>
+          activeRaffles.filter((r) => r.drawMethod === 'AUTOMATIC'),
+        [RAFFLE_FILTER_NO_TICKETS]: () =>
+          activeRaffles.filter((r) => r.statusDisplay === RAFFLE_STATUS_NO_TICKETS),
+        [RAFFLE_FILTER_PROX_EXPIRED]: () =>
+          activeRaffles.filter((r) => r.statusDisplay === RAFFLE_STATUS_PROX_EXPIRED),
+        [RAFFLE_FILTER_META_COMPLETED]: () =>
+          activeRaffles.filter((r) => r.statusDisplay === RAFFLE_STATUS_META_COMPLETED),
+      };
+
+      const filterFn = filterActions[filterId];
+      if (filterFn) {
         filtered = filterFn();
-      } catch { }
+      }
+    } catch { }
 
-      filtered = filtered.filter((r) => r.status !== STATE_DELETED);
-    }
-
-    return filtered.map((r) => ({ ...r, status: r.statusDisplay }));
+    return filtered;
   }
 }
 

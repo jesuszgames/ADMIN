@@ -17,6 +17,23 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
           errorService.showError(
             'Error de conexión: No se pudo establecer comunicación con el servidor. Verifica que el backend esté encendido.'
           );
+        } else {
+          let errMsg = 'Ha ocurrido un error en el servidor.';
+          if (error.error && error.error.message) {
+            try {
+              const parsed = JSON.parse(error.error.message);
+              if (typeof parsed === 'object' && parsed !== null) {
+                errMsg = Object.values(parsed).join(', ');
+              } else {
+                errMsg = error.error.message;
+              }
+            } catch {
+              errMsg = error.error.message;
+            }
+          } else if (error.message) {
+            errMsg = error.message;
+          }
+          errorService.showError(errMsg);
         }
       }
       return throwError(() => error);

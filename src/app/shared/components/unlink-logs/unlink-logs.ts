@@ -46,11 +46,15 @@ export class UnlinkLogs {
   getStatusClass(): string {
     if (!this.raffleData) return '';
     switch (this.raffleData.status?.toUpperCase()) {
+      case 'ACTIVE':
       case 'ACTIVA':
         return 'bg-success bg-opacity-20 text-success border border-success border-opacity-20';
+      case 'FINISHED':
       case 'FINALIZADA':
         return 'bg-primary bg-opacity-20 text-primary border border-primary border-opacity-20';
+      case 'DELETED':
       case 'ELIMINADA':
+      case 'ELIMINADO':
         return 'bg-danger bg-opacity-20 text-danger border border-danger border-opacity-20';
       default:
         return 'bg-secondary bg-opacity-20 text-secondary border border-secondary border-opacity-20';

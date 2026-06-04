@@ -23,7 +23,7 @@ import { USER_STATUS_ACTIVE, USER_STATUS_INACTIVE, STATE_DELETED } from '../../h
 })
 export class UserService {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = `${environment.apiUrl}/users`;
+  private readonly apiUrl = `${environment.apiUrl}/adminpanel/users`;
 
   getAll(page?: number, limit?: number, search?: string): Observable<{ data: User[] }> {
     let params = new HttpParams();
