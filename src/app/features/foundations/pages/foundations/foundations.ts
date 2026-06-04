@@ -59,17 +59,23 @@ export class Foundations implements OnInit {
     this.loadFoundations();
   }
 
+  loading = false;
+
   loadFoundations(): void {
+    this.loading = true;
     this.foundationService.getAll().subscribe({
       next: (res) => {
         if (res && res.data) {
           this.foundationsData = res.data;
           this.tableData = this.getFilteredData(this.filtroActual);
-          this.cdr.detectChanges();
         }
+        this.loading = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('API Error: No se pudo cargar fundaciones del backend.', err);
+        this.loading = false;
+        this.cdr.detectChanges();
       },
     });
   }
