@@ -40,6 +40,7 @@
 <app-create-category-modal
   [category]="selectedCategoryForEdit"
   [isReadOnly]="isReadOnlyView"
+  [isSaving]="isCategorySaving"
   (save)="onSaveCategory($event)"
   (closed)="selectedCategoryForEdit = null"
 ></app-create-category-modal>

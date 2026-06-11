@@ -26,6 +26,7 @@ import { DrawService } from '../../../core/services/api/draw.service';
 export class EditTicketsModal implements OnChanges {
   @Input() raffle: Raffle | null = null;
   @Input() mode: 'rifas' | 'sorteos' = 'rifas';
+  @Input() isSaving = false;
   @Output() save = new EventEmitter<Raffle>();
 
   private readonly authService = inject(AuthService);
@@ -149,11 +150,11 @@ export class EditTicketsModal implements OnChanges {
   }
 
   loadBuyer(buyer: BuyerInfo) {
-    this.buyerName = buyer.name;
+    this.buyerName = buyer.name || '';
     this.ticketsPurchased = buyer.tickets.length;
-    this.buyerEmail = buyer.email;
+    this.buyerEmail = buyer.email || '';
     this.allAssociatedNumbers = buyer.tickets.map((num) => `[${num}]`).join(' ');
-    this.buyerPhone = buyer.phone;
+    this.buyerPhone = buyer.phone || '';
     this.purchaseDate = buyer.purchaseDate;
   }
 
@@ -177,13 +178,9 @@ export class EditTicketsModal implements OnChanges {
 
     const found = this.tickets.find((b) => {
       if (!b.buyer) return false;
-      const id = (b.buyer.id || '').toUpperCase();
       const name = (b.buyer.name || '').toUpperCase();
-      const email = (b.buyer.email || '').toUpperCase();
-      const phone = b.buyer.phone || '';
-      return (
-        id.includes(query) || name.includes(query) || email.includes(query) || phone.includes(query)
-      );
+      const id = (b.buyer.id || '').toUpperCase();
+      return name.includes(query) || id.includes(query);
     });
 
     if (found) {
@@ -265,6 +262,7 @@ export class EditTicketsModal implements OnChanges {
   }
 
   onSaveClick() {
+    if (this.isSaving) return;
     if (this.hasWinnerChanged || this.unlinkedLogs.length > 0) {
       this.showConfirmModal = true;
     } else {
@@ -277,10 +275,12 @@ export class EditTicketsModal implements OnChanges {
   }
 
   confirmSubmit() {
+    if (this.isSaving) return;
     this.showConfirmModal = false;
     const raffle = this.raffle;
     if (!raffle || !raffle._id) return;
 
+    this.isSaving = true;
     const unlinkCalls = this.unlinkedLogs.map((log) =>
       this.ticketService.unlinkTicket(raffle._id, log.number, this.unlinkReason.trim()),
     );
@@ -298,11 +298,13 @@ export class EditTicketsModal implements OnChanges {
       )
       .subscribe({
         next: () => {
+          this.isSaving = false;
           this.save.emit(raffle);
           document.getElementById('btn-cerrar-modal-editar-boletos')?.click();
         },
         error: (err: any) => {
           console.error('Error al guardar cambios de boletos/sorteo:', err);
+          this.isSaving = false;
           this.save.emit(raffle);
           document.getElementById('btn-cerrar-modal-editar-boletos')?.click();
         },

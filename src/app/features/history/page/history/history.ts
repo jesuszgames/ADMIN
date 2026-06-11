@@ -1,13 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { RaffleService } from '../../../../core/services/api/raffle.service';
+import { Subscription } from 'rxjs';
 import { TicketService } from '../../../../core/services/api/ticket.service';
 import { Filter } from '../../../../shared/components/filter/filter';
 import { Tables } from '../../../../shared/components/tables/tables';
 import { DeleteModal } from '../../../../shared/components/delete-modal/delete-modal';
 import { HistoryRafflesModal } from '../../../../shared/components/history-raffles-modal/history-raffles-modal';
 import { HistoryTicketModel } from '../../../../shared/components/history-ticket-model/history-ticket-model';
-import { Ticket } from '../../../../core/interfaces/api/ticket.interface';
 import { RaffleDetail } from '../../../../core/interfaces/api/raffle-detail.interface';
 import { TicketHistoryData } from '../../../../core/interfaces/api/ticket-history-data.interface';
 import { mapRaffleDetails, mapTicketDetails } from '../../../../core/helpers/ui/utils';
@@ -20,8 +20,8 @@ import {
   HISTORY_FILTER_TICKETS,
   HISTORY_FILTER_GOAL,
   HISTORY_FILTER_DELETE,
-  MY_HISTORY_DATA_MOCK,
-  STATE_DELETED,
+  HISTORY_FILTER_VALUES,
+  HISTORY_STATUS_VALUES,
   METHOD_AUTOMATIC,
 } from '../../../../core/helpers/global/history.constants';
 import { HistoryRaffle } from '../../../../core/interfaces/api/history-raffle.interface';
@@ -37,19 +37,33 @@ import {
 @Component({
   selector: 'app-history',
   standalone: true,
-  imports: [CommonModule, Filter, Tables, DeleteModal, HistoryRafflesModal, HistoryTicketModel, UnlinkLogs],
+  imports: [
+    CommonModule,
+    Filter,
+    Tables,
+    DeleteModal,
+    HistoryRafflesModal,
+    HistoryTicketModel,
+    UnlinkLogs,
+  ],
   templateUrl: './history.html',
   styleUrl: './history.scss',
 })
-export class History implements OnInit {
+export class History implements OnInit, OnDestroy {
   private readonly raffleService = inject(RaffleService);
+  private activeSub?: Subscription;
   private readonly ticketService = inject(TicketService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   principalHeader = HISTORY_PRINCIPAL_HEADER;
   historyColumns = HISTORY_COLUMNS;
   historyFilters = HISTORY_FILTERS;
   historyActions = HISTORY_ROW_ACTIONS;
 
+  currentPage = 1;
+  pageSize = 10;
+  totalItems = 0;
+  searchText = '';
   filtroActual = HISTORY_FILTER_ALL;
   rifaSeleccionadaParaBorrar: HistoryRaffle | null = null;
   selectedRaffle: RaffleDetail | null = null;
@@ -60,33 +74,82 @@ export class History implements OnInit {
   private readonly BTN_TICKETS_MODAL_ID = 'btn-abrir-modal-tickets';
   private readonly BTN_DELETE_HISTORY_ID = 'btn-abrir-modal-delete-history';
 
-  historyData: HistoryRaffle[] = [];
   tableData: HistoryRaffle[] = [];
+  loading = false;
 
   ngOnInit(): void {
     this.cargarRifas();
   }
 
   cargarRifas(): void {
-    this.raffleService.getAll().subscribe({
-      next: (res) => {
-        if (res && res.data) {
-          this.historyData = res.data.map((r: any) => ({
-            ...r,
-            goal: r.goal || 0
-          }));
-          this.tableData = this.getFilteredData(this.filtroActual);
-        }
-      },
-      error: (err) => {
-        console.error('API Error: No se pudieron cargar las rifas para el historial.', err);
-      }
-    });
+    if (this.activeSub) {
+      this.activeSub.unsubscribe();
+    }
+    this.loading = true;
+    this.cdr.detectChanges();
+
+    let statuses = [
+      HISTORY_STATUS_VALUES.FINISHED,
+      HISTORY_STATUS_VALUES.DELETED,
+    ].join(',');
+
+    let backendFilter = '';
+    if (this.filtroActual === HISTORY_FILTER_TICKETS) {
+      statuses = HISTORY_STATUS_VALUES.FINISHED;
+      backendFilter = HISTORY_FILTER_VALUES.TICKETS;
+    } else if (this.filtroActual === HISTORY_FILTER_GOAL) {
+      statuses = HISTORY_STATUS_VALUES.FINISHED;
+      backendFilter = HISTORY_FILTER_VALUES.GOAL;
+    } else if (this.filtroActual === HISTORY_FILTER_DELETE) {
+      statuses = HISTORY_STATUS_VALUES.DELETED;
+    }
+
+    this.activeSub = this.raffleService
+      .getAll(this.currentPage, this.pageSize, this.searchText, statuses, undefined, backendFilter)
+      .subscribe({
+        next: (res) => {
+          if (res && res.data) {
+            this.totalItems = res.totalCount || 0;
+            this.tableData = res.data.map((r: any) => ({
+              ...r,
+              goal: r.goal || 0,
+              drawMethod: r.drawMethod || (METHOD_AUTOMATIC as 'AUTOMATIC' | 'MANUAL'),
+              soldTicketsStr: `${r.soldTickets}/${r.totalTickets}`,
+              collectedStr: `${r.collected}/${r.goal || 0} $`,
+            }));
+          }
+          this.loading = false;
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('API Error: No se pudieron cargar las rifas para el historial.', err);
+          this.loading = false;
+          this.cdr.detectChanges();
+        },
+      });
+  }
+
+  ngOnDestroy(): void {
+    if (this.activeSub) {
+      this.activeSub.unsubscribe();
+    }
   }
 
   filtrarPorCategoria(id: string): void {
     this.filtroActual = id;
-    this.tableData = this.getFilteredData(id);
+    this.currentPage = 1;
+    this.cargarRifas();
+  }
+
+  onPageChange(page: number): void {
+    this.currentPage = page;
+    this.cargarRifas();
+  }
+
+  onSearchChange(search: string): void {
+    this.searchText = search;
+    this.currentPage = 1;
+    this.cargarRifas();
   }
 
   manejarAccion(evento: { actionId: number; row: HistoryRaffle }): void {
@@ -113,7 +176,7 @@ export class History implements OnInit {
       const action = actions[evento.actionId];
       if (!action) throw new Error();
       action();
-    } catch { }
+    } catch {}
   }
 
   confirmarEliminar(razon: string): void {
@@ -147,50 +210,5 @@ export class History implements OnInit {
 
   onViewDetails(raffle: HistoryRaffle): void {
     this.selectedRaffle = mapRaffleDetails(raffle);
-  }
-
-  private getFilteredData(filterId: string): HistoryRaffle[] {
-    const historyRaffles = this.historyData.filter((r) => {
-      const statusUpper = (r.status || '').toUpperCase();
-      return (
-        statusUpper === 'FINISHED' ||
-        statusUpper === 'FINALIZADA' ||
-        statusUpper === 'FINALIZADO' ||
-        statusUpper === 'PENDING_DRAW' ||
-        statusUpper === 'DELETED' ||
-        statusUpper === 'ELIMINADO' ||
-        statusUpper === 'ELIMINADA'
-      );
-    });
-
-    const isDeleted = (status: string) => {
-      const s = (status || '').toUpperCase();
-      return s === 'DELETED' || s === 'ELIMINADO' || s === 'ELIMINADA';
-    };
-
-    let filtered = historyRaffles;
-    try {
-      const filterActions: Record<string, () => HistoryRaffle[]> = {
-        [HISTORY_FILTER_ALL]: () => historyRaffles,
-        [HISTORY_FILTER_TICKETS]: () =>
-          historyRaffles.filter((r) => !isDeleted(r.status) && r.soldTickets === r.totalTickets),
-        [HISTORY_FILTER_GOAL]: () =>
-          historyRaffles.filter((r) => !isDeleted(r.status) && r.collected === r.goal),
-        [HISTORY_FILTER_DELETE]: () =>
-          historyRaffles.filter((r) => isDeleted(r.status)),
-      };
-
-      const filterFn = filterActions[filterId];
-      if (filterFn) {
-        filtered = filterFn();
-      }
-    } catch { }
-
-    return filtered.map((raffle) => ({
-      ...raffle,
-      drawMethod: raffle.drawMethod || (METHOD_AUTOMATIC as 'AUTOMATIC' | 'MANUAL'),
-      soldTicketsStr: `${raffle.soldTickets}/${raffle.totalTickets}`,
-      collectedStr: `${raffle.collected}/${raffle.goal} $`,
-    }));
   }
 }

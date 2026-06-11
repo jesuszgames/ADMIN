@@ -18,7 +18,13 @@
         [columns]="dashboardColumns"
         [data]="tableData"
         [loading]="loading"
+        [serverSide]="true"
+        [totalItems]="totalItems"
+        [pageSize]="pageSize"
+        [currentPage]="currentPage"
         (actionClicked)="manejarAccion($event)"
+        (pageChanged)="onPageChange($event)"
+        (searchChanged)="onSearchChange($event)"
       >
       </app-tables>
     </div>
@@ -42,6 +48,7 @@
 <app-create-raffle-modal
   [raffle]="selectedRaffleForEdit"
   [isReadOnly]="isReadOnlyView"
+  [isSaving]="isRaffleSaving"
   (save)="onSaveRaffle($event)"
   (closed)="selectedRaffleForEdit = null"
 ></app-create-raffle-modal>

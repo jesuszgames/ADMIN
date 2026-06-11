@@ -67,19 +67,19 @@ export class ImageCropperComponent implements OnChanges {
         }
       } else {
         if (typeof this.photo === 'string') {
-          if (
-            this.photo.startsWith('/') &&
-            !this.photo.startsWith('http') &&
-            !this.photo.startsWith('data:')
-          ) {
+          if (this.photo.startsWith('http') || this.photo.startsWith('data:')) {
+            this.previewUrl = this.photo;
+          } else {
             try {
               const origin = new URL(environment.apiUrl).origin;
-              this.previewUrl = origin + this.photo;
+              if (this.photo.startsWith('/')) {
+                this.previewUrl = origin + this.photo;
+              } else {
+                this.previewUrl = `${origin}/v1/api/public/uploads/raffle/${this.photo}`;
+              }
             } catch (e) {
               this.previewUrl = this.photo;
             }
-          } else {
-            this.previewUrl = this.photo;
           }
         } else {
           if (this.previewUrl && this.previewUrl.startsWith('blob:')) {

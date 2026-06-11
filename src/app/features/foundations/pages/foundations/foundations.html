@@ -40,6 +40,7 @@
 <app-create-foundation-modal
   [foundation]="selectedFoundationForEdit"
   [isReadOnly]="isReadOnlyView"
+  [isSaving]="isFoundationSaving"
   (save)="onSaveFoundation($event)"
   (closed)="selectedFoundationForEdit = null"
 ></app-create-foundation-modal>

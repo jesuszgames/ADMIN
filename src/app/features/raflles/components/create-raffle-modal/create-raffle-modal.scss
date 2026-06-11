@@ -9,7 +9,7 @@
   color: var.$primary-text;
   border: 1px solid var.$input-border;
   padding: 0.75rem 1rem;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 0.9rem;
   resize: none;
   transition:
@@ -19,8 +19,8 @@
   &:focus {
     background-color: var.$background;
     color: var.$primary-text;
-    border-color: var.$button-primary;
-    box-shadow: 0 0 0 0.25rem var.$input-focus-shadow;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 1px #3b82f6, 0 0 14px rgba(59, 130, 246, 0.18);
     outline: none;
   }
 
@@ -42,22 +42,22 @@ select.custom-dark-input {
 .custom-dark-addon {
   background-color: var.$background;
   border: 1px solid var.$input-border;
-  border-radius: 6px;
+  border-radius: 8px;
   padding: 0.5rem 1rem;
 }
 
 ::ng-deep {
   .input-group {
-    background-color: var.$background;
-    border: 1px solid var.$input-border;
-    border-radius: 6px;
+    background-color: var.$background !important;
+    border: 1px solid var.$input-border !important;
+    border-radius: 8px !important;
     transition:
       border-color 0.2s ease,
       box-shadow 0.2s ease;
 
     &:focus-within {
-      border-color: var.$button-primary;
-      box-shadow: 0 0 0 0.25rem var.$input-focus-shadow;
+      border-color: #3b82f6 !important;
+      box-shadow: 0 0 0 1px #3b82f6, 0 0 14px rgba(59, 130, 246, 0.18) !important;
     }
 
     .form-control,
@@ -65,17 +65,17 @@ select.custom-dark-input {
     .input-group-text,
     .custom-dark-input,
     .custom-dark-addon {
-      border: none;
-      background-color: transparent;
-      box-shadow: none;
-      color: var.$primary-text;
-      outline: none;
+      border: none !important;
+      background-color: transparent !important;
+      box-shadow: none !important;
+      color: var.$primary-text !important;
+      outline: none !important;
 
       &:focus {
-        border: none;
-        background-color: transparent;
-        box-shadow: none;
-        outline: none;
+        border: none !important;
+        background-color: transparent !important;
+        box-shadow: none !important;
+        outline: none !important;
       }
     }
 

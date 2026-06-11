@@ -2,8 +2,6 @@ import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, OnIni
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
-  DEFAULT_RAFFLE_START_DATE,
-  DEFAULT_RAFFLE_END_DATE,
   DEFAULT_RAFFLE_META,
   DEFAULT_RAFFLE_TICKETS_TOTAL,
   DEFAULT_RAFFLE_TICKET_PRICE,
@@ -33,6 +31,7 @@ import { Foundation } from '../../../../core/interfaces/api/foundation.interface
 export class CreateRaffleModal implements OnChanges, OnInit {
   @Input() raffle: Raffle | null = null;
   @Input() isReadOnly = false;
+  @Input() isSaving = false;
   @Output() save = new EventEmitter<Raffle>();
   @Output() closed = new EventEmitter<void>();
 
@@ -87,7 +86,6 @@ export class CreateRaffleModal implements OnChanges, OnInit {
 
   activeTab: 'card' | 'detalle' = 'card';
   touchedFields: { [key: string]: boolean } = {};
-  isSaving = false;
 
   formatDateToYYYYMMDD(dateVal: any): string {
     if (!dateVal) return '';
@@ -113,7 +111,6 @@ export class CreateRaffleModal implements OnChanges, OnInit {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['raffle']) {
-      this.isSaving = false;
       this.resetForm();
     }
   }
@@ -123,7 +120,6 @@ export class CreateRaffleModal implements OnChanges, OnInit {
   }
 
   resetForm() {
-    this.isSaving = false;
     this.touchedFields = {};
     if (this.raffle) {
       this.title = this.raffle.title || '';
@@ -192,6 +188,14 @@ export class CreateRaffleModal implements OnChanges, OnInit {
     return `${year}-${month}-${day}`;
   }
 
+  get minimumTicketPrice(): number {
+    if (this.goal && this.goal > 0 && this.ticketsAvailable && this.ticketsAvailable > 0) {
+      return Math.ceil((this.goal / this.ticketsAvailable) * 100) / 100;
+    }
+
+    return 0;
+  }
+
   autoCalculateTicketPrice() {
     if (
       this.goal !== null &&
@@ -199,11 +203,19 @@ export class CreateRaffleModal implements OnChanges, OnInit {
       this.ticketsAvailable !== null &&
       this.ticketsAvailable > 0
     ) {
-      this.ticketPrice = Math.round((this.goal / this.ticketsAvailable) * 100) / 100;
+      this.ticketPrice = Math.ceil((this.goal / this.ticketsAvailable) * 100) / 100;
     }
   }
 
   isFormValid(): boolean {
+    if (this.raffle && this.raffle.soldTickets > 0) {
+      if (this.ticketsAvailable !== null && this.ticketsAvailable < this.raffle.soldTickets) {
+        return false;
+      }
+      if (this.ticketPrice !== null && this.ticketPrice !== this.raffle.ticketPrice) {
+        return false;
+      }
+    }
     return (
       this.title.trim().length >= 3 &&
       this.title.trim().length <= 100 &&
@@ -217,14 +229,16 @@ export class CreateRaffleModal implements OnChanges, OnInit {
       this.ticketsAvailable !== null &&
       this.ticketsAvailable > 0 &&
       this.ticketPrice !== null &&
-      this.ticketPrice > 0 &&
+      this.ticketPrice >= this.minimumTicketPrice &&
       this.beneficiaryPercentage !== null &&
       this.beneficiaryPercentage >= 0 &&
       this.beneficiaryPercentage <= 100 &&
       this.winnerPercentage !== null &&
       this.winnerPercentage >= 0 &&
       this.winnerPercentage <= 100 &&
-      this.photo !== ''
+      this.photo !== '' &&
+      this.blogCardText.trim() !== '' &&
+      this.blogDetailText.trim() !== ''
     );
   }
 
@@ -286,11 +300,9 @@ export class CreateRaffleModal implements OnChanges, OnInit {
         this.showConfirmModal = true;
       } else {
         this.onSubmit();
-        document.getElementById('btn-cerrar-modal-crear-rifa')?.click();
       }
     } else {
       this.onSubmit();
-      document.getElementById('btn-cerrar-modal-crear-rifa')?.click();
     }
   }
 
@@ -302,17 +314,10 @@ export class CreateRaffleModal implements OnChanges, OnInit {
   confirmSubmit() {
     this.showConfirmModal = false;
     this.onSubmit();
-    document.getElementById('btn-cerrar-modal-crear-rifa')?.click();
   }
 
   onSubmit() {
     if (!this.isFormValid() || this.isSaving) return;
-    this.isSaving = true;
-
-    // Temporizador de seguridad de 5 segundos para restablecer isSaving si ocurre un error
-    setTimeout(() => {
-      this.isSaving = false;
-    }, 5000);
 
     const data: Raffle = {
       _id: this.raffle?._id ?? '',

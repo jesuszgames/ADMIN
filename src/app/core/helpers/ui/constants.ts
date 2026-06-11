@@ -44,6 +44,20 @@ export const STATUS_CLASSES = {
   DEFAULT: 'badge-default',
 };
 
+export const STATUS = {
+  ACTIVE: 'ACTIVE',
+  FINALIZED: 'FINALIZED',
+  DRAFT: 'DRAFT',
+  INACTIVE: 'INACTIVE',
+  AUTOMATIC: 'AUTOMATIC',
+  MANUAL: 'MANUAL',
+  CANCELLED: 'CANCELLED',
+  DELETED: 'DELETED',
+  NO_TICKETS: 'NO_TICKETS',
+  PROX_EXPIRED: 'PROX_EXPIRED',
+  META_COMPLETED: 'META_COMPLETED',
+};
+
 export const BADGE_MAP: Record<string, keyof typeof STATUS_CLASSES> = {
   INACT: 'INACTIVE',
   DESACTIV: 'INACTIVE',
@@ -55,13 +69,13 @@ export const BADGE_MAP: Record<string, keyof typeof STATUS_CLASSES> = {
   GOAL: 'META_COMPLETED',
   COMPLET: 'META_COMPLETED',
   FINALIZ: 'FINALIZED',
+  FINISH: 'FINALIZED',
   ELIMIN: 'CANCELLED',
   CANCE: 'CANCELLED',
   DELET: 'DELETED',
   SIN: 'NO_TICKETS',
   TICKET: 'NO_TICKETS',
   PEND: 'NO_TICKETS',
-  AUTOMATICO: 'AUTOMATICO',
   AUTOMATIC: 'AUTOMATIC',
   MANUAL: 'MANUAL',
 };
@@ -70,4 +84,3 @@ export const CONNECTION_STATUS = {
   ONLINE: 'status-dot--online',
   OFFLINE: 'status-dot--offline',
 };
-

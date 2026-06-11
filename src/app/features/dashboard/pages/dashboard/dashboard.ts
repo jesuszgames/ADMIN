@@ -1,20 +1,18 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { SimpleCard } from '../../components/simple-card/simple-card';
 import { Tables } from '../../../../shared/components/tables/tables';
 import { DeleteModal } from '../../../../shared/components/delete-modal/delete-modal';
 import { HistoryRafflesModal } from '../../../../shared/components/history-raffles-modal/history-raffles-modal';
 import { HistoryTicketModel } from '../../../../shared/components/history-ticket-model/history-ticket-model';
-import { Ticket } from '../../../../core/interfaces/api/ticket.interface';
 import { RaffleDetail } from '../../../../core/interfaces/api/raffle-detail.interface';
 import { TicketHistoryData } from '../../../../core/interfaces/api/ticket-history-data.interface';
 import { RaffleService } from '../../../../core/services/api/raffle.service';
 import { TicketService } from '../../../../core/services/api/ticket.service';
-import { mapRaffleDetails, mapTicketDetails } from '../../../../core/helpers/ui/utils';
+import { mapRaffleDetails, mapTicketDetails, isDeletedStatus } from '../../../../core/helpers/ui/utils';
 import {
   DEFAULT_USER_NAME,
   DASHBOARD_PRINCIPAL_HEADER,
-  DASHBOARD_CARDS,
   DASHBOARD_COLUMNS,
   PERSO_PAGE_SIZE,
   HISTORY_ROW_ACTIONS,
@@ -50,6 +48,7 @@ import { Raffle } from '../../../../core/interfaces/api/raffle.interface';
 export class Dashboard implements OnInit {
   private readonly raffleService = inject(RaffleService);
   private readonly ticketService = inject(TicketService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   userName = DEFAULT_USER_NAME;
   principalHeader = DASHBOARD_PRINCIPAL_HEADER;
@@ -68,6 +67,7 @@ export class Dashboard implements OnInit {
   rifaSeleccionadaParaVer: Raffle | null = null;
 
   pageSize = PERSO_PAGE_SIZE;
+  loading = false;
 
   ngOnInit(): void {
     this.initWelcomeMessage();
@@ -75,6 +75,8 @@ export class Dashboard implements OnInit {
   }
 
   cargarRifas(): void {
+    this.loading = true;
+    this.cdr.detectChanges();
     this.raffleService.getAll().subscribe({
       next: (res) => {
         if (res && res.data) {
@@ -82,9 +84,13 @@ export class Dashboard implements OnInit {
           this.updateTableData();
           this.updateCardMetrics();
         }
+        this.loading = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('API Error: No se pudieron cargar las rifas para el dashboard.', err);
+        this.loading = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -96,27 +102,21 @@ export class Dashboard implements OnInit {
         const statusUpper = (r.status || '').toUpperCase();
         const isEnded =
           statusUpper === 'FINISHED' ||
-          statusUpper === 'FINALIZADO' ||
-          statusUpper === 'FINALIZADA' ||
+          statusUpper === 'PENDING-DRAW' ||
           statusUpper === 'PENDING_DRAW';
 
         if (!isEnded) return false;
 
-        if (
-          r.status === STATE_DELETED ||
-          r.status === 'DELETED' ||
-          r.status === 'ELIMINADO' ||
-          r.status === 'ELIMINADA'
-        ) {
+        if (isDeletedStatus(r.status)) {
           return false;
         }
 
-        const completionDate = r.updatedAt ? new Date(r.updatedAt) : (r.endDate ? new Date(r.endDate) : null);
+        const completionDate = r.endDate ? new Date(r.endDate) : null;
         if (completionDate) {
-          const diffMs = nowTime - completionDate.getTime();
-          return diffMs >= 0 && diffMs <= 24 * 60 * 60 * 1000;
+          const diffMs = Math.abs(nowTime - completionDate.getTime());
+          return diffMs <= 24 * 60 * 60 * 1000;
         }
-        return true;
+        return false;
       })
       .map((raffle) => {
         let recStr = `${raffle.collected}$`;
@@ -173,28 +173,23 @@ export class Dashboard implements OnInit {
       // Calculate winners (count of raffles that have a winning ticket designated)
       const totalWinners = activeRaffles.filter((r) => r.winner && r.winner !== '').length;
 
-      // Calculate active raffles (state !== 'FINALIZADO' && state !== 'FINALIZADA')
+      // Calculate active raffles
       const totalActive = activeRaffles.filter((r) => {
         const est = String(r.status).toUpperCase();
-        return (
-          est !== 'FINALIZADO' &&
-          est !== 'FINALIZADA' &&
-          est !== 'ELIMINADO' &&
-          est !== 'FINISHED' &&
-          est !== 'DELETED'
-        );
+        const isFinished = est === 'FINISHED';
+        return !isFinished && !isDeletedStatus(r.status);
       }).length;
 
       // Calculate raffles without tickets (sold out)
       const totalNoTickets = activeRaffles.filter((r) => {
         const est = String(r.status).toUpperCase();
-        return est === 'SIN BOLETOS' || est === 'NO TICKETS';
+        return est === 'NO-TICKETS' || est === 'NO TICKETS';
       }).length;
 
-      // Calculate finished raffles (finalizado/finalizada)
+      // Calculate finished raffles
       const totalFinished = activeRaffles.filter((r) => {
         const est = String(r.status).toUpperCase();
-        return est === 'FINALIZADO' || est === 'FINALIZADA' || est === 'FINISHED';
+        return est === 'FINISHED';
       }).length;
 
       this.cards = [
@@ -211,7 +206,7 @@ export class Dashboard implements OnInit {
           color: 'danger',
         },
         {
-          label: 'Ganadores',
+          label: 'Premiados',
           value: String(totalWinners),
           icon: 'bi-trophy-fill',
           color: 'warning',

@@ -26,6 +26,7 @@ import {
   TABLE_ACTION_EDIT_DETAIL,
 } from '../../../../core/helpers/ui/constants';
 import { CategoryService } from '../../../../core/services/api/category.service';
+import { isDeletedStatus, isInactiveStatus } from '../../../../core/helpers/ui/utils';
 
 @Component({
   selector: 'app-categories',
@@ -66,6 +67,9 @@ export class Categories implements OnInit {
   categoriesData: Category[] = [];
   tableData: Category[] = [];
   loading: boolean = false;
+  isCategorySaving = false;
+  isCategoryDeleting = false;
+  isCategoryUpdatingState = false;
 
   ngOnInit(): void {
     this.loadCategories();
@@ -143,53 +147,69 @@ export class Categories implements OnInit {
   }
 
   onSaveCategory(catData: Category): void {
+    if (this.isCategorySaving) return;
+    this.isCategorySaving = true;
+
     const editCategory = this.selectedCategoryForEdit;
     if (editCategory) {
       this.categoryService.update(editCategory._id, catData).subscribe({
         next: () => {
           this.loadCategories();
+          this.isCategorySaving = false;
+          document.getElementById('btn-cerrar-modal-crear-categoria')?.click();
+          this.selectedCategoryForEdit = null;
         },
         error: (err) => {
           console.error('API Error: No se pudo actualizar la categoría.', err);
+          this.isCategorySaving = false;
         },
       });
     } else {
       this.categoryService.create(catData).subscribe({
         next: () => {
           this.loadCategories();
+          this.isCategorySaving = false;
+          document.getElementById('btn-cerrar-modal-crear-categoria')?.click();
+          this.selectedCategoryForEdit = null;
         },
         error: (err) => {
           console.error('API Error: No se pudo crear la categoría.', err);
+          this.isCategorySaving = false;
         },
       });
     }
-    this.selectedCategoryForEdit = null;
   }
 
   confirmarEliminar(razon: string): void {
     const targetCat = this.categoriaSeleccionadaParaBorrar;
-    if (!targetCat) return;
+    if (!targetCat || this.isCategoryDeleting) return;
+    this.isCategoryDeleting = true;
 
     this.categoryService.deleteCategory(targetCat._id, razon).subscribe({
       next: () => {
         this.loadCategories();
+        this.isCategoryDeleting = false;
       },
       error: (err) => {
         console.error('API Error: No se pudo eliminar la categoría del backend.', err);
+        this.isCategoryDeleting = false;
       },
     });
     this.categoriaSeleccionadaParaBorrar = null;
   }
 
   confirmarCambioEstado(): void {
-    if (this.pendingRowToToggle && this.changesToConfirm.length > 0) {
+    if (this.pendingRowToToggle && this.changesToConfirm.length > 0 && !this.isCategoryUpdatingState) {
       const nextStatus = this.changesToConfirm[0].nuevo as 'ACTIVE' | 'INACTIVE' | 'DELETED';
+      this.isCategoryUpdatingState = true;
       this.categoryService.update(this.pendingRowToToggle._id, { status: nextStatus }).subscribe({
         next: () => {
           this.loadCategories();
+          this.isCategoryUpdatingState = false;
         },
         error: (err) => {
           console.error('API Error: No se pudo actualizar el estado de la categoría.', err);
+          this.isCategoryUpdatingState = false;
         },
       });
     }
@@ -206,11 +226,11 @@ export class Categories implements OnInit {
     let filtered = this.categoriesData;
     try {
       const filterActions: Record<string, () => Category[]> = {
-        [CATEGORY_FILTER_ALL]: () => this.categoriesData.filter((c) => c.status !== STATE_DELETED),
+        [CATEGORY_FILTER_ALL]: () => this.categoriesData.filter((c) => !isDeletedStatus(c.status)),
         [CATEGORY_FILTER_INACTIVE]: () =>
-          this.categoriesData.filter((c) => c.status === STATE_INACTIVE),
+          this.categoriesData.filter((c) => isInactiveStatus(c.status)),
         [CATEGORY_FILTER_DELETE]: () =>
-          this.categoriesData.filter((c) => c.status === STATE_DELETED),
+          this.categoriesData.filter((c) => isDeletedStatus(c.status)),
       };
 
       const filterFn = filterActions[filterId];

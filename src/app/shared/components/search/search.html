@@ -1,5 +1,9 @@
 <div class="custom-search-container d-flex align-items-center px-3 rounded-3">
-  <i class="bi bi-search text-white-50 fs-5"></i>
+  @if (loading) {
+    <div class="spinner-border spinner-border-sm text-white-50" role="status" style="width: 1.1rem; height: 1.1rem; border-width: 0.15em;"></div>
+  } @else {
+    <i class="bi bi-search text-white-50 fs-5"></i>
+  }
   <input
     type="text"
     class="form-control shadow-none border-0 bg-transparent text-white ms-2 custom-search-input"

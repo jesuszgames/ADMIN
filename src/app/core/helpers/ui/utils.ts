@@ -19,13 +19,7 @@ export function generateObjectId(): string {
 export function parseDateString(dateStr: string): Date | null {
   if (!dateStr) return null;
   try {
-    // 1. Intentar parsear directamente (p. ej. cadenas ISO completas)
-    const directDate = new Date(dateStr);
-    if (!isNaN(directDate.getTime())) {
-      return directDate;
-    }
-
-    // 2. Si falla, intentar parseo manual
+    // 1. Intentar parseo manual/local primero para evitar cambios de huso horario (ej: YYYY-MM-DD o YYYY/MM/DD)
     if (dateStr.includes('-')) {
       const parts = dateStr.split('T')[0].split('-');
       const [year, month, day] = parts.map(Number);
@@ -44,6 +38,12 @@ export function parseDateString(dateStr: string): Date | null {
         if (!isNaN(parsed.getTime())) return parsed;
       }
     }
+
+    // 2. Intentar parsear directamente (p. ej. cadenas ISO completas)
+    const directDate = new Date(dateStr);
+    if (!isNaN(directDate.getTime())) {
+      return directDate;
+    }
     return null;
   } catch {
     return null;
@@ -54,11 +54,7 @@ export function calculateRemainingTime(endDateStr: string, status?: string): str
   const statusUpper = (status || '').toUpperCase();
   if (
     statusUpper === 'FINISHED' ||
-    statusUpper === 'FINALIZADO' ||
-    statusUpper === 'FINALIZADA' ||
-    statusUpper === 'DELETED' ||
-    statusUpper === 'ELIMINADO' ||
-    statusUpper === 'ELIMINADA'
+    statusUpper === 'DELETED'
   ) {
     return '0 días';
   }
@@ -95,11 +91,25 @@ export function mapRaffleDetails(raffle: any): RaffleDetail {
   const beneficiaryAmount = (totalCollected * beneficiaryPercentage) / 100;
   const winnerAmount = (totalCollected * winnerPercentage) / 100;
 
+  const formatDate = (dateVal: any) => {
+    if (!dateVal) return '';
+    try {
+      const d = new Date(dateVal);
+      if (isNaN(d.getTime())) return String(dateVal);
+      const day = String(d.getDate()).padStart(2, '0');
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const year = d.getFullYear();
+      return `${day}/${month}/${year}`;
+    } catch {
+      return String(dateVal);
+    }
+  };
+
   return {
     name: raffle.title,
     foundation: raffle.foundation,
-    startDate: raffle.startDate || '10/05/2026',
-    endDate: raffle.endDate || '14/05/2026',
+    startDate: formatDate(raffle.startDate) || '10/05/2026',
+    endDate: formatDate(raffle.endDate) || '14/05/2026',
     category: raffle.category,
     ticketPrice: raffle.ticketPrice || 30,
     winningTicket: raffle.winner,
@@ -156,4 +166,16 @@ export function mapTicketDetails(tickets: Ticket[], raffle: any): TicketHistoryD
     lastPurchaseDate,
     tickets,
   };
+}
+
+export function isActiveStatus(status: string): boolean {
+  return (status || '').toUpperCase() === 'ACTIVE';
+}
+
+export function isInactiveStatus(status: string): boolean {
+  return (status || '').toUpperCase() === 'INACTIVE';
+}
+
+export function isDeletedStatus(status: string): boolean {
+  return (status || '').toUpperCase() === 'DELETED';
 }

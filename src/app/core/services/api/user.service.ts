@@ -25,16 +25,18 @@ export class UserService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = `${environment.apiUrl}/adminpanel/users`;
 
-  getAll(page?: number, limit?: number, search?: string): Observable<{ data: User[] }> {
+  getAll(page?: number, limit?: number, search?: string, status?: string, role?: string): Observable<{ data: User[]; totalCount: number }> {
     let params = new HttpParams();
     if (page) params = params.set('page', page.toString());
     if (limit) params = params.set('limit', limit.toString());
     if (search) params = params.set('search', search);
+    if (status) params = params.set('status', status);
+    if (role) params = params.set('role', role);
 
     return this.http.get<ApiResponseEnvelope<PaginatedResult<User>>>(`${this.apiUrl}/get-all`, { params }).pipe(
       map((res) => ({
-        ...res,
         data: res?.data?.result || [],
+        totalCount: res?.data?.totalCount || 0,
       })),
     );
   }

@@ -1,9 +1,48 @@
 <div class="container-fluid px-3 pt-5 pb-4 mt-4">
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h3 class="m-0">Usuarios</h3>
+    <h3 class="m-0">Staff / Administradores</h3>
   </div>
-  <div class="d-flex justify-content-between align-items-center">
+  <!-- Tabs for switching views -->
+  <ul class="nav nav-tabs border-secondary border-opacity-25 mb-4" id="userTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button
+        class="nav-link text-uppercase fs-7 fw-semibold py-2 px-4"
+        [class.active]="activeTab === 'staff'"
+        [class.text-white]="activeTab === 'staff'"
+        [class.text-white-50]="activeTab !== 'staff'"
+        style="background: transparent; border: none; border-bottom: 2px solid transparent;"
+        [style.border-bottom-color]="activeTab === 'staff' ? '#3182ce' : 'transparent'"
+        (click)="cambiarTab('staff')"
+        type="button"
+      >
+        Staff de Operación
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button
+        class="nav-link text-uppercase fs-7 fw-semibold py-2 px-4"
+        [class.active]="activeTab === 'player'"
+        [class.text-white]="activeTab === 'player'"
+        [class.text-white-50]="activeTab !== 'player'"
+        style="background: transparent; border: none; border-bottom: 2px solid transparent;"
+        [style.border-bottom-color]="activeTab === 'player' ? '#3182ce' : 'transparent'"
+        (click)="cambiarTab('player')"
+        type="button"
+      >
+        Jugadores / Compradores
+      </button>
+    </li>
+  </ul>
+
+  <div class="d-flex justify-content-between align-items-center mb-3">
     <app-filter [options]="misFiltrosUsuarios" (onFilter)="filtrarPorEstado($event)"></app-filter>
+    @if (activeTab === 'staff') {
+      <app-main-button
+        [label]="'Crear Staff'"
+        [icon]="'bi-plus'"
+        (btnClick)="abrirCrearStaff()"
+      ></app-main-button>
+    }
   </div>
   <div class="row">
     <div class="col-12">
@@ -13,7 +52,13 @@
         [data]="tableData"
         [rowActions]="userRowActions"
         [loading]="loading"
+        [serverSide]="true"
+        [totalItems]="totalItems"
+        [pageSize]="pageSize"
+        [currentPage]="currentPage"
         (actionClicked)="manejarAccion($event)"
+        (pageChanged)="onPageChange($event)"
+        (searchChanged)="onSearchChange($event)"
       >
       </app-tables>
     </div>
@@ -31,6 +76,7 @@
 <app-edit-user-modal
   [user]="selectedUserForEdit"
   [isReadOnly]="isReadOnlyView"
+  [isSaving]="isUserSaving"
   (save)="onSaveUser($event)"
   (closed)="selectedUserForEdit = null"
 ></app-edit-user-modal>

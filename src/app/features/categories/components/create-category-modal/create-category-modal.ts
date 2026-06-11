@@ -15,6 +15,7 @@ import { ConfirmChangesModal } from '../../../../shared/components/confirm-chang
 export class CreateCategoryModal implements OnChanges {
   @Input() category: Category | null = null;
   @Input() isReadOnly = false;
+  @Input() isSaving = false;
   @Output() save = new EventEmitter<Category>();
   @Output() closed = new EventEmitter<void>();
 
@@ -74,19 +75,17 @@ export class CreateCategoryModal implements OnChanges {
   }
 
   onSaveClick() {
-    if (!this.isFormValid()) return;
+    if (!this.isFormValid() || this.isSaving) return;
 
     if (this.category) {
-      const hasChanges = this.detectarCambios();
-      if (hasChanges) {
-        this.showConfirmModal = true;
-      } else {
-        this.onSubmit();
-        document.getElementById('btn-cerrar-modal-crear-categoria')?.click();
-      }
+       const hasChanges = this.detectarCambios();
+       if (hasChanges) {
+         this.showConfirmModal = true;
+       } else {
+         this.onSubmit();
+       }
     } else {
-      this.onSubmit();
-      document.getElementById('btn-cerrar-modal-crear-categoria')?.click();
+       this.onSubmit();
     }
   }
 
@@ -98,11 +97,10 @@ export class CreateCategoryModal implements OnChanges {
   confirmSubmit() {
     this.showConfirmModal = false;
     this.onSubmit();
-    document.getElementById('btn-cerrar-modal-crear-categoria')?.click();
   }
 
   onSubmit() {
-    if (!this.isFormValid()) return;
+    if (!this.isFormValid() || this.isSaving) return;
 
     const data: Category = {
       _id: this.category?._id ?? '',

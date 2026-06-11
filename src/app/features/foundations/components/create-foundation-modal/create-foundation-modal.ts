@@ -15,6 +15,7 @@ import { ImageCropperComponent } from '../../../../shared/components/image-cropp
 export class CreateFoundationModal implements OnChanges {
   @Input() foundation: Foundation | null = null;
   @Input() isReadOnly = false;
+  @Input() isSaving = false;
   @Output() save = new EventEmitter<Foundation>();
   @Output() closed = new EventEmitter<void>();
 
@@ -117,7 +118,7 @@ export class CreateFoundationModal implements OnChanges {
   }
 
   onSaveClick() {
-    if (!this.isFormValid()) return;
+    if (!this.isFormValid() || this.isSaving) return;
 
     if (this.foundation) {
       const hasChanges = this.detectarCambios();
@@ -125,11 +126,9 @@ export class CreateFoundationModal implements OnChanges {
         this.showConfirmModal = true;
       } else {
         this.onSubmit();
-        document.getElementById('btn-cerrar-modal-crear-fundacion')?.click();
       }
     } else {
       this.onSubmit();
-      document.getElementById('btn-cerrar-modal-crear-fundacion')?.click();
     }
   }
 
@@ -141,11 +140,10 @@ export class CreateFoundationModal implements OnChanges {
   confirmSubmit() {
     this.showConfirmModal = false;
     this.onSubmit();
-    document.getElementById('btn-cerrar-modal-crear-fundacion')?.click();
   }
 
   onSubmit() {
-    if (!this.isFormValid()) return;
+    if (!this.isFormValid() || this.isSaving) return;
 
     const data: Foundation = {
       _id: this.foundation?._id ?? '',

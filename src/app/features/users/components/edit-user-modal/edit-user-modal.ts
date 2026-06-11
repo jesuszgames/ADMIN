@@ -14,10 +14,13 @@ import { ConfirmChangesModal } from '../../../../shared/components/confirm-chang
 export class EditUserModal implements OnChanges {
   @Input() user: User | null = null;
   @Input() isReadOnly = false;
+  @Input() isSaving = false;
   @Output() save = new EventEmitter<User>();
 
   @Output() closed = new EventEmitter<void>();
 
+  username: string = '';
+  password: string = '';
   name: string = '';
   email: string = '';
   phone: string = '';
@@ -33,17 +36,20 @@ export class EditUserModal implements OnChanges {
 
   resetForm(): void {
     this.touchedFields = {};
+    this.password = '';
     if (this.user) {
+      this.username = this.user.username || '';
       this.name = this.user.name || '';
       this.email = this.user.email || '';
       this.phone = this.user.phone || '';
-      this.role = this.user.role || 'USUARIO';
+      this.role = this.user.role || 'ADMIN';
       this.deleteReason = this.user.deleteReason || '';
     } else {
+      this.username = '';
       this.name = '';
       this.email = '';
       this.phone = '';
-      this.role = 'USUARIO';
+      this.role = 'ADMIN';
       this.deleteReason = '';
     }
   }
@@ -66,16 +72,23 @@ export class EditUserModal implements OnChanges {
   }
 
   isFormValid(): boolean {
+    const trimmedUsername = (this.username || '').trim();
     const trimmedName = (this.name || '').trim();
     const trimmedEmail = (this.email || '').trim();
     const trimmedPhone = (this.phone || '').trim();
+    const trimmedPassword = (this.password || '').trim();
+
+    // Password is required only for new users
+    const isPasswordValid = this.user ? (trimmedPassword.length === 0 || trimmedPassword.length >= 6) : trimmedPassword.length >= 6;
 
     return (
+      trimmedUsername.length >= 3 && trimmedUsername.length <= 30 &&
       trimmedName.length >= 3 && trimmedName.length <= 50 &&
       this.isEmailValid(trimmedEmail) &&
       this.esNumero(trimmedPhone) &&
       trimmedPhone.length >= 10 && trimmedPhone.length <= 15 &&
-      (this.role === 'USUARIO' || this.role === 'SORTEADOR' || this.role === 'ADMIN')
+      isPasswordValid &&
+      (this.role === 'ADMIN' || this.role === 'SORTEADOR')
     );
   }
 
@@ -94,16 +107,20 @@ export class EditUserModal implements OnChanges {
       }
     };
 
+    checkChange('Nombre de Usuario (Login)', this.user.username, this.username);
     checkChange('Nombre Completo', this.user.name, this.name);
     checkChange('Correo Electrónico', this.user.email, this.email);
     checkChange('Teléfono', this.user.phone, this.phone);
     checkChange('Rol de Usuario', this.user.role, this.role);
+    if (this.password.trim().length > 0) {
+      this.cambios.push({ campo: 'Contraseña', anterior: '*****', nuevo: 'Nueva Contraseña Establecida' });
+    }
 
     return this.cambios.length > 0;
   }
 
   onSaveClick() {
-    if (!this.isFormValid()) return;
+    if (!this.isFormValid() || this.isSaving) return;
 
     if (this.user) {
       const hasChanges = this.detectarCambios();
@@ -111,11 +128,9 @@ export class EditUserModal implements OnChanges {
         this.showConfirmModal = true;
       } else {
         this.onSave();
-        document.getElementById('btn-cerrar-modal-editar-usuario')?.click();
       }
     } else {
       this.onSave();
-      document.getElementById('btn-cerrar-modal-editar-usuario')?.click();
     }
   }
 
@@ -127,18 +142,23 @@ export class EditUserModal implements OnChanges {
   confirmSubmit() {
     this.showConfirmModal = false;
     this.onSave();
-    document.getElementById('btn-cerrar-modal-editar-usuario')?.click();
   }
 
   onSave(): void {
-    if (!this.user) return;
+    if (this.isSaving) return;
     const updatedUser: User = {
-      ...this.user,
-      name: this.name,
-      email: this.email,
-      phone: this.phone,
+      _id: this.user?._id ?? '',
+      username: this.username.trim(),
+      name: this.name.trim(),
+      email: this.email.trim(),
+      phone: this.phone.trim(),
       role: this.role,
+      status: this.user?.status ?? 'ACTIVE',
+      actions: this.user?.actions ?? '',
     };
+    if (this.password.trim().length >= 6) {
+      updatedUser['password'] = this.password.trim();
+    }
     this.save.emit(updatedUser);
   }
 

@@ -3,7 +3,7 @@
     <header>
       {{ principalheader }}
     </header>
-    <app-search (onSearch)="handleSearch($event)" [placeholder]="placeholderSearch"></app-search>
+    <app-search (onSearch)="handleSearch($event)" [placeholder]="placeholderSearch" [loading]="loading"></app-search>
   </div>
   <table class="table table-sm custom-table dark-table ta-hover align-middle m-0">
     <thead>
@@ -27,9 +27,12 @@
             @for (col of columns; track col.field) {
               <td class="py-3" [class.text-center]="isCenteredColumn(col.field, col.type)">
                 @if (col.type === 'actions') {
-                  <div class="skeleton-cell" style="width: 30px;"></div>
+                  <div class="skeleton-cell" style="width: 30px"></div>
                 } @else if (col.type === 'badge') {
-                  <div class="skeleton-cell" style="width: 70px; height: 24px; border-radius: 6px;"></div>
+                  <div
+                    class="skeleton-cell"
+                    style="width: 70px; height: 24px; border-radius: 6px"
+                  ></div>
                 } @else {
                   <div class="skeleton-cell"></div>
                 }
@@ -41,7 +44,10 @@
         @for (row of pagedData; track row) {
           <tr class="border-secondary">
             @for (col of columns; track col.field) {
-              <td class="py-2 text-white" [class.text-center]="isCenteredColumn(col.field, col.type)">
+              <td
+                class="py-2 text-white"
+                [class.text-center]="isCenteredColumn(col.field, col.type)"
+              >
                 @if (col.type === 'badge') {
                   <span [attr.class]="getBadgeClasses(row[col.field]) + ' badge-text'">
                     {{ row[col.field] }}
@@ -68,7 +74,7 @@
           </tr>
         } @empty {
           <tr>
-            <td [attr.colspan]="columns.length" class="text-center py-4 text-muted">
+            <td [attr.colspan]="columns.length" class="text-center py-4 text-white-50">
               No se encontraron registros.
             </td>
           </tr>

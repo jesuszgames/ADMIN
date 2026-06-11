@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { Filter } from '../../../../shared/components/filter/filter';
 import { Tables } from '../../../../shared/components/tables/tables';
 import { DeleteModal } from '../../../../shared/components/delete-modal/delete-modal';
@@ -27,6 +26,7 @@ import {
   TABLE_ACTION_EDIT_DETAIL,
 } from '../../../../core/helpers/ui/constants';
 import { FoundationService } from '../../../../core/services/api/foundation.service';
+import { isDeletedStatus, isInactiveStatus } from '../../../../core/helpers/ui/utils';
 
 @Component({
   selector: 'app-foundations',
@@ -51,6 +51,10 @@ export class Foundations implements OnInit {
   showConfirmModal = false;
   changesToConfirm: ModelChange[] = [];
   pendingRowToToggle: Foundation | null = null;
+
+  isFoundationSaving = false;
+  isFoundationDeleting = false;
+  isFoundationUpdatingState = false;
 
   private readonly BTN_DELETE_FOUNDATION_ID = 'btn-abrir-modal-delete-foundation';
   private readonly BTN_CREATE_FOUNDATION_ID = 'btn-abrir-modal-create-foundation';
@@ -134,53 +138,69 @@ export class Foundations implements OnInit {
   }
 
   onSaveFoundation(foundData: Foundation): void {
+    if (this.isFoundationSaving) return;
+    this.isFoundationSaving = true;
+
     const editFoundation = this.selectedFoundationForEdit;
     if (editFoundation) {
       this.foundationService.update(editFoundation._id, foundData).subscribe({
         next: () => {
           this.loadFoundations();
+          this.isFoundationSaving = false;
+          document.getElementById('btn-cerrar-modal-crear-fundacion')?.click();
+          this.selectedFoundationForEdit = null;
         },
         error: (err) => {
           console.error('API Error: No se pudo actualizar la fundación.', err);
+          this.isFoundationSaving = false;
         },
       });
     } else {
       this.foundationService.create(foundData).subscribe({
         next: () => {
           this.loadFoundations();
+          this.isFoundationSaving = false;
+          document.getElementById('btn-cerrar-modal-crear-fundacion')?.click();
+          this.selectedFoundationForEdit = null;
         },
         error: (err) => {
           console.error('API Error: No se pudo crear la fundación.', err);
+          this.isFoundationSaving = false;
         },
       });
     }
-    this.selectedFoundationForEdit = null;
   }
 
   confirmarEliminar(razon: string): void {
     const targetFound = this.fundacionSeleccionadaParaBorrar;
-    if (!targetFound) return;
+    if (!targetFound || this.isFoundationDeleting) return;
+    this.isFoundationDeleting = true;
 
     this.foundationService.deleteFoundation(targetFound._id, razon).subscribe({
       next: () => {
         this.loadFoundations();
+        this.isFoundationDeleting = false;
       },
       error: (err) => {
         console.error('API Error: No se pudo eliminar la fundación del backend.', err);
+        this.isFoundationDeleting = false;
       },
     });
     this.fundacionSeleccionadaParaBorrar = null;
   }
 
   confirmarCambioEstado(): void {
-    if (this.pendingRowToToggle && this.changesToConfirm.length > 0) {
+    if (this.pendingRowToToggle && this.changesToConfirm.length > 0 && !this.isFoundationUpdatingState) {
       const nextStatus = this.changesToConfirm[0].nuevo as 'ACTIVE' | 'INACTIVE' | 'DELETED';
+      this.isFoundationUpdatingState = true;
       this.foundationService.update(this.pendingRowToToggle._id, { status: nextStatus }).subscribe({
         next: () => {
           this.loadFoundations();
+          this.isFoundationUpdatingState = false;
         },
         error: (err) => {
           console.error('API Error: No se pudo actualizar el estado de la fundación.', err);
+          this.isFoundationUpdatingState = false;
         },
       });
     }
@@ -197,9 +217,9 @@ export class Foundations implements OnInit {
     let filtered = this.foundationsData;
     try {
       const filterActions: Record<string, () => Foundation[]> = {
-        [FOUNDATION_FILTER_ALL]: () => this.foundationsData.filter((f) => f.status !== STATE_DELETED),
-        [FOUNDATION_FILTER_INACTIVE]: () => this.foundationsData.filter((f) => f.status === STATE_INACTIVE),
-        [FOUNDATION_FILTER_DELETE]: () => this.foundationsData.filter((f) => f.status === STATE_DELETED),
+        [FOUNDATION_FILTER_ALL]: () => this.foundationsData.filter((f) => !isDeletedStatus(f.status)),
+        [FOUNDATION_FILTER_INACTIVE]: () => this.foundationsData.filter((f) => isInactiveStatus(f.status)),
+        [FOUNDATION_FILTER_DELETE]: () => this.foundationsData.filter((f) => isDeletedStatus(f.status)),
       };
 
       const filterFn = filterActions[filterId];

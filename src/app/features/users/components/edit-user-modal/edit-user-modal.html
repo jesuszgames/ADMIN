@@ -3,7 +3,7 @@
     <div class="modal-content custom-modal-bg border-secondary border-opacity-25 rounded-3 shadow-lg">
       <div class="modal-body p-4 p-md-5 pb-3">
         <h3 class="text-white fw-bold mb-4 fs-4">
-          {{ isReadOnly ? 'Detalle de Usuario' : 'Editar Usuario' }}
+          {{ isReadOnly ? 'Detalle de Staff' : (user ? 'Editar Staff' : 'Crear Staff') }}
         </h3>
 
         @if (isReadOnly && deleteReason) {
@@ -17,6 +17,46 @@
         }
 
         <div class="row g-3">
+          <div class="col-md-6 col-12">
+            <label class="form-label text-white-50 text-uppercase fs-7 mb-2">Nombre de Usuario (Login)</label>
+            <input
+              type="text"
+              class="form-control custom-dark-input py-2"
+              [class.is-invalid]="touchedFields['username'] && (username.trim().length < 3 || username.trim().length > 30)"
+              [(ngModel)]="username"
+              (blur)="touchedFields['username'] = true"
+              placeholder="Ej. juanperez"
+              [disabled]="isReadOnly"
+              required
+            />
+            @if (touchedFields['username'] && (username.trim().length < 3 || username.trim().length > 30)) {
+              <div class="text-danger fs-8 mt-1" style="font-size: 0.75rem; color: #ef5350">
+                El nombre de usuario debe tener entre 3 y 30 caracteres.
+              </div>
+            }
+          </div>
+
+          <div class="col-md-6 col-12">
+            <label class="form-label text-white-50 text-uppercase fs-7 mb-2">
+              Contraseña
+              @if (user) { <span class="text-white-50 lowercase" style="font-size: 0.65rem;">(Opcional, dejar vacío para no cambiar)</span> }
+            </label>
+            <input
+              type="password"
+              class="form-control custom-dark-input py-2"
+              [class.is-invalid]="touchedFields['password'] && password.trim().length > 0 && password.trim().length < 6"
+              [(ngModel)]="password"
+              (blur)="touchedFields['password'] = true"
+              placeholder="••••••"
+              [disabled]="isReadOnly"
+              [required]="!user"
+            />
+            @if (touchedFields['password'] && password.trim().length > 0 && password.trim().length < 6) {
+              <div class="text-danger fs-8 mt-1" style="font-size: 0.75rem; color: #ef5350">
+                La contraseña debe tener al menos 6 caracteres.
+              </div>
+            }
+          </div>
           <div class="col-md-6 col-12">
             <label class="form-label text-white-50 text-uppercase fs-7 mb-2">Nombre Completo</label>
             <input
@@ -81,7 +121,6 @@
               </div>
             }
           </div>
-
           <div class="col-md-6 col-12">
             <label class="form-label text-white-50 text-uppercase fs-7 mb-2">Rol de Usuario</label>
             <select
@@ -92,7 +131,6 @@
             >
               <option value="ADMIN">ADMIN</option>
               <option value="SORTEADOR">SORTEADOR</option>
-              <option value="USUARIO">USUARIO</option>
             </select>
           </div>
         </div>
@@ -109,11 +147,16 @@
         @if (!isReadOnly) {
           <button
             type="button"
-            class="btn px-4 py-2 rounded-3 text-uppercase fs-7 custom-btn-primary"
-            [disabled]="!isFormValid()"
+            class="btn px-4 py-2 rounded-3 text-uppercase fs-7 custom-btn-primary d-flex align-items-center gap-2"
+            [disabled]="!isFormValid() || isSaving"
             (click)="onSaveClick()"
           >
-            Guardar
+            @if (isSaving) {
+              <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+              Guardando...
+            } @else {
+              Guardar
+            }
           </button>
         }
         <button id="btn-cerrar-modal-editar-usuario" data-bs-dismiss="modal" hidden></button>

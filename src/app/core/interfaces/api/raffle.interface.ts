@@ -7,7 +7,7 @@ export interface Raffle {
   foundationId?: string;
   category: string;
   categoryId?: string;
-  status: 'BORRADOR' | 'ACTIVA' | 'FINALIZADA' | 'ELIMINADA' | string; // Keep string for dynamic display statuses in component mappings
+  status: 'ACTIVE' | 'INACTIVE' | string;
   soldTickets: number;
   totalTickets: number;
   collected: number;
@@ -46,5 +46,3 @@ export interface UnlinkLog {
   reason: string;
   date: string;
 }
-
-

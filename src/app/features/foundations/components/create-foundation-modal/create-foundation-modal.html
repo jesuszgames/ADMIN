@@ -164,11 +164,16 @@
         @if (!isReadOnly) {
           <button
             type="button"
-            class="btn px-4 py-2 rounded-3 text-uppercase fs-7 custom-btn-primary"
-            [disabled]="!isFormValid()"
+            class="btn px-4 py-2 rounded-3 text-uppercase fs-7 custom-btn-primary d-flex align-items-center gap-2"
+            [disabled]="!isFormValid() || isSaving"
             (click)="onSaveClick()"
           >
-            {{ foundation ? 'Guardar' : 'Crear' }}
+            @if (isSaving) {
+              <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+              Guardando...
+            } @else {
+              {{ foundation ? 'Guardar' : 'Crear' }}
+            }
           </button>
         }
         <button id="btn-cerrar-modal-crear-fundacion" data-bs-dismiss="modal" hidden></button>

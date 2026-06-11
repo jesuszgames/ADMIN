@@ -20,15 +20,22 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         } else {
           let errMsg = 'Ha ocurrido un error en el servidor.';
           if (error.error && error.error.message) {
-            try {
-              const parsed = JSON.parse(error.error.message);
-              if (typeof parsed === 'object' && parsed !== null) {
-                errMsg = Object.values(parsed).join(', ');
-              } else {
-                errMsg = error.error.message;
+            const rawMsg = error.error.message;
+            if (typeof rawMsg === 'object' && rawMsg !== null) {
+              errMsg = Object.values(rawMsg).join(', ');
+            } else if (typeof rawMsg === 'string') {
+              try {
+                const parsed = JSON.parse(rawMsg);
+                if (typeof parsed === 'object' && parsed !== null) {
+                  errMsg = Object.values(parsed).join(', ');
+                } else {
+                  errMsg = parsed;
+                }
+              } catch {
+                errMsg = rawMsg;
               }
-            } catch {
-              errMsg = error.error.message;
+            } else {
+              errMsg = String(rawMsg);
             }
           } else if (error.message) {
             errMsg = error.message;

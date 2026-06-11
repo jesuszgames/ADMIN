@@ -28,10 +28,12 @@ export class Tables<T extends Record<string, unknown> = Record<string, unknown>>
   @Input() loading: boolean = false;
   @Input() pageSize: number = DEFAULT_PAGE_SIZE;
   @Input() currentPage: number = DEFAULT_CURRENT_PAGE;
-  totalItems: number = 0;
+  @Input() totalItems: number = 0;
+  @Input() serverSide: boolean = false;
   pagedData: T[] = [];
 
   @Output() actionClicked = new EventEmitter<{ actionId: number; row: T }>();
+  @Output() pageChanged = new EventEmitter<number>();
 
   @Input() rowActions: DropdownAction[] = DEFAULT_ROW_ACTIONS;
 
@@ -57,41 +59,54 @@ export class Tables<T extends Record<string, unknown> = Record<string, unknown>>
 
   ngOnChanges(changes: SimpleChanges): void {
     try {
-      const shouldUpdate = changes['data'] || changes['pageSize'];
+      const shouldUpdate = changes['data'] || changes['pageSize'] || changes['totalItems'];
       if (!shouldUpdate) throw new Error();
-      this.currentPage = 1;
+      if (!this.serverSide && changes['data']) {
+        this.currentPage = 1;
+      }
       this.updatePagedData();
-    } catch { }
+    } catch (err) {
+      console.error('Error in ngOnChanges:', err);
+    }
   }
 
   updatePagedData(): void {
     try {
-      const query = this.searchText.trim().toLowerCase();
-      const filtered = this.data.filter(
-        (row) =>
-          !query ||
-          this.columns.some((col) => {
-            try {
-              const val = row[col.field];
-              if (val === null || val === undefined) throw new Error();
-              return String(val).toLowerCase().includes(query);
-            } catch {
-              return false;
-            }
-          }),
-      );
-      this.totalItems = filtered.length;
-      const startIndex = (this.currentPage - 1) * this.pageSize;
-      const endIndex = startIndex + this.pageSize;
-      this.pagedData = filtered.slice(startIndex, endIndex);
-    } catch {
+      if (this.serverSide) {
+        this.pagedData = this.data || [];
+      } else {
+        const query = this.searchText.trim().toLowerCase();
+        const filtered = this.data.filter(
+          (row) =>
+            !query ||
+            this.columns.some((col) => {
+              try {
+                const val = row[col.field];
+                if (val === null || val === undefined) throw new Error();
+                return String(val).toLowerCase().includes(query);
+              } catch {
+                return false;
+              }
+            }),
+        );
+        this.totalItems = filtered.length;
+        const startIndex = (this.currentPage - 1) * this.pageSize;
+        const endIndex = startIndex + this.pageSize;
+        this.pagedData = filtered.slice(startIndex, endIndex);
+      }
+    } catch (err) {
+      console.error('Error in updatePagedData:', err);
       this.totalItems = 0;
       this.pagedData = [];
     }
   }
   onPageChange(newPage: number): void {
     this.currentPage = newPage;
-    this.updatePagedData();
+    if (this.serverSide) {
+      this.pageChanged.emit(newPage);
+    } else {
+      this.updatePagedData();
+    }
   }
 
   onActionSelect(actionId: number, row: T): void {
@@ -100,8 +115,8 @@ export class Tables<T extends Record<string, unknown> = Record<string, unknown>>
 
   getRowActions(row: T): DropdownAction[] {
     try {
-      const estado = String(row['status'] || row['estado'] || '').toUpperCase();
-      if (estado === 'ELIMINADO' || estado === 'DELETED') {
+      const estado = String(row['status'] || '').toUpperCase();
+      if (estado === 'DELETED') {
         const filtered: DropdownAction[] = [];
         for (const action of this.rowActions) {
           const label = action.label.toLowerCase();
@@ -134,14 +149,19 @@ export class Tables<T extends Record<string, unknown> = Record<string, unknown>>
       field === 'winner' ||
       field === 'ganador' ||
       field === 'remainingTime' ||
-      field === 'tiempoRestante'
+      field === 'tiempoRestante' ||
+      field === 'fechaSorteo' ||
+      field === 'ganadorText'
     );
   }
 
   handleSearch(searchValue: string) {
     this.searchText = searchValue;
     this.currentPage = 1;
-    this.updatePagedData();
-    this.searchChanged.emit(searchValue);
+    if (this.serverSide) {
+      this.searchChanged.emit(searchValue);
+    } else {
+      this.updatePagedData();
+    }
   }
 }

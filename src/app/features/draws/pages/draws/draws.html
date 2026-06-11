@@ -3,10 +3,6 @@
     <h3 class="m-0 text-white fw-bold">Sorteos de Rifas</h3>
   </div>
 
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <app-filter [options]="filters" (onFilter)="filtrar($event)"></app-filter>
-  </div>
-
   <div class="row">
     <div class="col-12">
       <app-tables
@@ -14,6 +10,7 @@
         [columns]="columns"
         [data]="tableData"
         [rowActions]="rowActions"
+        [loading]="loading"
         (actionClicked)="manejarAccion($event)"
       >
       </app-tables>

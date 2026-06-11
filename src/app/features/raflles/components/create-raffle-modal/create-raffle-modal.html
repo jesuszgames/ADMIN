@@ -16,7 +16,7 @@
           {{ isReadOnly ? 'Detalle Rifa' : raffle ? 'Editar Rifa' : 'Crear Rifa' }}
         </h3>
 
-        @if (isReadOnly && raffle?.deleteReason) {
+        @if (isReadOnly && raffle && raffle.deleteReason) {
           <div
             class="alert alert-danger border-danger border-opacity-25 bg-danger bg-opacity-10 text-danger rounded-3 p-3 mb-4 d-flex align-items-start gap-2"
           >
@@ -24,7 +24,7 @@
             <div>
               <strong class="d-block mb-1 text-uppercase fs-7">Rifa Eliminada</strong>
               <span class="fs-7"
-                ><strong>Razón de la eliminación:</strong> {{ raffle?.deleteReason }}</span
+                ><strong>Razón de la eliminación:</strong> {{ raffle.deleteReason }}</span
               >
             </div>
           </div>
@@ -41,14 +41,19 @@
                   <input
                     type="text"
                     class="form-control custom-dark-input py-2 w-100"
-                    [class.is-invalid]="touchedFields['title'] && (title.trim().length < 3 || title.trim().length > 100)"
+                    [class.is-invalid]="
+                      touchedFields['title'] &&
+                      (title.trim().length < 3 || title.trim().length > 100)
+                    "
                     [(ngModel)]="title"
                     (blur)="touchedFields['title'] = true"
                     placeholder="ANCHO DE TEXTO PRUEBA DE ESCRITORIO"
                     [disabled]="isReadOnly"
                     required
                   />
-                  @if (touchedFields['title'] && (title.trim().length < 3 || title.trim().length > 100)) {
+                  @if (
+                    touchedFields['title'] && (title.trim().length < 3 || title.trim().length > 100)
+                  ) {
                     <div class="text-danger fs-8 mt-1" style="font-size: 0.75rem; color: #ef5350">
                       El nombre de la rifa debe tener entre 3 y 100 caracteres.
                     </div>
@@ -86,7 +91,10 @@
                   <input
                     type="date"
                     class="form-control custom-dark-input py-2 w-100"
-                    [class.is-invalid]="(touchedFields['startDate'] && !startDate) || (startDate && endDate && startDate > endDate)"
+                    [class.is-invalid]="
+                      (touchedFields['startDate'] && !startDate) ||
+                      (startDate && endDate && startDate > endDate)
+                    "
                     [min]="raffle ? '' : getTodayDate()"
                     [(ngModel)]="startDate"
                     (change)="touchedFields['startDate'] = true"
@@ -106,7 +114,10 @@
                   <input
                     type="date"
                     class="form-control custom-dark-input py-2 w-100"
-                    [class.is-invalid]="(touchedFields['endDate'] && !endDate) || (startDate && endDate && startDate > endDate)"
+                    [class.is-invalid]="
+                      (touchedFields['endDate'] && !endDate) ||
+                      (startDate && endDate && startDate > endDate)
+                    "
                     [min]="startDate || getTodayDate()"
                     [(ngModel)]="endDate"
                     (change)="touchedFields['endDate'] = true"
@@ -132,7 +143,10 @@
                   <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
                     >Meta Dinero</label
                   >
-                  <div class="input-group" [class.is-invalid]="touchedFields['goal'] && (goal === null || goal <= 0)">
+                  <div
+                    class="input-group"
+                    [class.is-invalid]="touchedFields['goal'] && (goal === null || goal <= 0)"
+                  >
                     <input
                       type="number"
                       class="form-control custom-dark-input border-end-0 py-2"
@@ -199,12 +213,26 @@
                   >
                   <div
                     class="input-group"
-                    [class.is-invalid]="touchedFields['ticketsAvailable'] && (ticketsAvailable === null || ticketsAvailable <= 0)"
+                    [class.is-invalid]="
+                      (touchedFields['ticketsAvailable'] &&
+                        (ticketsAvailable === null || ticketsAvailable <= 0)) ||
+                      (raffle &&
+                        raffle.soldTickets > 0 &&
+                        ticketsAvailable !== null &&
+                        ticketsAvailable < raffle.soldTickets)
+                    "
                   >
                     <input
                       type="number"
                       class="form-control custom-dark-input border-end-0 py-2"
-                      [class.is-invalid]="touchedFields['ticketsAvailable'] && (ticketsAvailable === null || ticketsAvailable <= 0)"
+                      [class.is-invalid]="
+                        (touchedFields['ticketsAvailable'] &&
+                          (ticketsAvailable === null || ticketsAvailable <= 0)) ||
+                        (raffle &&
+                          raffle.soldTickets > 0 &&
+                          ticketsAvailable !== null &&
+                          ticketsAvailable < raffle.soldTickets)
+                      "
                       [(ngModel)]="ticketsAvailable"
                       (blur)="touchedFields['ticketsAvailable'] = true"
                       (ngModelChange)="autoCalculateTicketPrice()"
@@ -216,9 +244,24 @@
                       <i class="bi bi-hash fs-5"></i>
                     </span>
                   </div>
-                  @if (touchedFields['ticketsAvailable'] && (ticketsAvailable === null || ticketsAvailable <= 0)) {
+                  @if (
+                    touchedFields['ticketsAvailable'] &&
+                    (ticketsAvailable === null || ticketsAvailable <= 0)
+                  ) {
                     <div class="text-danger fs-8 mt-1" style="font-size: 0.75rem; color: #ef5350">
                       El número de boletos debe ser mayor que 0.
+                    </div>
+                  }
+                  @if (
+                    raffle &&
+                    raffle.soldTickets > 0 &&
+                    ticketsAvailable !== null &&
+                    ticketsAvailable < raffle.soldTickets
+                  ) {
+                    <div class="text-danger fs-8 mt-1" style="font-size: 0.75rem; color: #ef5350">
+                      No se puede reducir por debajo de los boletos vendidos ({{
+                        raffle.soldTickets
+                      }}).
                     </div>
                   }
                 </div>
@@ -232,17 +275,31 @@
                   >
                   <div
                     class="input-group"
-                    [class.is-invalid]="touchedFields['ticketPrice'] && (ticketPrice === null || ticketPrice <= 0)"
+                    [class.is-invalid]="
+                      (touchedFields['ticketPrice'] &&
+                        (ticketPrice === null || ticketPrice <= 0)) ||
+                      (raffle &&
+                        raffle.soldTickets > 0 &&
+                        ticketPrice !== null &&
+                        ticketPrice !== raffle.ticketPrice)
+                    "
                   >
                     <input
                       type="number"
                       step="0.01"
                       class="form-control custom-dark-input border-end-0 py-2"
-                      [class.is-invalid]="touchedFields['ticketPrice'] && (ticketPrice === null || ticketPrice <= 0)"
+                      [class.is-invalid]="
+                        (touchedFields['ticketPrice'] &&
+                          (ticketPrice === null || ticketPrice <= 0)) ||
+                        (raffle &&
+                          raffle.soldTickets > 0 &&
+                          ticketPrice !== null &&
+                          ticketPrice !== raffle.ticketPrice)
+                      "
                       [(ngModel)]="ticketPrice"
                       (blur)="touchedFields['ticketPrice'] = true"
                       placeholder="5.00"
-                      [disabled]="isReadOnly"
+                      [disabled]="isReadOnly || !!(raffle && raffle.soldTickets > 0)"
                       required
                     />
                     <span class="input-group-text custom-dark-addon border-start-0 text-white-50">
@@ -254,17 +311,54 @@
                       El precio del boleto debe ser mayor que 0.
                     </div>
                   }
+                  @if (minimumTicketPrice > 0) {
+                    @if (ticketPrice === null || ticketPrice <= 0) {
+                      <div class="text-info fs-8 mt-1 d-flex align-items-center gap-1" style="font-size: 0.75rem; color: #38bdf8">
+                        <i class="bi bi-info-circle-fill"></i>
+                        <span>Precio mínimo sugerido para cubrir la meta: <strong>${{ minimumTicketPrice | number: '1.2-2' }}</strong>.</span>
+                      </div>
+                    } @else if (ticketPrice >= minimumTicketPrice) {
+                      <div class="text-success fs-8 mt-1 d-flex align-items-center gap-1" style="font-size: 0.75rem; color: #34d399">
+                        <i class="bi bi-check-circle-fill"></i>
+                        <span>¡Excelente! El precio cubre la meta (mínimo: <strong>${{ minimumTicketPrice | number: '1.2-2' }}</strong>).</span>
+                      </div>
+                    } @else {
+                      <div class="text-warning fs-8 mt-1 d-flex align-items-center gap-1" style="font-size: 0.75rem; color: #fbbf24">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        <span>El precio actual no cubre la meta; usa al menos <strong>${{ minimumTicketPrice | number: '1.2-2' }}</strong>.</span>
+                      </div>
+                    }
+                  }
+                  @if (raffle && raffle.soldTickets > 0) {
+                    <div class="text-warning fs-8 mt-1" style="font-size: 0.75rem; color: #f59e0b">
+                      El precio está bloqueado porque ya hay {{ raffle.soldTickets }} boletos
+                      vendidos.
+                    </div>
+                  }
                 </div>
 
                 <div class="col-md-6">
                   <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
                     >Porcentaje Beneficiarios</label
                   >
-                  <div class="input-group" [class.is-invalid]="touchedFields['beneficiaryPercentage'] && (beneficiaryPercentage === null || beneficiaryPercentage < 0 || beneficiaryPercentage > 100)">
+                  <div
+                    class="input-group"
+                    [class.is-invalid]="
+                      touchedFields['beneficiaryPercentage'] &&
+                      (beneficiaryPercentage === null ||
+                        beneficiaryPercentage < 0 ||
+                        beneficiaryPercentage > 100)
+                    "
+                  >
                     <input
                       type="number"
                       class="form-control custom-dark-input border-end-0 py-2"
-                      [class.is-invalid]="touchedFields['beneficiaryPercentage'] && (beneficiaryPercentage === null || beneficiaryPercentage < 0 || beneficiaryPercentage > 100)"
+                      [class.is-invalid]="
+                        touchedFields['beneficiaryPercentage'] &&
+                        (beneficiaryPercentage === null ||
+                          beneficiaryPercentage < 0 ||
+                          beneficiaryPercentage > 100)
+                      "
                       [(ngModel)]="beneficiaryPercentage"
                       (blur)="touchedFields['beneficiaryPercentage'] = true"
                       (ngModelChange)="onBeneficiaryPercentageChange()"
@@ -274,14 +368,18 @@
                     />
                     <span class="input-group-text custom-dark-addon border-start-0">
                       <span class="badge custom-pill"
-                        >{{
-                          ((goal || 0) * (beneficiaryPercentage || 0)) / 100 | number: '1.0-2'
-                        }}
-                        $</span
+                        >$ {{
+                          ((goal || 0) * (beneficiaryPercentage || 0)) / 100 | number: '1.2-2'
+                        }}</span
                       >
                     </span>
                   </div>
-                  @if (touchedFields['beneficiaryPercentage'] && (beneficiaryPercentage === null || beneficiaryPercentage < 0 || beneficiaryPercentage > 100)) {
+                  @if (
+                    touchedFields['beneficiaryPercentage'] &&
+                    (beneficiaryPercentage === null ||
+                      beneficiaryPercentage < 0 ||
+                      beneficiaryPercentage > 100)
+                  ) {
                     <div class="text-danger fs-8 mt-1" style="font-size: 0.75rem; color: #ef5350">
                       El porcentaje debe estar entre 0 y 100.
                     </div>
@@ -295,11 +393,22 @@
                   <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
                     >Porcentaje Ganadores</label
                   >
-                  <div class="input-group" [class.is-invalid]="touchedFields['winnerPercentage'] && (winnerPercentage === null || winnerPercentage < 0 || winnerPercentage > 100)">
+                  <div
+                    class="input-group"
+                    [class.is-invalid]="
+                      touchedFields['winnerPercentage'] &&
+                      (winnerPercentage === null || winnerPercentage < 0 || winnerPercentage > 100)
+                    "
+                  >
                     <input
                       type="number"
                       class="form-control custom-dark-input border-end-0 py-2"
-                      [class.is-invalid]="touchedFields['winnerPercentage'] && (winnerPercentage === null || winnerPercentage < 0 || winnerPercentage > 100)"
+                      [class.is-invalid]="
+                        touchedFields['winnerPercentage'] &&
+                        (winnerPercentage === null ||
+                          winnerPercentage < 0 ||
+                          winnerPercentage > 100)
+                      "
                       [(ngModel)]="winnerPercentage"
                       (blur)="touchedFields['winnerPercentage'] = true"
                       (ngModelChange)="onWinnerPercentageChange()"
@@ -309,14 +418,16 @@
                     />
                     <span class="input-group-text custom-dark-addon border-start-0">
                       <span class="badge custom-pill"
-                        >{{
-                          ((goal || 0) * (winnerPercentage || 0)) / 100 | number: '1.0-2'
-                        }}
-                        $</span
+                        >$ {{
+                          ((goal || 0) * (winnerPercentage || 0)) / 100 | number: '1.2-2'
+                        }}</span
                       >
                     </span>
                   </div>
-                  @if (touchedFields['winnerPercentage'] && (winnerPercentage === null || winnerPercentage < 0 || winnerPercentage > 100)) {
+                  @if (
+                    touchedFields['winnerPercentage'] &&
+                    (winnerPercentage === null || winnerPercentage < 0 || winnerPercentage > 100)
+                  ) {
                     <div class="text-danger fs-8 mt-1" style="font-size: 0.75rem; color: #ef5350">
                       El porcentaje debe estar entre 0 y 100.
                     </div>
@@ -326,23 +437,33 @@
             </div>
 
             <div class="blog-section mt-5">
-              <label class="form-label text-white-50 text-uppercase fs-7 mb-3">Blog</label>
+              <label class="form-label text-white-50 text-uppercase fs-7 mb-3"
+                >Blog (Campos Requeridos)</label
+              >
               <div class="d-flex gap-2 mb-3">
                 <button
                   type="button"
                   class="btn btn-sm tab-btn"
                   [class.active]="activeTab === 'card'"
+                  [class.text-danger]="touchedFields['blogCardText'] && !blogCardText.trim()"
                   (click)="setTab('card')"
                 >
                   CARD
+                  @if (touchedFields['blogCardText'] && !blogCardText.trim()) {
+                    *
+                  }
                 </button>
                 <button
                   type="button"
                   class="btn btn-sm tab-btn"
                   [class.active]="activeTab === 'detalle'"
+                  [class.text-danger]="touchedFields['blogDetailText'] && !blogDetailText.trim()"
                   (click)="setTab('detalle')"
                 >
                   DETALLE RIFA
+                  @if (touchedFields['blogDetailText'] && !blogDetailText.trim()) {
+                    *
+                  }
                 </button>
               </div>
 
@@ -350,12 +471,20 @@
                 <div class="tab-content">
                   <textarea
                     class="form-control custom-dark-input blog-textarea w-100"
+                    [class.is-invalid]="touchedFields['blogCardText'] && !blogCardText.trim()"
                     [(ngModel)]="blogCardText"
+                    (blur)="touchedFields['blogCardText'] = true"
                     placeholder="Ayuda a reforestar 10,000 hectáreas en el Amazonas."
                     [disabled]="isReadOnly"
+                    required
                   ></textarea>
+                  @if (touchedFields['blogCardText'] && !blogCardText.trim()) {
+                    <div class="text-danger fs-8 mt-1" style="font-size: 0.75rem; color: #ef5350">
+                      El texto de la card del blog es requerido.
+                    </div>
+                  }
                   <div class="text-white-50 fs-8 mt-2 lh-sm">
-                     Breve descripción de lo que se va<br />a mostrar en la card
+                    Breve descripción de lo que se va<br />a mostrar en la card
                   </div>
                 </div>
               }
@@ -364,10 +493,18 @@
                 <div class="tab-content">
                   <textarea
                     class="form-control custom-dark-input blog-textarea w-100"
+                    [class.is-invalid]="touchedFields['blogDetailText'] && !blogDetailText.trim()"
                     [(ngModel)]="blogDetailText"
+                    (blur)="touchedFields['blogDetailText'] = true"
                     placeholder="Detalle completo de la rifa..."
                     [disabled]="isReadOnly"
+                    required
                   ></textarea>
+                  @if (touchedFields['blogDetailText'] && !blogDetailText.trim()) {
+                    <div class="text-danger fs-8 mt-1" style="font-size: 0.75rem; color: #ef5350">
+                      El texto de detalle de la rifa es requerido.
+                    </div>
+                  }
                   <div class="text-white-50 fs-8 mt-2 lh-sm">
                     Descripción completa que se mostrará en los detalles
                   </div>
@@ -386,7 +523,10 @@
               style="min-height: 300px; height: 100%; max-height: 450px; display: block"
             ></app-image-cropper>
             @if (!photo && !isReadOnly) {
-              <div class="text-danger fs-8 mt-2 text-center" style="font-size: 0.75rem; color: #ef5350">
+              <div
+                class="text-danger fs-8 mt-2 text-center"
+                style="font-size: 0.75rem; color: #ef5350"
+              >
                 La imagen es requerida (debe recortar una imagen).
               </div>
             }
@@ -411,7 +551,11 @@
             (click)="onSaveClick()"
           >
             @if (isSaving) {
-              <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+              <span
+                class="spinner-border spinner-border-sm"
+                role="status"
+                aria-hidden="true"
+              ></span>
               <span>Procesando...</span>
             } @else {
               <span>{{ raffle ? 'Guardar' : 'Publicar' }}</span>

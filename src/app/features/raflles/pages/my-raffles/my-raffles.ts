@@ -1,6 +1,7 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RaffleService } from '../../../../core/services/api/raffle.service';
+import { Subscription } from 'rxjs';
 import { RouterModule } from '@angular/router';
 import { Filter } from '../../../../shared/components/filter/filter';
 import { Tables } from '../../../../shared/components/tables/tables';
@@ -22,12 +23,11 @@ import {
   MY_RAFFLES_PRINCIPAL_HEADER,
   MY_RAFFLES_COLUMNS,
   MY_RAFFLES_FILTERS,
-  MY_RAFFLES_DATA_MOCK,
   RAFFLE_FILTER_ALL,
+  RAFFLE_FILTER_INACTIVE,
   RAFFLE_FILTER_NO_TICKETS,
   RAFFLE_FILTER_PROX_EXPIRED,
   RAFFLE_FILTER_META_COMPLETED,
-  RAFFLE_FILTER_DELETE,
   RAFFLE_STATUS_ACTIVE,
   RAFFLE_STATUS_INACTIVE,
   RAFFLE_STATUS_NO_TICKETS,
@@ -35,11 +35,12 @@ import {
   RAFFLE_STATUS_META_COMPLETED,
   RAFFLE_FILTER_MANUAL,
   RAFFLE_FILTER_AUTOMATIC,
+  RAFFLE_FILTER_VALUES,
   STATE_DELETED,
   METHOD_AUTOMATIC,
 } from '../../../../core/helpers/global/raffle.constants';
 import { Raffle } from '../../../../core/interfaces/api/raffle.interface';
-import { generateObjectId, calculateRemainingTime } from '../../../../core/helpers/ui/utils';
+import { calculateRemainingTime, isDeletedStatus, isActiveStatus } from '../../../../core/helpers/ui/utils';
 
 @Component({
   selector: 'app-raffles',
@@ -58,8 +59,10 @@ import { generateObjectId, calculateRemainingTime } from '../../../../core/helpe
   ],
   templateUrl: './my-raffles.html',
 })
-export class Raffles implements OnInit {
+export class Raffles implements OnInit, OnDestroy {
   private readonly raffleService = inject(RaffleService);
+  private readonly cdr = inject(ChangeDetectorRef);
+  private activeSub?: Subscription;
 
   principalHeader = MY_RAFFLES_PRINCIPAL_HEADER;
   dashboardColumns = MY_RAFFLES_COLUMNS;
@@ -83,31 +86,88 @@ export class Raffles implements OnInit {
   rifasData: Raffle[] = [];
   tableData: Raffle[] = [];
   loading: boolean = false;
+  isRaffleSaving = false;
+  isRaffleDeleting = false;
+  isRaffleUpdating = false;
+
+  currentPage = 1;
+  pageSize = 10;
+  totalItems = 0;
+  searchText = '';
 
   ngOnInit(): void {
     this.cargarRifas();
   }
 
   cargarRifas(): void {
+    if (this.activeSub) {
+      this.activeSub.unsubscribe();
+    }
     this.loading = true;
-    this.raffleService.getAll().subscribe({
-      next: (res) => {
-        if (res && res.data) {
-          this.rifasData = res.data;
-          this.tableData = this.getFilteredData(this.filtroActual);
-        }
-        this.loading = false;
-      },
-      error: (err) => {
-        console.error('API Error: No se pudo cargar rifas del backend.', err);
-        this.loading = false;
-      },
-    });
+    this.cdr.detectChanges();
+    let statuses = 'ACTIVE,INACTIVE,NO-TICKETS,SOON-TO-EXPIRED,GOAL';
+
+    let backendFilter = '';
+    let drawMethod = undefined;
+
+    if (this.filtroActual === RAFFLE_FILTER_INACTIVE) {
+      statuses = 'INACTIVE';
+    } else if (this.filtroActual === RAFFLE_FILTER_NO_TICKETS) {
+      statuses = 'ACTIVE,INACTIVE';
+      backendFilter = RAFFLE_FILTER_VALUES.NO_TICKETS;
+    } else if (this.filtroActual === RAFFLE_FILTER_META_COMPLETED) {
+      statuses = 'ACTIVE,INACTIVE';
+      backendFilter = RAFFLE_FILTER_VALUES.GOAL;
+    } else if (this.filtroActual === RAFFLE_FILTER_PROX_EXPIRED) {
+      statuses = 'ACTIVE';
+      backendFilter = RAFFLE_FILTER_VALUES.SOON_TO_EXPIRED;
+    } else if (this.filtroActual === RAFFLE_FILTER_MANUAL) {
+      drawMethod = 'MANUAL';
+    } else if (this.filtroActual === RAFFLE_FILTER_AUTOMATIC) {
+      drawMethod = 'AUTOMATIC';
+    }
+
+    this.activeSub = this.raffleService
+      .getAll(this.currentPage, this.pageSize, this.searchText, statuses, drawMethod, backendFilter)
+      .subscribe({
+        next: (res) => {
+          if (res && res.data) {
+            this.totalItems = res.totalCount || 0;
+            this.rifasData = res.data;
+            this.tableData = this.getFilteredData();
+          }
+          this.loading = false;
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('API Error: No se pudo cargar rifas del backend.', err);
+          this.loading = false;
+          this.cdr.detectChanges();
+        },
+      });
+  }
+
+  ngOnDestroy(): void {
+    if (this.activeSub) {
+      this.activeSub.unsubscribe();
+    }
   }
 
   filtrarPorCategoria(id: string) {
     this.filtroActual = id;
-    this.tableData = this.getFilteredData(id);
+    this.currentPage = 1;
+    this.cargarRifas();
+  }
+
+  onPageChange(page: number): void {
+    this.currentPage = page;
+    this.cargarRifas();
+  }
+
+  onSearchChange(search: string): void {
+    this.searchText = search;
+    this.currentPage = 1;
+    this.cargarRifas();
   }
 
   abrirCrearRifa() {
@@ -126,13 +186,13 @@ export class Raffles implements OnInit {
             if (index === -1) throw new Error();
             const current = this.rifasData[index].status;
             const currentUpper = current.toUpperCase();
-
+ 
             let nextState = RAFFLE_STATUS_ACTIVE;
             try {
               if (currentUpper.includes('INACT')) throw new Error();
               nextState = RAFFLE_STATUS_INACTIVE;
-            } catch { }
-
+            } catch {}
+ 
             this.pendingRowToToggle = row;
             this.changesToConfirm = [
               {
@@ -142,7 +202,7 @@ export class Raffles implements OnInit {
               },
             ];
             this.showConfirmModal = true;
-          } catch { }
+          } catch {}
         },
         [TABLE_ACTION_DELETE]: () => {
           this.rifaSeleccionadaParaBorrar = row;
@@ -150,11 +210,7 @@ export class Raffles implements OnInit {
         },
         [TABLE_ACTION_EDIT_DETAIL]: () => {
           this.selectedRaffleForEdit = row;
-          this.isReadOnlyView =
-            row.status === STATE_DELETED ||
-            row.status === 'DELETED' ||
-            row.status === 'ELIMINADO' ||
-            row.status === 'ELIMINADA';
+          this.isReadOnlyView = isDeletedStatus(row.status);
           document.getElementById(this.BTN_CREATE_RAFFLE_ID)?.click();
         },
         [TABLE_ACTION_EDIT_TICKETS]: () => {
@@ -166,37 +222,43 @@ export class Raffles implements OnInit {
           document.getElementById('btn-abrir-modal-unlink-logs')?.click();
         },
       };
-
+ 
       const action = actions[evento.actionId];
       if (!action) throw new Error();
       action();
-    } catch { }
+    } catch {}
   }
-
+ 
   confirmarEliminar(razon: string) {
     const targetRaffle = this.rifaSeleccionadaParaBorrar;
-    if (!targetRaffle) return;
-
+    if (!targetRaffle || this.isRaffleDeleting) return;
+ 
+    this.isRaffleDeleting = true;
     this.raffleService.deleteRaffle(targetRaffle._id, razon).subscribe({
       next: () => {
         this.cargarRifas();
+        this.isRaffleDeleting = false;
       },
       error: (err) => {
         console.error('API Error: No se pudo eliminar la rifa.', err);
+        this.isRaffleDeleting = false;
       },
     });
     this.rifaSeleccionadaParaBorrar = null;
   }
-
+ 
   confirmarCambioEstado() {
-    if (this.pendingRowToToggle && this.changesToConfirm.length > 0) {
+    if (this.pendingRowToToggle && this.changesToConfirm.length > 0 && !this.isRaffleUpdating) {
       const nextStatus = this.changesToConfirm[0].nuevo as string;
+      this.isRaffleUpdating = true;
       this.raffleService.update(this.pendingRowToToggle._id, { status: nextStatus }).subscribe({
         next: () => {
           this.cargarRifas();
+          this.isRaffleUpdating = false;
         },
         error: (err) => {
           console.error('API Error: No se pudo cambiar el estado de la rifa.', err);
+          this.isRaffleUpdating = false;
         },
       });
     }
@@ -209,44 +271,48 @@ export class Raffles implements OnInit {
     this.pendingRowToToggle = null;
   }
 
-
-
   onSaveRaffle(raffleData: Raffle) {
     const editRaffle = this.selectedRaffleForEdit;
+    this.isRaffleSaving = true;
     if (editRaffle) {
       this.raffleService.update(editRaffle._id, raffleData).subscribe({
         next: () => {
           this.cargarRifas();
+          document.getElementById('btn-cerrar-modal-crear-rifa')?.click();
+          this.isRaffleSaving = false;
         },
         error: (err) => {
           console.error('API Error: No se pudo actualizar la rifa.', err);
+          this.isRaffleSaving = false;
         },
       });
     } else {
       this.raffleService.create(raffleData).subscribe({
         next: () => {
           this.cargarRifas();
+          document.getElementById('btn-cerrar-modal-crear-rifa')?.click();
+          this.isRaffleSaving = false;
         },
         error: (err) => {
           console.error('API Error: No se pudo crear la rifa.', err);
+          this.isRaffleSaving = false;
         },
       });
     }
-    this.selectedRaffleForEdit = null;
   }
 
-  onSaveTickets(updatedRaffle: Raffle) {
+  onSaveTickets(_updatedRaffle: Raffle) {
     this.cargarRifas();
     this.selectedRaffleForTickets = null;
   }
 
-  private getFilteredData(filterId: string): Raffle[] {
-    const mappedRaffles = this.rifasData.map((raffle) => {
+  private getFilteredData(): Raffle[] {
+    return this.rifasData.map((raffle) => {
       let recStr = `${raffle.collected}$`;
       try {
         if (!raffle.goal) throw new Error();
         recStr = `${raffle.collected}/${raffle.goal} $`;
-      } catch { }
+      } catch {}
 
       let tiempoRestanteCalculado = raffle.remainingTime;
       if (raffle.endDate) {
@@ -254,11 +320,7 @@ export class Raffles implements OnInit {
       }
 
       let statusDisplay = raffle.status;
-      if (
-        raffle.status === 'ACTIVE' ||
-        raffle.status === 'ACTIVA' ||
-        raffle.status === 'ACTIVO'
-      ) {
+      if (isActiveStatus(raffle.status)) {
         if (raffle.soldTickets === raffle.totalTickets) {
           statusDisplay = RAFFLE_STATUS_NO_TICKETS;
         } else if (raffle.collected && raffle.goal && raffle.collected >= raffle.goal) {
@@ -274,7 +336,7 @@ export class Raffles implements OnInit {
             } else if (timeStr.includes('horas')) {
               statusDisplay = RAFFLE_STATUS_PROX_EXPIRED;
             }
-          } catch { }
+          } catch {}
         }
       }
 
@@ -284,44 +346,8 @@ export class Raffles implements OnInit {
         soldTicketsStr: `${raffle.soldTickets}/${raffle.totalTickets}`,
         collectedStr: recStr,
         remainingTime: tiempoRestanteCalculado,
-        statusDisplay: statusDisplay
+        statusDisplay: statusDisplay,
       };
     });
-
-    const activeRaffles = mappedRaffles.filter((r) => {
-      const statusUpper = (r.status || '').toUpperCase();
-      return (
-        statusUpper !== 'FINISHED' &&
-        statusUpper !== 'FINALIZADA' &&
-        statusUpper !== 'FINALIZADO' &&
-        statusUpper !== 'PENDING_DRAW' &&
-        statusUpper !== 'DELETED' &&
-        statusUpper !== 'ELIMINADO' &&
-        statusUpper !== 'ELIMINADA'
-      );
-    });
-
-    let filtered = activeRaffles;
-    try {
-      const filterActions: Record<string, () => typeof activeRaffles> = {
-        [RAFFLE_FILTER_MANUAL]: () => activeRaffles.filter((r) => r.drawMethod === 'MANUAL'),
-        [RAFFLE_FILTER_AUTOMATIC]: () =>
-          activeRaffles.filter((r) => r.drawMethod === 'AUTOMATIC'),
-        [RAFFLE_FILTER_NO_TICKETS]: () =>
-          activeRaffles.filter((r) => r.statusDisplay === RAFFLE_STATUS_NO_TICKETS),
-        [RAFFLE_FILTER_PROX_EXPIRED]: () =>
-          activeRaffles.filter((r) => r.statusDisplay === RAFFLE_STATUS_PROX_EXPIRED),
-        [RAFFLE_FILTER_META_COMPLETED]: () =>
-          activeRaffles.filter((r) => r.statusDisplay === RAFFLE_STATUS_META_COMPLETED),
-      };
-
-      const filterFn = filterActions[filterId];
-      if (filterFn) {
-        filtered = filterFn();
-      }
-    } catch { }
-
-    return filtered;
   }
 }
-

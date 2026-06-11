@@ -12,7 +12,7 @@ export class DrawService {
   private readonly apiUrl = `${environment.apiUrl}/draws`;
 
   getPendingDraws(): Observable<{ data: Raffle[] }> {
-    return this.http.get<any>(`${this.apiUrl}/pending`).pipe(
+    return this.http.get<any>(`${this.apiUrl}/pending?_cb=${new Date().getTime()}`).pipe(
       map((res) => {
         const list = res?.data?.result || (Array.isArray(res?.data) ? res.data : res || []);
         return { data: list };

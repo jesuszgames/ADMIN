@@ -13,7 +13,14 @@
         [columns]="historyColumns"
         [data]="tableData"
         [rowActions]="historyActions"
+        [serverSide]="true"
+        [totalItems]="totalItems"
+        [pageSize]="pageSize"
+        [currentPage]="currentPage"
+        [loading]="loading"
         (actionClicked)="manejarAccion($event)"
+        (pageChanged)="onPageChange($event)"
+        (searchChanged)="onSearchChange($event)"
       >
       </app-tables>
     </div>

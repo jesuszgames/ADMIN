@@ -22,12 +22,13 @@
                   [ngClass]="{
                     'ticket-comprado':
                       ticket.buyer &&
-                      (!selectedTicket?.buyer || ticket.buyer.id !== selectedTicket?.buyer?.id),
+                      (!selectedTicket || !selectedTicket.buyer || ticket.buyer.id !== selectedTicket.buyer.id),
                     'ticket-seleccionado':
                       ticket.buyer &&
-                      selectedTicket?.buyer &&
-                      ticket.buyer.id === selectedTicket?.buyer?.id,
-                    'ticket-active': selectedTicket?.number === ticket.number,
+                      selectedTicket &&
+                      selectedTicket.buyer &&
+                      ticket.buyer.id === selectedTicket.buyer.id,
+                    'ticket-active': selectedTicket && selectedTicket.number === ticket.number,
                   }"
                   (click)="selectTicket(ticket)"
                 >
@@ -76,7 +77,7 @@
                   [(ngModel)]="searchPurchaseId"
                   (keyup.enter)="buscarCompra()"
                   (ngModelChange)="buscarCompra()"
-                  placeholder="buscar ID de compra"
+                  placeholder="buscar por nombre comprador"
                 />
               </div>
             </div>
@@ -134,43 +135,7 @@
               </div>
             </div>
 
-            <div class="row g-4 mb-3">
-              <div class="col-md-6 d-flex flex-column">
-                <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
-                  >Correo Electrónico</label
-                >
-                <div class="input-group mt-auto">
-                  <input
-                    type="text"
-                    class="form-control custom-dark-input border-end-0 py-2"
-                    [(ngModel)]="buyerEmail"
-                    placeholder="example@gmail.com"
-                    readonly
-                  />
-                  <span class="input-group-text custom-dark-addon border-start-0 text-white-50">
-                    <i class="bi bi-envelope"></i>
-                  </span>
-                </div>
-              </div>
 
-              <div class="col-md-6 d-flex flex-column">
-                <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
-                  >Número de Teléfono</label
-                >
-                <div class="input-group mt-auto">
-                  <input
-                    type="text"
-                    class="form-control custom-dark-input border-end-0 py-2"
-                    [(ngModel)]="buyerPhone"
-                    placeholder="00-0000-0000-0000"
-                    readonly
-                  />
-                  <span class="input-group-text custom-dark-addon border-start-0 text-white-50">
-                    <i class="bi bi-telephone"></i>
-                  </span>
-                </div>
-              </div>
-            </div>
 
             <div class="row g-4 mb-4">
               <div class="col-md-6 d-flex flex-column">
@@ -196,7 +161,7 @@
                   class="form-label text-white-50 text-uppercase fs-7 mb-2 d-flex align-items-center justify-content-between"
                 >
                   <span>Número Seleccionado</span>
-                  @if (winnerTicketNumber === selectedTicket?.number && selectedTicket?.number) {
+                  @if (selectedTicket && winnerTicketNumber === selectedTicket.number) {
                     <span
                       class="badge bg-success text-white text-uppercase py-1 px-2"
                       style="font-size: 0.65rem; border-radius: 4px"
@@ -245,10 +210,7 @@
                     @if (
                       mode === 'rifas' &&
                       userRole !== 'SORTEADOR' &&
-                      raffle?.status !== 'ELIMINADO' &&
                       raffle?.status !== 'DELETED' &&
-                      raffle?.status !== 'FINALIZADO' &&
-                      raffle?.status !== 'FINALIZADA' &&
                       raffle?.status !== 'FINISHED'
                     ) {
                       <button
@@ -285,10 +247,16 @@
         </button>
         <button
           type="button"
-          class="btn px-4 py-2 rounded-3 text-uppercase fs-7 custom-btn-primary"
+          class="btn px-4 py-2 rounded-3 text-uppercase fs-7 custom-btn-primary d-flex align-items-center gap-2"
+          [disabled]="isSaving"
           (click)="onSaveClick()"
         >
-          Guardar
+          @if (isSaving) {
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            Guardando...
+          } @else {
+            Guardar
+          }
         </button>
         <button id="btn-cerrar-modal-editar-boletos" data-bs-dismiss="modal" hidden></button>
       </div>
@@ -319,15 +287,11 @@
                 </p>
                 @if (winnerBuyer) {
                   <p class="text-white-50 fs-8 mb-0">
-                    Comprador: <strong>{{ winnerBuyer.name }}</strong
-                    ><br />
-                    Contacto: {{ winnerBuyer.email }} | {{ winnerBuyer.phone }}
+                    Comprador: <strong>{{ winnerBuyer.name }}</strong>
                   </p>
                 } @else {
                   <p class="text-white-50 fs-8 mb-0">
-                    Comprador: <strong>{{ buyerName }}</strong
-                    ><br />
-                    Contacto: {{ buyerEmail }} | {{ buyerPhone }}
+                    Comprador: <strong>{{ buyerName }}</strong>
                   </p>
                 }
                 <div class="text-warning fs-8 mt-2 fw-semibold d-flex align-items-center gap-1">
@@ -407,12 +371,17 @@
               </button>
               <button
                 type="button"
-                class="btn px-3 py-2 fs-7 text-uppercase"
+                class="btn px-3 py-2 fs-7 text-uppercase d-flex align-items-center gap-2"
                 [ngClass]="unlinkedLogs.length > 0 ? 'custom-btn-danger' : 'custom-btn-primary'"
-                [disabled]="unlinkedLogs.length > 0 && !isUnlinkReasonValid"
+                [disabled]="(unlinkedLogs.length > 0 && !isUnlinkReasonValid) || isSaving"
                 (click)="confirmSubmit()"
               >
-                Sí, Confirmar
+                @if (isSaving) {
+                  <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                  Confirmando...
+                } @else {
+                  Sí, Confirmar
+                }
               </button>
             </div>
           </div>

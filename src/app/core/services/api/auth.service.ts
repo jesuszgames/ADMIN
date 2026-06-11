@@ -4,7 +4,6 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { AuthResponse } from '../../interfaces/api/auth-response.interface';
-import { USERS_DATA_MOCK } from '../../helpers/global/user.constants';
 import {
   SESSION_STORAGE_KEY_LOGGED_IN,
   SESSION_STORAGE_KEY_USER_NAME,
@@ -69,7 +68,9 @@ export class AuthService {
   }
 
   private checkInitialSession(): boolean {
-    return this.safeGetItem(SESSION_STORAGE_KEY_LOGGED_IN) === VALUE_TRUE;
+    const isLoggedIn = this.safeGetItem(SESSION_STORAGE_KEY_LOGGED_IN) === VALUE_TRUE;
+    const token = this.safeGetItem(SESSION_STORAGE_KEY_TOKEN);
+    return isLoggedIn && !!token;
   }
 
   login(username?: string, password?: string): Observable<AuthResponse> {
@@ -135,13 +136,7 @@ export class AuthService {
     if (savedRole) {
       return savedRole as typeof ROLE_ADMIN | typeof ROLE_SORTEADOR | typeof ROLE_USUARIO;
     }
-    const username = this.getUserName().toLowerCase().trim();
-    const user = USERS_DATA_MOCK.find(
-      (u) =>
-        u.name.toLowerCase().trim() === username ||
-        u.email.toLowerCase().trim() === username
-    );
-    return user ? (user.role as typeof ROLE_ADMIN | typeof ROLE_SORTEADOR | typeof ROLE_USUARIO) : ROLE_ADMIN;
+    return ROLE_ADMIN;
   }
 }
 

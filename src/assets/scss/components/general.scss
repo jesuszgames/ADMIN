@@ -69,12 +69,11 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   cursor: pointer;
 }
 
-// Global premium inputs styling
 input.form-control:not([type="submit"]):not([type="button"]):not([type="checkbox"]):not([type="radio"]):not(.bg-transparent):not(.border-0), 
 select, 
 textarea {
-  background-color: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background-color: $background;
+  border: 1px solid $input-border;
   border-radius: 8px;
   padding: 0.75rem 1rem;
   color: #ffffff;
@@ -82,7 +81,7 @@ textarea {
   
   &:focus {
     outline: none;
-    background-color: rgba(255, 255, 255, 0.04);
+    background-color: $background;
     border-color: #3b82f6;
     box-shadow: 0 0 0 1px #3b82f6, 0 0 14px rgba(59, 130, 246, 0.18);
   }
@@ -90,6 +89,19 @@ textarea {
   &::placeholder {
     color: rgba(255, 255, 255, 0.3);
   }
+}
+
+// Global styles for custom dark inputs in readonly or disabled states to override Bootstrap defaults
+.custom-dark-input[readonly],
+.custom-dark-input:disabled,
+input.form-control.custom-dark-input[readonly],
+input.form-control.custom-dark-input:disabled,
+textarea.form-control.custom-dark-input[readonly],
+textarea.form-control.custom-dark-input:disabled {
+  background-color: var(--background, #0d1117) !important;
+  color: var(--primary-text, #e6edf3) !important;
+  border-color: var(--input-border, rgba(255, 255, 255, 0.05)) !important;
+  opacity: 1 !important;
 }
 
 .animate-slide-in {

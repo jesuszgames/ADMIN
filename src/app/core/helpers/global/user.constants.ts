@@ -2,22 +2,30 @@ import { TableColumn } from '../../interfaces/api/table-column.interface';
 import { FilterOption } from '../../interfaces/api/filter-option.interface';
 import { DropdownAction } from '../../interfaces/api/dropdown-action.interface';
 
-import { User } from '../../interfaces/api/user.interface';
-
-export const USERS_PRINCIPAL_HEADER = 'Lista Usuarios';
+export const USERS_PRINCIPAL_HEADER = 'Lista Staff / Administradores';
 
 export const USERS_COLUMNS: TableColumn[] = [
-  { field: 'name', header: 'NOMBRE USUARIO' },
+  { field: 'name', header: 'NOMBRE COMPLETO' },
+  { field: 'username', header: 'USUARIO' },
   { field: 'email', header: 'Correo' },
   { field: 'phone', header: 'Telefono' },
-  { field: 'role', header: 'ROL' },
+  { field: 'passwordText', header: 'Contraseña' },
   { field: 'status', header: 'ESTADO', type: 'badge' },
   { field: 'actions', header: 'ACCIONES', type: 'actions' },
 ];
 
-export const USER_STATUS_ACTIVE = 'ACTIVO';
-export const USER_STATUS_INACTIVE = 'INACTIVO';
-export const STATE_DELETED = 'ELIMINADO';
+export const PLAYERS_COLUMNS: TableColumn[] = [
+  { field: 'username', header: 'USUARIO' },
+  { field: 'balance', header: 'BALANCE' },
+  { field: 'createdAtText', header: 'FECHA CREACIÓN' },
+  { field: 'updatedAtText', header: 'FECHA EDICIÓN' },
+  { field: 'status', header: 'ESTADO', type: 'badge' },
+  { field: 'actions', header: 'ACCIONES', type: 'actions' },
+];
+
+export const USER_STATUS_ACTIVE = 'ACTIVE';
+export const USER_STATUS_INACTIVE = 'INACTIVE';
+export const STATE_DELETED = 'DELETED';
 
 export const USER_FILTER_ALL = 'all';
 export const USER_FILTER_INACTIVE = 'desactivado';
@@ -39,4 +47,3 @@ export const USER_ROW_ACTIONS: DropdownAction[] = [
   { id: USER_ACTION_DELETE, icon: 'bi-trash', label: 'Eliminar' },
 ];
 
-export const USERS_DATA_MOCK: User[] = [];

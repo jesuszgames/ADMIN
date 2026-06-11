@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { HistorTicketModel } from './history-ticket-model';
+import { HistoryTicketModel } from './history-ticket-model';
 
-describe('HistorTicketModel', () => {
-  let component: HistorTicketModel;
-  let fixture: ComponentFixture<HistorTicketModel>;
+describe('HistoryTicketModel', () => {
+  let component: HistoryTicketModel;
+  let fixture: ComponentFixture<HistoryTicketModel>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [HistorTicketModel],
+      imports: [HistoryTicketModel],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(HistorTicketModel);
+    fixture = TestBed.createComponent(HistoryTicketModel);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });
