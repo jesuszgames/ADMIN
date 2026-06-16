@@ -9,9 +9,11 @@ import {
 } from '../global/dashboard.constants';
 
 export function generateObjectId(): string {
-  const timestamp = Math.floor(new Date().getTime() / 1000).toString(16).padStart(8, '0');
+  const timestamp = Math.floor(new Date().getTime() / 1000)
+    .toString(16)
+    .padStart(8, '0');
   const randomChars = Array.from({ length: 16 }, () =>
-    Math.floor(Math.random() * 16).toString(16)
+    Math.floor(Math.random() * 16).toString(16),
   ).join('');
   return timestamp + randomChars;
 }
@@ -19,7 +21,6 @@ export function generateObjectId(): string {
 export function parseDateString(dateStr: string): Date | null {
   if (!dateStr) return null;
   try {
-    // 1. Intentar parseo manual/local primero para evitar cambios de huso horario (ej: YYYY-MM-DD o YYYY/MM/DD)
     if (dateStr.includes('-')) {
       const parts = dateStr.split('T')[0].split('-');
       const [year, month, day] = parts.map(Number);
@@ -39,7 +40,6 @@ export function parseDateString(dateStr: string): Date | null {
       }
     }
 
-    // 2. Intentar parsear directamente (p. ej. cadenas ISO completas)
     const directDate = new Date(dateStr);
     if (!isNaN(directDate.getTime())) {
       return directDate;
@@ -52,27 +52,31 @@ export function parseDateString(dateStr: string): Date | null {
 
 export function calculateRemainingTime(endDateStr: string, status?: string): string {
   const statusUpper = (status || '').toUpperCase();
-  if (
-    statusUpper === 'FINISHED' ||
-    statusUpper === 'DELETED'
-  ) {
+  if (statusUpper === 'FINISHED' || statusUpper === 'DELETED') {
     return '0 días';
   }
-  const end = parseDateString(endDateStr);
+
+  let end = new Date(endDateStr);
+  if (isNaN(end.getTime()) || endDateStr.length <= 10) {
+    end = parseDateString(endDateStr) || new Date();
+  }
+
   if (!end || isNaN(end.getTime())) return '0 días';
 
   try {
     const today = new Date();
-    end.setHours(0, 0, 0, 0);
-    today.setHours(0, 0, 0, 0);
+    const diffMs = end.getTime() - today.getTime();
+    if (diffMs <= 0) return '0 días';
 
-    const diffDays = Math.round((end.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    const diffHours = diffMs / (1000 * 60 * 60);
 
-    if (isNaN(diffDays)) return '0 días';
-    if (diffDays < 0) return '0 días';
-    if (diffDays === 0) return `${24 - new Date().getHours()} horas`;
-    if (diffDays === 1) return '1 día';
-    return `${diffDays} días`;
+    if (diffHours < 24) {
+      const hours = Math.ceil(diffHours);
+      return `${hours} ${hours === 1 ? 'hora' : 'horas'}`;
+    }
+
+    const diffDays = Math.floor(diffHours / 24);
+    return `${diffDays} ${diffDays === 1 ? 'día' : 'días'}`;
   } catch {
     return '0 días';
   }
@@ -128,6 +132,7 @@ export function mapRaffleDetails(raffle: any): RaffleDetail {
       'Detalle completo de la rifa se muestra aquí...\nPuedes añadir toda la información detallada que necesites sobre los premios, mecánicas y condiciones de participación de la rifa en esta sección interactiva.',
     drawMethod: raffle.drawMethod,
     deleteReason: raffle.deleteReason || '',
+    link: raffle.link || '',
     unlinks: raffle.unlinks || [],
   };
 }
@@ -147,13 +152,40 @@ export function mapTicketDetails(tickets: Ticket[], raffle: any): TicketHistoryD
   if (representativeTicket && representativeTicket.buyer) {
     const buyer = representativeTicket.buyer;
     winnerName = buyer.name || winnerName;
-    ticketsPurchased = buyer.tickets ? buyer.tickets.length : 0;
-    associatedNumbers = buyer.tickets ? buyer.tickets.map((num) => `[${num}]`).join(' ') : '';
     email = buyer.email || email;
     phone = buyer.phone || phone;
-    lastPurchaseDate = buyer.purchaseDate
-      ? new Date(buyer.purchaseDate).toLocaleDateString('es-MX')
-      : '';
+
+    if (buyer.userId) {
+      const userTickets = tickets
+        .filter((t) => t.buyer && t.buyer.userId === buyer.userId)
+        .map((t) => t.number);
+
+      ticketsPurchased = userTickets.length;
+      associatedNumbers = userTickets
+        .map((num) => parseInt(num, 10))
+        .sort((a, b) => a - b)
+        .map((num) => `[${num}]`)
+        .join(' ');
+
+      const dates = tickets
+        .filter((t) => t.buyer && t.buyer.userId === buyer.userId && t.buyer.purchaseDate)
+        .map((t) => new Date(t.buyer!.purchaseDate).getTime());
+
+      if (dates.length > 0) {
+        const maxDate = new Date(Math.max(...dates));
+        lastPurchaseDate = maxDate.toLocaleDateString('es-MX');
+      } else {
+        lastPurchaseDate = buyer.purchaseDate
+          ? new Date(buyer.purchaseDate).toLocaleDateString('es-MX')
+          : '';
+      }
+    } else {
+      ticketsPurchased = buyer.tickets ? buyer.tickets.length : 0;
+      associatedNumbers = buyer.tickets ? buyer.tickets.map((num) => `[${num}]`).join(' ') : '';
+      lastPurchaseDate = buyer.purchaseDate
+        ? new Date(buyer.purchaseDate).toLocaleDateString('es-MX')
+        : '';
+    }
   }
 
   return {

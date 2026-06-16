@@ -187,11 +187,26 @@
                   <span class="input-group-text custom-dark-addon border-start-0">
                     <span class="badge custom-pill"
                       >{{ raffleData?.winnerAmount | number: '1.0-2' }} $</span
-                    >
-                  </span>
+                      >
+                    </span>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label text-white-50 text-uppercase fs-7 mb-2">Link / URL</label>
+                  <div class="input-group">
+                    <input
+                      type="text"
+                      class="form-control custom-dark-input border-end-0"
+                      [value]="raffleData?.link"
+                      readonly
+                    />
+                    <span class="input-group-text custom-dark-addon border-start-0 text-white-50">
+                      <i class="bi bi-link-45deg"></i>
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
 
             <div class="blog-section mt-5">
               <label class="form-label text-white-50 text-uppercase fs-7 mb-3"

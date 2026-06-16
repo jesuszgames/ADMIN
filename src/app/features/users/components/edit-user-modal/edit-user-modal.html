@@ -37,20 +37,29 @@
           </div>
 
           <div class="col-md-6 col-12">
-            <label class="form-label text-white-50 text-uppercase fs-7 mb-2">
-              Contraseña
-              @if (user) { <span class="text-white-50 lowercase" style="font-size: 0.65rem;">(Opcional, dejar vacío para no cambiar)</span> }
-            </label>
-            <input
-              type="password"
-              class="form-control custom-dark-input py-2"
-              [class.is-invalid]="touchedFields['password'] && password.trim().length > 0 && password.trim().length < 6"
-              [(ngModel)]="password"
-              (blur)="touchedFields['password'] = true"
-              placeholder="••••••"
-              [disabled]="isReadOnly"
-              [required]="!user"
-            />
+            <label class="form-label text-white-50 text-uppercase fs-7 mb-2">Contraseña</label>
+            <div class="input-group">
+              <input
+                [type]="showPassword ? 'text' : 'password'"
+                class="form-control custom-dark-input py-2"
+                [class.is-invalid]="touchedFields['password'] && password.trim().length > 0 && password.trim().length < 6"
+                [(ngModel)]="password"
+                (blur)="touchedFields['password'] = true"
+                [placeholder]="user ? 'Nueva contraseña (opcional)' : 'Mínimo 6 caracteres'"
+                autocomplete="new-password"
+                [disabled]="isReadOnly"
+                [required]="!user"
+              />
+              <button
+                type="button"
+                class="input-group-text custom-dark-addon text-white-50"
+                (click)="togglePasswordVisibility()"
+                [disabled]="isReadOnly"
+                style="cursor: pointer;"
+              >
+                <i class="bi" [ngClass]="showPassword ? 'bi-eye-slash-fill' : 'bi-eye-fill'"></i>
+              </button>
+            </div>
             @if (touchedFields['password'] && password.trim().length > 0 && password.trim().length < 6) {
               <div class="text-danger fs-8 mt-1" style="font-size: 0.75rem; color: #ef5350">
                 La contraseña debe tener al menos 6 caracteres.

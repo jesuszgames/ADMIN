@@ -22,12 +22,17 @@
                   [ngClass]="{
                     'ticket-comprado':
                       ticket.buyer &&
-                      (!selectedTicket || !selectedTicket.buyer || ticket.buyer.id !== selectedTicket.buyer.id),
+                      (!selectedTicket || !selectedTicket.buyer || 
+                       (ticket.buyer.userId && selectedTicket.buyer.userId 
+                        ? ticket.buyer.userId !== selectedTicket.buyer.userId 
+                        : ticket.buyer.id !== selectedTicket.buyer.id)),
                     'ticket-seleccionado':
                       ticket.buyer &&
                       selectedTicket &&
                       selectedTicket.buyer &&
-                      ticket.buyer.id === selectedTicket.buyer.id,
+                      (ticket.buyer.userId && selectedTicket.buyer.userId 
+                        ? ticket.buyer.userId === selectedTicket.buyer.userId 
+                        : ticket.buyer.id === selectedTicket.buyer.id),
                     'ticket-active': selectedTicket && selectedTicket.number === ticket.number,
                   }"
                   (click)="selectTicket(ticket)"
@@ -80,103 +85,109 @@
                   placeholder="buscar por nombre comprador"
                 />
               </div>
-            </div>
-
-            <div class="row g-4 mb-3">
-              <div class="col-12">
-                <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
-                  >Nombre Comprador</label
-                >
-                <input
-                  type="text"
-                  class="form-control custom-dark-input py-2"
-                  [(ngModel)]="buyerName"
-                  placeholder="Nombre Comprador"
-                  readonly
-                />
-              </div>
-            </div>
-
-            <div class="row g-4 mb-3">
-              <div class="col-md-6 d-flex flex-column">
-                <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
-                  >Boletos Comprados</label
-                >
-                <div class="input-group mt-auto">
-                  <input
-                    type="text"
-                    class="form-control custom-dark-input border-end-0 py-2"
-                    [value]="ticketsPurchased !== null ? ticketsPurchased : ''"
-                    placeholder="3"
-                    readonly
-                  />
-                  <span class="input-group-text custom-dark-addon border-start-0 text-white-50">
-                    <i class="bi bi-hash fs-5"></i>
-                  </span>
-                </div>
-              </div>
-
-              <div class="col-md-6 d-flex flex-column">
-                <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
-                  >Todos los números asociados</label
-                >
-                <div class="input-group mt-auto">
-                  <input
-                    type="text"
-                    class="form-control custom-dark-input border-end-0 py-2"
-                    [(ngModel)]="allAssociatedNumbers"
-                    placeholder="[05] [07] [14]"
-                    readonly
-                  />
-                  <span class="input-group-text custom-dark-addon border-start-0 text-white-50">
-                    <i class="bi bi-hash fs-5"></i>
-                  </span>
-                </div>
-              </div>
-            </div>
-
-
-
-            <div class="row g-4 mb-4">
-              <div class="col-md-6 d-flex flex-column">
-                <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
-                  >Fecha compra de número seleccionado</label
-                >
-                <div class="input-group mt-auto">
-                  <input
-                    type="text"
-                    class="form-control custom-dark-input border-end-0 py-2"
-                    [(ngModel)]="purchaseDate"
-                    placeholder="dd/mm/aaaa"
-                    readonly
-                  />
-                  <span class="input-group-text custom-dark-addon border-start-0 text-white-50">
-                    <i class="bi bi-calendar"></i>
-                  </span>
-                </div>
-              </div>
-
-              <div class="col-md-6 d-flex flex-column">
-                <label
-                  class="form-label text-white-50 text-uppercase fs-7 mb-2 d-flex align-items-center justify-content-between"
-                >
-                  <span>Número Seleccionado</span>
-                  @if (selectedTicket && winnerTicketNumber === selectedTicket.number) {
-                    <span
-                      class="badge bg-success text-white text-uppercase py-1 px-2"
-                      style="font-size: 0.65rem; border-radius: 4px"
-                      >Ganador</span
-                    >
-                  }
-                </label>
-                <div class="input-group mt-auto">
-                  <input
-                    type="text"
-                    class="form-control custom-dark-input border-end-0 py-2"
-                    [value]="selectedTicket ? selectedTicket.number : ''"
-                    placeholder="Ninguno"
-                    readonly
-                  />
+            </div>             <div class="row g-4 mb-3">
+               <div class="col-12">
+                 <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
+                   >Nombre Comprador</label
+                 >
+                 <input
+                   type="text"
+                   class="form-control custom-dark-input py-2"
+                   [(ngModel)]="buyerName"
+                   placeholder="Nombre Comprador"
+                   [style.opacity]="selectedTicket ? '1' : '0.5'"
+                   style="transition: opacity 0.2s;"
+                   readonly
+                 />
+               </div>
+             </div>
+ 
+             <div class="row g-4 mb-3">
+               <div class="col-md-6 d-flex flex-column">
+                 <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
+                   >Boletos Comprados</label
+                 >
+                 <div class="input-group mt-auto">
+                   <input
+                     type="text"
+                     class="form-control custom-dark-input border-end-0 py-2"
+                     [value]="ticketsPurchased !== null ? ticketsPurchased : ''"
+                     placeholder="3"
+                     [style.opacity]="selectedTicket ? '1' : '0.5'"
+                     style="transition: opacity 0.2s;"
+                     readonly
+                   />
+                   <span class="input-group-text custom-dark-addon border-start-0 text-white-50">
+                     <i class="bi bi-hash fs-5"></i>
+                   </span>
+                 </div>
+               </div>
+ 
+               <div class="col-md-6 d-flex flex-column">
+                 <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
+                   >Todos los números asociados</label
+                 >
+                 <div class="input-group mt-auto">
+                   <input
+                     type="text"
+                     class="form-control custom-dark-input border-end-0 py-2"
+                     [(ngModel)]="allAssociatedNumbers"
+                     placeholder="[05] [07] [14]"
+                     [style.opacity]="selectedTicket ? '1' : '0.5'"
+                     style="transition: opacity 0.2s;"
+                     readonly
+                   />
+                   <span class="input-group-text custom-dark-addon border-start-0 text-white-50">
+                     <i class="bi bi-hash fs-5"></i>
+                   </span>
+                 </div>
+               </div>
+             </div>
+ 
+ 
+ 
+             <div class="row g-4 mb-4">
+               <div class="col-md-6 d-flex flex-column">
+                 <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
+                   >Fecha compra de número seleccionado</label
+                 >
+                 <div class="input-group mt-auto">
+                   <input
+                     type="text"
+                     class="form-control custom-dark-input border-end-0 py-2"
+                     [(ngModel)]="purchaseDate"
+                     placeholder="dd/mm/aaaa"
+                     readonly
+                   />
+                   <span class="input-group-text custom-dark-addon border-start-0 text-white-50">
+                     <i class="bi bi-calendar"></i>
+                   </span>
+                 </div>
+               </div>
+ 
+               <div class="col-md-6 d-flex flex-column">
+                 <label
+                   class="form-label text-white-50 text-uppercase fs-7 mb-2 d-flex align-items-center justify-content-between"
+                 >
+                   <span>Número Seleccionado</span>
+                   @if (selectedTicket && winnerTicketNumber === selectedTicket.number) {
+                     <span
+                       class="badge bg-success text-white text-uppercase py-1 px-2"
+                       style="font-size: 0.65rem; border-radius: 4px"
+                       >Ganador</span
+                     >
+                   }
+                 </label>
+                 <div class="input-group mt-auto">
+                   <input
+                     type="text"
+                     class="form-control custom-dark-input border-end-0 py-2"
+                     [value]="selectedTicket ? selectedTicket.number : ''"
+                     placeholder="Ninguno"
+                     [style.opacity]="selectedTicket ? '1' : '0.5'"
+                     style="transition: opacity 0.2s;"
+                     readonly
+                   />
                   <span class="input-group-text custom-dark-addon border-start-0 text-white-50">
                     <i class="bi bi-ticket-perforated"></i>
                   </span>

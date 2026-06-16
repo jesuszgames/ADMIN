@@ -30,17 +30,17 @@
   justify-content: center;
 
   &:hover {
-    background-color: rgba(255, 255, 255, 0.05);
+    background-color: rgba(var.$primary-text, 0.05);
     color: var.$primary-text;
   }
 
   &.ticket-comprado {
     background-color: var.$finished-bg-opaco;
     color: var.$finished-text;
-    border: 1px solid rgba(66, 153, 225, 0.15);
+    border: 1px solid rgba(var.$finished-text, 0.15);
 
     &:hover {
-      background-color: rgba(26, 54, 93, 0.75);
+      background-color: rgba(var.$finished-text, 0.35);
       color: var.$primary-text;
     }
   }
@@ -48,7 +48,7 @@
   &.ticket-seleccionado {
     background-color: var.$button-primary;
     color: var.$primary-text;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(var.$primary-text, 0.2);
 
     &:hover {
       background-color: var.$button-primary-hover;
@@ -58,7 +58,7 @@
   &.ticket-active {
     outline: 2px solid var.$primary-text;
     outline-offset: 2px;
-    box-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+    box-shadow: 0 0 10px rgba(var.$primary-text, 0.4);
     transform: scale(1.05);
     z-index: 2;
   }
@@ -82,6 +82,21 @@
     border-color: var.$button-primary;
     box-shadow: 0 0 0 0.25rem var.$input-focus-shadow;
     outline: none;
+  }
+
+  &::placeholder {
+    color: var.$secondary-text;
+    opacity: 0.35;
+  }
+
+  /* Make read-only inputs that are empty look very dimmed/opaco */
+  &[readonly] {
+    opacity: 0.85;
+    
+    &::placeholder {
+      color: var.$secondary-text;
+      opacity: 0.25;
+    }
   }
 }
 
@@ -200,7 +215,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(13, 17, 23, 0.85);
+  background-color: color-mix(in srgb, var.$background 85%, transparent);
   backdrop-filter: blur(8px);
   display: flex;
   align-items: center;

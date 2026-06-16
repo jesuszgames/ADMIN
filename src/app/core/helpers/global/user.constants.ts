@@ -9,7 +9,7 @@ export const USERS_COLUMNS: TableColumn[] = [
   { field: 'username', header: 'USUARIO' },
   { field: 'email', header: 'Correo' },
   { field: 'phone', header: 'Telefono' },
-  { field: 'passwordText', header: 'Contraseña' },
+  { field: 'roleText', header: 'ROL', type: 'badge' },
   { field: 'status', header: 'ESTADO', type: 'badge' },
   { field: 'actions', header: 'ACCIONES', type: 'actions' },
 ];

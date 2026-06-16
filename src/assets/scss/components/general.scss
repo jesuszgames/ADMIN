@@ -16,13 +16,13 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba($primary-text, 0.08);
   border-radius: 99px;
   border: 2px solid transparent;
   background-clip: padding-box;
   
   &:hover {
-    background: rgba(255, 255, 255, 0.18);
+    background: rgba($primary-text, 0.18);
     border: 2px solid transparent;
     background-clip: padding-box;
   }
@@ -30,7 +30,7 @@ body {
 
 .containers-colors {
   background-color: $container-bg;
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba($primary-text, 0.04);
   box-shadow: 0 10px 30px -15px rgba(0, 0, 0, 0.3);
   table,
   th,
@@ -51,16 +51,16 @@ body {
 .custom-btn-secondary {
   background-color: transparent !important;
   color: $primary-text !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba($primary-text, 0.08) !important;
   font-weight: 500;
   letter-spacing: 0.5px;
   transition: $transition-premium;
 
   &:hover,
   &:focus {
-    background-color: rgba(255, 255, 255, 0.04) !important;
-    border-color: rgba(255, 255, 255, 0.15) !important;
-    color: #ffffff !important;
+    background-color: rgba($primary-text, 0.04) !important;
+    border-color: rgba($primary-text, 0.15) !important;
+    color: $primary-text !important;
   }
 }
 
@@ -76,18 +76,18 @@ textarea {
   border: 1px solid $input-border;
   border-radius: 8px;
   padding: 0.75rem 1rem;
-  color: #ffffff;
+  color: $primary-text;
   transition: $transition-premium;
   
   &:focus {
     outline: none;
     background-color: $background;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 1px #3b82f6, 0 0 14px rgba(59, 130, 246, 0.18);
+    border-color: $color-info;
+    box-shadow: 0 0 0 1px $color-info, 0 0 14px $color-info-shadow;
   }
   
   &::placeholder {
-    color: rgba(255, 255, 255, 0.3);
+    color: rgba($primary-text, 0.3);
   }
 }
 
@@ -100,7 +100,7 @@ textarea.form-control.custom-dark-input[readonly],
 textarea.form-control.custom-dark-input:disabled {
   background-color: var(--background, #0d1117) !important;
   color: var(--primary-text, #e6edf3) !important;
-  border-color: var(--input-border, rgba(255, 255, 255, 0.05)) !important;
+  border-color: $input-border !important;
   opacity: 1 !important;
 }
 

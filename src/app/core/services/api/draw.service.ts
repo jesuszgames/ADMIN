@@ -25,4 +25,20 @@ export class DrawService {
       winnerTicketNumber,
     });
   }
+
+  getTicketsByRaffle(raffleId: string, page?: number, limit?: number): Observable<{ data: any[], totalCount?: number, currentPage?: number }> {
+    let url = `${this.apiUrl}/${raffleId}/tickets?`;
+    if (page !== undefined) url += `page=${page}&`;
+    if (limit !== undefined) url += `limit=${limit}&`;
+    return this.http.get<any>(url).pipe(
+      map((res) => {
+        const list = res?.data?.result || (Array.isArray(res?.data) ? res.data : []);
+        return { 
+          data: list,
+          totalCount: res?.data?.totalCount,
+          currentPage: res?.data?.page
+        };
+      })
+    );
+  }
 }

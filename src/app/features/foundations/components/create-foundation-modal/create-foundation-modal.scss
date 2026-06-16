@@ -16,6 +16,11 @@
     border-color 0.2s ease,
     box-shadow 0.2s ease;
 
+  &::placeholder {
+    color: var.$secondary-text;
+    opacity: 0.4;
+  }
+
   &:focus {
     background-color: var.$background;
     color: var.$primary-text;
@@ -25,9 +30,9 @@
   }
 
   &.is-invalid {
-    border-color: #ef5350 !important;
+    border-color: var.$color-danger !important;
     &:focus {
-      box-shadow: 0 0 0 0.25rem rgba(239, 83, 80, 0.25) !important;
+      box-shadow: 0 0 0 0.25rem var.$color-danger-shadow !important;
     }
   }
 }
@@ -64,6 +69,11 @@
       border: none !important;
       color: var.$primary-text !important;
       box-shadow: none !important;
+
+      &::placeholder {
+        color: var.$secondary-text !important;
+        opacity: 0.4 !important;
+      }
     }
 
     .input-group-text {
@@ -71,10 +81,10 @@
     }
 
     &.is-invalid {
-      border-color: #ef5350 !important;
+      border-color: var.$color-danger !important;
       &:focus-within {
-        border-color: #ef5350 !important;
-        box-shadow: 0 0 0 0.25rem rgba(239, 83, 80, 0.25) !important;
+        border-color: var.$color-danger !important;
+        box-shadow: 0 0 0 0.25rem var.$color-danger-shadow !important;
       }
     }
   }
@@ -89,8 +99,8 @@
     background-color 0.2s ease;
 
   &:hover {
-    background-color: rgba(255, 255, 255, 0.02);
-    border-color: rgba(255, 255, 255, 0.3);
+    background-color: var.$option-bg;
+    border-color: rgba(var.$primary-text, 0.3);
   }
 }
 
@@ -124,12 +134,12 @@
   &:hover:not(:disabled),
   &:focus:not(:disabled) {
     background-color: var.$button-success;
-    color: #fff;
+    color: var.$primary-text;
   }
 
   &:disabled {
     background-color: var.$hover-cancel-button;
-    color: rgba(255, 255, 255, 0.3);
+    color: var.$secondary-text;
     border-color: var.$hover-cancel-button;
     cursor: not-allowed;
   }

@@ -41,6 +41,8 @@ export const STATUS_CLASSES = {
   AUTOMATICO: 'badge-automatico',
   AUTOMATIC: 'badge-automatico',
   MANUAL: 'badge-manual',
+  ADMIN: 'badge-active',
+  SORTEADOR: 'badge-automatico',
   DEFAULT: 'badge-default',
 };
 
@@ -78,6 +80,9 @@ export const BADGE_MAP: Record<string, keyof typeof STATUS_CLASSES> = {
   PEND: 'NO_TICKETS',
   AUTOMATIC: 'AUTOMATIC',
   MANUAL: 'MANUAL',
+  ADMIN: 'ADMIN',
+  SORTEADOR: 'SORTEADOR',
+  SORT: 'SORTEADOR',
 };
 
 export const CONNECTION_STATUS = {

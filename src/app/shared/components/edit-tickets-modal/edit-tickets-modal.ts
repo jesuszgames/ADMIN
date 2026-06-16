@@ -6,10 +6,11 @@ import {
   OnChanges,
   SimpleChanges,
   inject,
+  ChangeDetectorRef,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { forkJoin, of, Observable, switchMap } from 'rxjs';
+import { forkJoin, of, Observable, switchMap, concat, toArray } from 'rxjs';
 import { AuthService } from '../../../core/services/api/auth.service';
 import { Raffle } from '../../../core/interfaces/api/raffle.interface';
 import { Ticket, BuyerInfo } from '../../../core/interfaces/api/ticket.interface';
@@ -32,6 +33,7 @@ export class EditTicketsModal implements OnChanges {
   private readonly authService = inject(AuthService);
   private readonly ticketService = inject(TicketService);
   private readonly drawService = inject(DrawService);
+  private readonly cdr = inject(ChangeDetectorRef);
   userRole = this.authService.getUserRole();
 
   tickets: Ticket[] = [];
@@ -40,14 +42,16 @@ export class EditTicketsModal implements OnChanges {
 
   currentPage = 1;
   pageSize = 100;
+  totalItems = 0;
 
   get totalPages(): number {
-    return Math.ceil(this.tickets.length / this.pageSize);
+    return Math.max(1, Math.ceil(this.tickets.length / this.pageSize));
   }
 
   get paginatedTickets(): Ticket[] {
     const startIndex = (this.currentPage - 1) * this.pageSize;
-    return this.tickets.slice(startIndex, startIndex + this.pageSize);
+    const endIndex = startIndex + this.pageSize;
+    return this.tickets.slice(startIndex, endIndex);
   }
 
   nextPage() {
@@ -111,7 +115,6 @@ export class EditTicketsModal implements OnChanges {
   initializeTickets() {
     this.selectedTicket = null;
     this.searchPurchaseId = '';
-    this.currentPage = 1;
     this.clearForm();
     this.unlinkedLogs = [];
     this.showConfirmModal = false;
@@ -119,23 +122,37 @@ export class EditTicketsModal implements OnChanges {
     this.winnerTicketNumber = this.raffle?.winner || null;
     this.winnerBuyer = null;
 
+    this.currentPage = 1;
+
     const raffle = this.raffle;
     if (!raffle || !raffle._id) {
       this.tickets = [];
+      this.totalItems = 0;
       return;
     }
 
-    this.ticketService.getTicketsByRaffle(raffle._id).subscribe({
+    // Traemos todos (hasta 5000 o el límite por defecto del backend)
+    const fetchLimit = 5000;
+    const tickets$ = this.mode === 'sorteos'
+      ? this.drawService.getTicketsByRaffle(raffle._id, 1, fetchLimit)
+      : this.ticketService.getTicketsByRaffle(raffle._id, 1, fetchLimit);
+
+    tickets$.subscribe({
       next: (res) => {
         if (res && res.data) {
           this.tickets = res.data;
+          this.totalItems = res.totalCount || res.data.length;
         } else {
           this.tickets = [];
+          this.totalItems = 0;
         }
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('API Error: No se pudieron cargar los boletos del backend.', err);
         this.tickets = [];
+        this.totalItems = 0;
+        this.cdr.detectChanges();
       },
     });
   }
@@ -149,13 +166,45 @@ export class EditTicketsModal implements OnChanges {
     }
   }
 
+  formatPurchaseDate(dateVal: any): string {
+    if (!dateVal) return '';
+    try {
+      const date = new Date(dateVal);
+      if (isNaN(date.getTime())) return String(dateVal);
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      return `${day}/${month}/${year} ${hours}:${minutes}`;
+    } catch {
+      return String(dateVal);
+    }
+  }
+
   loadBuyer(buyer: BuyerInfo) {
     this.buyerName = buyer.name || '';
-    this.ticketsPurchased = buyer.tickets.length;
     this.buyerEmail = buyer.email || '';
-    this.allAssociatedNumbers = buyer.tickets.map((num) => `[${num}]`).join(' ');
     this.buyerPhone = buyer.phone || '';
-    this.purchaseDate = buyer.purchaseDate;
+    
+    const rawDate = this.selectedTicket?.buyer?.purchaseDate || buyer.purchaseDate;
+    this.purchaseDate = this.formatPurchaseDate(rawDate);
+
+    if (buyer.userId) {
+      const userTickets = this.tickets
+        .filter((t) => t.buyer && t.buyer.userId === buyer.userId)
+        .map((t) => t.number);
+
+      this.ticketsPurchased = userTickets.length;
+      this.allAssociatedNumbers = userTickets
+        .map((num) => parseInt(num, 10))
+        .sort((a, b) => a - b)
+        .map((num) => `[${num}]`)
+        .join(' ');
+    } else {
+      this.ticketsPurchased = buyer.tickets.length;
+      this.allAssociatedNumbers = buyer.tickets.map((num) => `[${num}]`).join(' ');
+    }
   }
 
   clearForm() {
@@ -184,12 +233,11 @@ export class EditTicketsModal implements OnChanges {
     });
 
     if (found) {
-      const index = this.tickets.indexOf(found);
-      if (index !== -1) {
-        this.currentPage = Math.floor(index / this.pageSize) + 1;
-      }
       this.selectTicket(found);
     } else {
+      // NOTE: En paginación real de servidor, si no lo encuentra en la pag actual,
+      // habría que hacer un request al backend para buscarlo. Por ahora advertimos
+      console.warn("Boleto no encontrado en esta página. La búsqueda global requiere un endpoint específico.");
       this.selectedTicket = null;
       this.clearForm();
     }
@@ -232,14 +280,18 @@ export class EditTicketsModal implements OnChanges {
   desvincularTodos() {
     if (!this.selectedTicket || !this.selectedTicket.buyer) return;
 
-    const buyerId = this.selectedTicket.buyer.id;
-    const buyerName = this.selectedTicket.buyer.name;
+    const buyer = this.selectedTicket.buyer;
+    const buyerName = buyer.name;
     this.tickets.forEach((b) => {
-      if (b.buyer && b.buyer.id === buyerId) {
+      const match = b.buyer && (buyer.userId && b.buyer.userId 
+        ? b.buyer.userId === buyer.userId 
+        : b.buyer.id === buyer.id);
+
+      if (match) {
         this.unlinkedLogs.push({
           number: b.number,
           user: buyerName,
-          purchaseId: buyerId,
+          purchaseId: b.buyer!.id,
         });
         b.status = 'available';
         delete b.buyer;
@@ -281,11 +333,13 @@ export class EditTicketsModal implements OnChanges {
     if (!raffle || !raffle._id) return;
 
     this.isSaving = true;
-    const unlinkCalls = this.unlinkedLogs.map((log) =>
-      this.ticketService.unlinkTicket(raffle._id, log.number, this.unlinkReason.trim()),
-    );
-
-    const unlink$: Observable<any> = unlinkCalls.length > 0 ? forkJoin(unlinkCalls) : of(null);
+    const unlink$: Observable<any> = this.unlinkedLogs.length > 0
+      ? this.ticketService.unlinkBulk(
+          raffle._id,
+          this.unlinkedLogs.map((log) => log.number),
+          this.unlinkReason.trim()
+        )
+      : of(null);
 
     unlink$
       .pipe(

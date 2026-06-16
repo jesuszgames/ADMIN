@@ -31,6 +31,11 @@
     cursor: not-allowed;
     opacity: 0.8;
   }
+
+  &::placeholder {
+    color: var.$secondary-text;
+    opacity: 0.4;
+  }
 }
 
 select.custom-dark-input {
@@ -63,13 +68,66 @@ select.custom-dark-input {
   &:hover:not(:disabled),
   &:focus:not(:disabled) {
     background-color: var.$button-success;
-    color: #fff;
+    color: var.$primary-text;
   }
 
   &:disabled {
     background-color: var.$hover-cancel-button;
-    color: rgba(255, 255, 255, 0.3);
+    color: var.$secondary-text;
     border-color: var.$hover-cancel-button;
     cursor: not-allowed;
+  }
+}
+
+/* Styled select options */
+select.custom-dark-input option {
+  background-color: var.$container-bg;
+  color: var.$primary-text;
+}
+
+/* Prevent yellow browser autofill background */
+input.custom-dark-input:-webkit-autofill,
+input.custom-dark-input:-webkit-autofill:hover,
+input.custom-dark-input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var.$primary-text !important;
+  -webkit-box-shadow: 0 0 0px 1000px var.$background inset !important;
+  transition: background-color 5000s ease-in-out 0s;
+  border: 1px solid var.$input-border !important;
+}
+
+/* Input Group with Password Toggle Addon */
+.input-group {
+  background-color: var.$background;
+  border: 1px solid var.$input-border;
+  border-radius: 6px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+  &:focus-within {
+    border-color: var.$button-primary;
+    box-shadow: 0 0 0 0.25rem var.$input-focus-shadow;
+  }
+
+  .custom-dark-input {
+    border: none !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+    outline: none !important;
+  }
+
+  .custom-dark-addon {
+    border: none !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+    outline: none !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 1rem;
+    transition: color 0.2s ease;
+    border-radius: 0 6px 6px 0;
+
+    &:hover:not(:disabled) {
+      color: var.$primary-text !important;
+    }
   }
 }

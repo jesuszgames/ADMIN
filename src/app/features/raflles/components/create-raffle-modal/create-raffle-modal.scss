@@ -16,11 +16,16 @@
     border-color 0.2s ease,
     box-shadow 0.2s ease;
 
+  &::placeholder {
+    color: var.$secondary-text;
+    opacity: 0.4;
+  }
+
   &:focus {
     background-color: var.$background;
     color: var.$primary-text;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 1px #3b82f6, 0 0 14px rgba(59, 130, 246, 0.18);
+    border-color: var.$color-info;
+    box-shadow: 0 0 0 1px var.$color-info, 0 0 14px var.$color-info-shadow;
     outline: none;
   }
 
@@ -56,8 +61,8 @@ select.custom-dark-input {
       box-shadow 0.2s ease;
 
     &:focus-within {
-      border-color: #3b82f6 !important;
-      box-shadow: 0 0 0 1px #3b82f6, 0 0 14px rgba(59, 130, 246, 0.18) !important;
+      border-color: var.$color-info !important;
+      box-shadow: 0 0 0 1px var.$color-info, 0 0 14px var.$color-info-shadow !important;
     }
 
     .form-control,
@@ -70,6 +75,11 @@ select.custom-dark-input {
       box-shadow: none !important;
       color: var.$primary-text !important;
       outline: none !important;
+
+      &::placeholder {
+        color: var.$secondary-text !important;
+        opacity: 0.4 !important;
+      }
 
       &:focus {
         border: none !important;
@@ -139,8 +149,8 @@ select.custom-dark-input {
     background-color 0.2s ease;
 
   &:hover {
-    background-color: rgba(255, 255, 255, 0.02);
-    border-color: rgba(255, 255, 255, 0.3);
+    background-color: var.$option-bg;
+    border-color: rgba(var.$primary-text, 0.3);
   }
 }
 
@@ -174,12 +184,12 @@ select.custom-dark-input {
   &:hover:not(:disabled),
   &:focus:not(:disabled) {
     background-color: var.$button-success;
-    color: #fff;
+    color: var.$primary-text;
   }
 
   &:disabled {
     background-color: var.$hover-cancel-button;
-    color: rgba(255, 255, 255, 0.3);
+    color: var.$secondary-text;
     border-color: var.$hover-cancel-button;
     cursor: not-allowed;
   }

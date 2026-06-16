@@ -53,65 +53,65 @@
   
   // 1. ACTIVE (Activo) - Cool vibrant Blue
   .badge-active {
-    background-color: rgba(56, 189, 248, 0.08) !important;
-    color: #38bdf8 !important;
-    border: 1px solid rgba(56, 189, 248, 0.2) !important;
+    background-color: var.$color-info-bg !important;
+    color: var.$color-info !important;
+    border: 1px solid var.$color-info-border !important;
   }
 
   // 2. INACTIVE / DESACTIVADO - Sleek Cool Grey
   .badge-inactive {
-    background-color: rgba(148, 163, 184, 0.08) !important;
-    color: #94a3b8 !important;
-    border: 1px solid rgba(148, 163, 184, 0.2) !important;
+    background-color: var.$color-secondary-accent-bg !important;
+    color: var.$color-secondary-accent !important;
+    border: 1px solid var.$color-secondary-accent-border !important;
   }
 
   // 3. META COMPLETADA - Fresh Emerald Green
   .badge-meta-completed {
-    background-color: rgba(52, 211, 153, 0.08) !important;
-    color: #34d399 !important;
-    border: 1px solid rgba(52, 211, 153, 0.2) !important;
+    background-color: var.$color-success-bg !important;
+    color: var.$color-success !important;
+    border: 1px solid var.$color-success-border !important;
   }
 
   // 4. SIN BOLETOS - Amber Yellow
   .badge-no-tickets {
-    background-color: rgba(251, 191, 36, 0.08) !important;
-    color: #fbbf24 !important;
-    border: 1px solid rgba(251, 191, 36, 0.2) !important;
+    background-color: var.$color-warning-bg !important;
+    color: var.$color-warning !important;
+    border: 1px solid var.$color-warning-border !important;
   }
 
   // 5. PROXIMO A VENCER - Warm Warning Orange
   .badge-prox-expired {
-    background-color: rgba(249, 115, 22, 0.08) !important;
-    color: #f97316 !important;
-    border: 1px solid rgba(249, 115, 22, 0.2) !important;
+    background-color: var.$color-warning-bg !important;
+    color: var.$color-warning !important;
+    border: 1px solid var.$color-warning-border !important;
   }
 
   // 6. ELIMINADO / CANCELADO - Soft Red
   .badge-deleted {
-    background-color: rgba(248, 113, 113, 0.08) !important;
-    color: #f87171 !important;
-    border: 1px solid rgba(248, 113, 113, 0.2) !important;
+    background-color: var.$color-danger-bg !important;
+    color: var.$color-danger !important;
+    border: 1px solid var.$color-danger-border !important;
   }
 
   // 7. AUTOMATICO (Draw Method) - Neon Tech Purple
   .badge-automatico {
-    background-color: rgba(139, 92, 246, 0.08) !important;
-    color: #c084fc !important;
-    border: 1px solid rgba(139, 92, 246, 0.2) !important;
+    background-color: var.$color-primary-accent-bg !important;
+    color: var.$color-primary-accent !important;
+    border: 1px solid var.$color-primary-accent-border !important;
   }
 
   // 8. MANUAL (Draw Method) - Vibrant Pink
   .badge-manual {
-    background-color: rgba(244, 114, 182, 0.08) !important;
-    color: #f472b6 !important;
-    border: 1px solid rgba(244, 114, 182, 0.2) !important;
+    background-color: var.$color-pink-bg !important;
+    color: var.$color-pink !important;
+    border: 1px solid var.$color-pink-border !important;
   }
 
   // 9. DEFAULT / OTHERS
   .badge-default {
-    background-color: rgba(255, 255, 255, 0.04) !important;
-    color: #e6edf3 !important;
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    background-color: var.$option-bg !important;
+    color: var.$primary-text !important;
+    border: 1px solid var.$option-border !important;
   }
 }
 

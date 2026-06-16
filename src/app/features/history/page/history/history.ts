@@ -105,7 +105,7 @@ export class History implements OnInit, OnDestroy {
     }
 
     this.activeSub = this.raffleService
-      .getAll(this.currentPage, this.pageSize, this.searchText, statuses, undefined, backendFilter)
+      .getAll(this.currentPage, this.pageSize, this.searchText, statuses, undefined, backendFilter, '{"endDate":-1}')
       .subscribe({
         next: (res) => {
           if (res && res.data) {
@@ -168,7 +168,32 @@ export class History implements OnInit, OnDestroy {
           document.getElementById(this.BTN_DELETE_HISTORY_ID)?.click();
         },
         [TABLE_ACTION_VIEW_UNLINK_LOGS]: () => {
-          this.selectedRaffleForLogs = evento.row as unknown as Raffle;
+          this.selectedRaffleForLogs = { ...(evento.row as unknown as Raffle), unlinks: [] };
+          this.ticketService.getUnlinkedLogs(evento.row._id, 1, 1000).subscribe({
+            next: (res) => {
+              const logs = res?.data?.result || [];
+              if (this.selectedRaffleForLogs) {
+                this.selectedRaffleForLogs.unlinks = logs.map((log: any) => {
+                  const userVal = log.userId
+                    ? log.userId.name || log.userId.username || log.userId
+                    : 'User';
+                  return {
+                    number: log.number,
+                    user: typeof userVal === 'object'
+                      ? userVal.name || userVal.username || 'User'
+                      : String(userVal),
+                    purchaseId: log.purchaseId,
+                    reason: log.reason,
+                    date: log.date
+                  };
+                });
+                this.cdr.detectChanges();
+              }
+            },
+            error: (err) => {
+              console.error('API Error: No se pudieron cargar logs de desvinculados', err);
+            }
+          });
           document.getElementById('btn-abrir-modal-unlink-logs')?.click();
         },
       };

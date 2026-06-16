@@ -23,6 +23,7 @@ import { environment } from '../../../../environments/environment';
 export class ImageCropperComponent implements OnChanges {
   @Input() photo: string | Blob | File | null = null;
   @Input() isReadOnly = false;
+  @Input() aspectRatio = '';
   @Output() photoChange = new EventEmitter<Blob | File | string | null>();
 
   @ViewChild('viewport', { static: false }) viewportElement!: ElementRef<HTMLDivElement>;
@@ -34,6 +35,7 @@ export class ImageCropperComponent implements OnChanges {
   previewUrl = '';
   isEditing = false;
   errorMessage = '';
+  successMessage = '';
   pendingFileToCompress: File | null = null;
   isCompressing = false;
 
@@ -55,6 +57,7 @@ export class ImageCropperComponent implements OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['photo']) {
       this.errorMessage = '';
+      this.successMessage = '';
       if (!this.photo) {
         this.originalPhoto = '';
         this.tempImageSrc = '';
@@ -121,11 +124,30 @@ export class ImageCropperComponent implements OnChanges {
 
   private readFile(file: File) {
     this.errorMessage = '';
+    this.successMessage = '';
     this.pendingFileToCompress = null;
     const maxSizeBytes = 800 * 1024;
     if (file.size > maxSizeBytes) {
-      this.errorMessage = 'El archivo supera el tamaño máximo permitido de 800 KB.';
-      this.pendingFileToCompress = file;
+      this.isCompressing = true;
+      this.compressImage(file)
+        .then((compressedBlob) => {
+          this.isCompressing = false;
+          if (compressedBlob.size > maxSizeBytes) {
+            this.errorMessage =
+              'No se pudo comprimir el archivo por debajo de 800 KB. Por favor, elige otra imagen.';
+            return;
+          }
+          this.loadPhotoIntoCropper(compressedBlob);
+          this.successMessage = 'Imagen optimizada automáticamente a menos de 800 KB.';
+          setTimeout(() => {
+            this.successMessage = '';
+          }, 4000);
+        })
+        .catch((error) => {
+          this.isCompressing = false;
+          this.errorMessage = 'Error al procesar y comprimir la imagen: ' + error.message;
+        });
+
       if (this.fileInputElement) {
         this.fileInputElement.nativeElement.value = '';
       }

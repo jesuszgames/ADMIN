@@ -33,7 +33,7 @@
         }
 
         <div class="row g-5">
-          <div class="col-lg-7 d-flex flex-column gap-3">
+          <div class="col-lg-6 d-flex flex-column gap-3">
             <div>
               <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
                 >Nombre Fundacion</label
@@ -134,14 +134,15 @@
             </div>
           </div>
 
-          <div class="col-lg-5 d-flex flex-column">
+          <div class="col-lg-6 d-flex flex-column pt-lg-4 align-items-center">
             <label class="form-label text-white-50 text-uppercase fs-7 mb-2 text-center"
               >Imagen</label
             >
             <app-image-cropper
               [(photo)]="photo"
               [isReadOnly]="isReadOnly"
-              style="min-height: 250px; height: 100%; max-height: 380px; display: block"
+              aspectRatio="1"
+              style="aspect-ratio: 1; width: 100%; max-width: 380px; display: block"
             ></app-image-cropper>
             @if (!photo) {
               <div class="text-warning fs-8 mt-2 text-center" style="font-size: 0.75rem; color: #ffb74d">

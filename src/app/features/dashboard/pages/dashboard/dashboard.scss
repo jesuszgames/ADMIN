@@ -20,13 +20,13 @@
 }
 
 .welcome-card {
-  background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 30%, #3b82f6 70%, #7c3aed 100%);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(135deg, v.$welcome-grad-start 0%, v.$welcome-grad-mid 50%, v.$welcome-grad-end 100%);
+  border: 1px solid rgba(v.$primary-text, 0.1);
   border-radius: 16px;
   padding: 2.25rem;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 10px 30px -10px rgba(59, 130, 246, 0.3);
+  box-shadow: 0 10px 30px -10px v.$welcome-shadow;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -62,13 +62,13 @@
 .welcome-title {
   font-weight: 800;
   font-size: 1.65rem;
-  color: #ffffff;
+  color: v.$primary-text;
   margin-bottom: 0.5rem;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 }
 
 .welcome-subtitle {
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(v.$primary-text, 0.85);
   font-size: 0.95rem;
   margin-bottom: 1.75rem;
   font-weight: 400;
@@ -80,12 +80,12 @@
   display: flex;
   align-items: center;
   gap: 0.6rem;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(v.$primary-text, 0.1);
   padding: 0.6rem 1.2rem;
   border-radius: 30px;
   width: fit-content;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(v.$primary-text, 0.12);
+  color: rgba(v.$primary-text, 0.95);
   font-size: 0.85rem;
   font-weight: 500;
   backdrop-filter: blur(8px);
@@ -93,7 +93,7 @@
   
   i {
     font-size: 1.05rem;
-    color: #a5b4fc;
+    color: v.$dashboard-title-end;
   }
 }
 

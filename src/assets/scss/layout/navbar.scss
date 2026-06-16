@@ -6,10 +6,10 @@
   left: 270px;
   right: 0;
   height: 84px;
-  background-color: rgba(22, 27, 34, 0.75);
+  background-color: color-mix(in srgb, var.$container-bg 75%, transparent);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid var.$option-border;
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -31,12 +31,12 @@
   &__name {
     font-weight: 700;
     font-size: 0.875rem;
-    color: #ffffff;
+    color: var.$primary-text;
   }
 
   &__role {
     font-size: 0.75rem;
-    color: #828282;
+    color: var.$secondary-text;
   }
   .header-profile__avatar {
     width: 43px;
@@ -58,13 +58,13 @@
     transition: background-color 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease;
 
     &--online {
-      background-color: #198754;
+      background-color: var.$color-success;
       opacity: 1;
-      box-shadow: 0 0 8px #198754;
+      box-shadow: 0 0 8px var.$color-success;
     }
 
     &--offline {
-      background-color: #dc3545;
+      background-color: var.$color-danger;
       opacity: 0.5;
       box-shadow: none;
     }

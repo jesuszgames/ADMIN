@@ -27,6 +27,11 @@ export class EditUserModal implements OnChanges {
   role: 'ADMIN' | 'SORTEADOR' | 'USUARIO' = 'USUARIO';
   deleteReason: string = '';
   touchedFields: { [key: string]: boolean } = {};
+  showPassword = false;
+
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['user']) {
@@ -37,12 +42,32 @@ export class EditUserModal implements OnChanges {
   resetForm(): void {
     this.touchedFields = {};
     this.password = '';
+    this.showPassword = false;
     if (this.user) {
       this.username = this.user.username || '';
       this.name = this.user.name || '';
       this.email = this.user.email || '';
       this.phone = this.user.phone || '';
-      this.role = this.user.role || 'ADMIN';
+      
+      const rawRole = this.user.role;
+      if (Array.isArray(rawRole)) {
+        if (rawRole.includes('admin')) {
+          this.role = 'ADMIN';
+        } else if (rawRole.includes('sort')) {
+          this.role = 'SORTEADOR';
+        } else {
+          this.role = 'ADMIN';
+        }
+      } else {
+        const r = String(rawRole || '').toLowerCase();
+        if (r.includes('admin')) {
+          this.role = 'ADMIN';
+        } else if (r.includes('sort')) {
+          this.role = 'SORTEADOR';
+        } else {
+          this.role = 'ADMIN';
+        }
+      }
       this.deleteReason = this.user.deleteReason || '';
     } else {
       this.username = '';
@@ -111,7 +136,7 @@ export class EditUserModal implements OnChanges {
     checkChange('Nombre Completo', this.user.name, this.name);
     checkChange('Correo Electrónico', this.user.email, this.email);
     checkChange('Teléfono', this.user.phone, this.phone);
-    checkChange('Rol de Usuario', this.user.role, this.role);
+    checkChange('Rol de Usuario', Array.isArray(this.user.role) ? this.user.role.join(', ') : this.user.role, this.role === 'ADMIN' ? 'admin' : 'sort');
     if (this.password.trim().length > 0) {
       this.cambios.push({ campo: 'Contraseña', anterior: '*****', nuevo: 'Nueva Contraseña Establecida' });
     }
@@ -152,7 +177,7 @@ export class EditUserModal implements OnChanges {
       name: this.name.trim(),
       email: this.email.trim(),
       phone: this.phone.trim(),
-      role: this.role,
+      role: [this.role === 'ADMIN' ? 'admin' : 'sort'] as any,
       status: this.user?.status ?? 'ACTIVE',
       actions: this.user?.actions ?? '',
     };

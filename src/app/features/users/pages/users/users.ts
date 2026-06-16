@@ -30,6 +30,9 @@ import {
   BACKEND_STATUS_ACTIVE,
   BACKEND_STATUS_INACTIVE,
   BACKEND_STATUS_DELETED,
+  BACKEND_ROLE_ADMIN,
+  BACKEND_ROLE_SORT,
+  BACKEND_ROLE_PLAYER,
 } from '../../../../core/helpers/global/auth.constants';
 import { User } from '../../../../core/interfaces/api/user.interface';
 import { UserService } from '../../../../core/services/api/user.service';
@@ -140,11 +143,20 @@ export class Users implements OnInit {
             }
           };
 
+          let roleText = ROLE_USUARIO;
+          if (u.role && u.role.includes(BACKEND_ROLE_ADMIN)) {
+            roleText = ROLE_ADMIN;
+          } else if (u.role && u.role.includes(BACKEND_ROLE_SORT)) {
+            roleText = ROLE_SORTEADOR;
+          } else if (u.role && u.role.includes(BACKEND_ROLE_PLAYER)) {
+            roleText = ROLE_USUARIO;
+          }
+
           return {
             ...u,
             name: u.name || DEFAULT_USER_NAME_LABEL,
             username: u.username || '',
-            passwordText: '••••••',
+            roleText: roleText,
             status: statusMapped,
             balance: u['balance'] !== undefined ? `$${Number(u['balance'] || 0).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '$0.00',
             createdAtText: formatDate(u.createdAt),

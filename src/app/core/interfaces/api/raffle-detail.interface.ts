@@ -21,5 +21,6 @@ export interface RaffleDetail {
   blogDetailText: string;
   drawMethod?: 'AUTOMATIC' | 'MANUAL';
   deleteReason?: string;
+  link?: string;
   unlinks?: UnlinkLog[];
 }

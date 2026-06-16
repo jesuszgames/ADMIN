@@ -18,6 +18,7 @@ export class RaffleService {
     status?: string,
     drawMethod?: string,
     filter?: string,
+    sort?: string,
   ): Observable<{ data: Raffle[]; totalCount: number }> {
     let params = new HttpParams();
     if (page) params = params.set('page', page.toString());
@@ -26,6 +27,7 @@ export class RaffleService {
     if (status) params = params.set('status', status);
     if (drawMethod) params = params.set('drawMethod', drawMethod);
     if (filter) params = params.set('filter', filter);
+    if (sort) params = params.set('sort', sort);
 
     return this.http.get<any>(`${this.apiUrl}/get-all`, { params }).pipe(
       map((res) => {

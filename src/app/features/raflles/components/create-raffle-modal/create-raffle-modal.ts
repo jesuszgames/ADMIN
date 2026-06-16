@@ -82,6 +82,7 @@ export class CreateRaffleModal implements OnChanges, OnInit {
   blogCardText = '';
   blogDetailText = '';
   photo = '';
+  link = '';
   drawMethod: 'AUTOMATIC' | 'MANUAL' = 'AUTOMATIC';
 
   activeTab: 'card' | 'detalle' = 'card';
@@ -89,20 +90,17 @@ export class CreateRaffleModal implements OnChanges, OnInit {
 
   formatDateToYYYYMMDD(dateVal: any): string {
     if (!dateVal) return '';
-    if (typeof dateVal === 'string') {
-      if (dateVal.includes('T')) {
-        return dateVal.split('T')[0];
-      }
-      if (/^\d{4}-\d{2}-\d{2}$/.test(dateVal)) {
-        return dateVal;
-      }
+    if (typeof dateVal === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateVal)) {
+      return dateVal;
     }
     try {
       const date = new Date(dateVal);
       if (isNaN(date.getTime())) return '';
-      const year = date.getUTCFullYear();
-      const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-      const day = String(date.getUTCDate()).padStart(2, '0');
+      // Shift date by -5 hours (matching backend offset) to get the correct date in UTC-5
+      const offsetDate = new Date(date.getTime() - 5 * 60 * 60 * 1000);
+      const year = offsetDate.getUTCFullYear();
+      const month = String(offsetDate.getUTCMonth() + 1).padStart(2, '0');
+      const day = String(offsetDate.getUTCDate()).padStart(2, '0');
       return `${year}-${month}-${day}`;
     } catch {
       return '';
@@ -145,6 +143,7 @@ export class CreateRaffleModal implements OnChanges, OnInit {
       this.blogCardText = this.raffle.blogCardText || DEFAULT_RAFFLE_BLOG_CARD;
       this.blogDetailText = this.raffle.blogDetailText || DEFAULT_RAFFLE_BLOG_DETAIL;
       this.photo = this.raffle.photo || '';
+      this.link = this.raffle.link || '';
       this.drawMethod = this.raffle.drawMethod || DEFAULT_RAFFLE_METODO_SORTEO;
     } else {
       this.title = '';
@@ -160,6 +159,7 @@ export class CreateRaffleModal implements OnChanges, OnInit {
       this.blogCardText = '';
       this.blogDetailText = '';
       this.photo = '';
+      this.link = '';
       this.drawMethod = DEFAULT_RAFFLE_METODO_SORTEO;
     }
   }
@@ -186,6 +186,18 @@ export class CreateRaffleModal implements OnChanges, OnInit {
     const month = String(d.getMonth() + 1).padStart(2, '0');
     const day = String(d.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
+  }
+
+  getMinStartDate(): string {
+    if (!this.raffle) {
+      return this.getTodayDate();
+    }
+    const originalStart = this.formatDateToYYYYMMDD(this.raffle.startDate);
+    const today = this.getTodayDate();
+    if (originalStart && originalStart < today) {
+      return originalStart;
+    }
+    return today;
   }
 
   get minimumTicketPrice(): number {
@@ -215,6 +227,10 @@ export class CreateRaffleModal implements OnChanges, OnInit {
       if (this.ticketPrice !== null && this.ticketPrice !== this.raffle.ticketPrice) {
         return false;
       }
+    }
+    const minStart = this.getMinStartDate();
+    if (this.startDate && this.startDate < minStart) {
+      return false;
     }
     return (
       this.title.trim().length >= 3 &&
@@ -279,6 +295,7 @@ export class CreateRaffleModal implements OnChanges, OnInit {
     checkChange('Porcentaje Ganadores', this.raffle.winnerPercentage, this.winnerPercentage);
     checkChange('Texto Card', this.raffle.blogCardText, this.blogCardText);
     checkChange('Texto Detalle', this.raffle.blogDetailText, this.blogDetailText);
+    checkChange('Link / URL', this.raffle.link, this.link);
 
     if ((this.raffle.photo || '') !== (this.photo || '')) {
       this.cambios.push({
@@ -341,6 +358,7 @@ export class CreateRaffleModal implements OnChanges, OnInit {
       blogCardText: this.blogCardText,
       blogDetailText: this.blogDetailText,
       photo: this.photo,
+      link: this.link,
       tickets: this.raffle?.tickets ?? [],
       drawMethod: this.drawMethod,
     };

@@ -33,6 +33,7 @@ export interface Raffle {
   associatedNumbers?: string;
   drawMethod?: 'AUTOMATIC' | 'MANUAL';
   deleteReason?: string;
+  link?: string;
   unlinks?: UnlinkLog[];
   createdAt?: string;
   updatedAt?: string;

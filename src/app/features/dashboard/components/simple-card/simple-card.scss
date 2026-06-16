@@ -7,7 +7,7 @@
 
 .simple-card-container {
   background-color: v.$container-bg;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid v.$option-border;
   border-radius: 12px;
   padding: 1.25rem;
   display: flex;
@@ -18,31 +18,31 @@
 
   &:hover {
     transform: translateY(-4px);
-    border-color: rgba(255, 255, 255, 0.12);
+    border-color: v.$option-hover-border;
     
     &.card-success {
-      box-shadow: 0 8px 24px -6px rgba(16, 185, 129, 0.25);
-      border-color: rgba(16, 185, 129, 0.4);
+      box-shadow: 0 8px 24px -6px v.$color-success-shadow;
+      border-color: rgba(v.$color-success, 0.4);
     }
     &.card-danger {
-      box-shadow: 0 8px 24px -6px rgba(239, 68, 68, 0.25);
-      border-color: rgba(239, 68, 68, 0.4);
+      box-shadow: 0 8px 24px -6px v.$color-danger-shadow;
+      border-color: rgba(v.$color-danger, 0.4);
     }
     &.card-warning {
-      box-shadow: 0 8px 24px -6px rgba(245, 158, 11, 0.25);
-      border-color: rgba(245, 158, 11, 0.4);
+      box-shadow: 0 8px 24px -6px v.$color-warning-shadow;
+      border-color: rgba(v.$color-warning, 0.4);
     }
     &.card-info {
-      box-shadow: 0 8px 24px -6px rgba(59, 130, 246, 0.25);
-      border-color: rgba(59, 130, 246, 0.4);
+      box-shadow: 0 8px 24px -6px v.$color-info-shadow;
+      border-color: rgba(v.$color-info, 0.4);
     }
     &.card-primary {
-      box-shadow: 0 8px 24px -6px rgba(139, 92, 246, 0.25);
-      border-color: rgba(139, 92, 246, 0.4);
+      box-shadow: 0 8px 24px -6px v.$color-primary-accent-shadow;
+      border-color: rgba(v.$color-primary-accent, 0.4);
     }
     &.card-secondary {
-      box-shadow: 0 8px 24px -6px rgba(148, 163, 184, 0.25);
-      border-color: rgba(148, 163, 184, 0.4);
+      box-shadow: 0 8px 24px -6px v.$color-secondary-accent-shadow;
+      border-color: rgba(v.$color-secondary-accent, 0.4);
     }
 
     .icon-badge {
@@ -63,7 +63,7 @@
   margin-right: 1rem;
   transition: v.$transition-premium;
   flex-shrink: 0;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid v.$option-border;
 
   &.badge-success {
     background-color: v.$color-success-bg;

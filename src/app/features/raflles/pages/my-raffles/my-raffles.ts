@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RaffleService } from '../../../../core/services/api/raffle.service';
+import { TicketService } from '../../../../core/services/api/ticket.service';
 import { Subscription } from 'rxjs';
 import { RouterModule } from '@angular/router';
 import { Filter } from '../../../../shared/components/filter/filter';
@@ -61,6 +62,7 @@ import { calculateRemainingTime, isDeletedStatus, isActiveStatus } from '../../.
 })
 export class Raffles implements OnInit, OnDestroy {
   private readonly raffleService = inject(RaffleService);
+  private readonly ticketService = inject(TicketService);
   private readonly cdr = inject(ChangeDetectorRef);
   private activeSub?: Subscription;
 
@@ -128,7 +130,7 @@ export class Raffles implements OnInit, OnDestroy {
     }
 
     this.activeSub = this.raffleService
-      .getAll(this.currentPage, this.pageSize, this.searchText, statuses, drawMethod, backendFilter)
+      .getAll(this.currentPage, this.pageSize, this.searchText, statuses, drawMethod, backendFilter, '{"endDate":1}')
       .subscribe({
         next: (res) => {
           if (res && res.data) {
@@ -218,7 +220,32 @@ export class Raffles implements OnInit, OnDestroy {
           document.getElementById(this.BTN_EDIT_TICKETS_ID)?.click();
         },
         [TABLE_ACTION_VIEW_UNLINK_LOGS]: () => {
-          this.selectedRaffleForLogs = row;
+          this.selectedRaffleForLogs = { ...row, unlinks: [] };
+          this.ticketService.getUnlinkedLogs(row._id, 1, 1000).subscribe({
+            next: (res) => {
+              const logs = res?.data?.result || [];
+              if (this.selectedRaffleForLogs) {
+                this.selectedRaffleForLogs.unlinks = logs.map((log: any) => {
+                  const userVal = log.userId
+                    ? log.userId.name || log.userId.username || log.userId
+                    : 'User';
+                  return {
+                    number: log.number,
+                    user: typeof userVal === 'object'
+                      ? userVal.name || userVal.username || 'User'
+                      : String(userVal),
+                    purchaseId: log.purchaseId,
+                    reason: log.reason,
+                    date: log.date
+                  };
+                });
+                this.cdr.detectChanges();
+              }
+            },
+            error: (err) => {
+              console.error('API Error: No se pudieron cargar logs de desvinculados', err);
+            }
+          });
           document.getElementById('btn-abrir-modal-unlink-logs')?.click();
         },
       };

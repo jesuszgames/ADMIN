@@ -68,11 +68,9 @@ export class Draws implements OnInit {
 
   updateTableData() {
     this.tableData = this.rifasData.map((raffle) => {
-      let recStr = `${raffle.collected}$`;
-      try {
-        if (!raffle.goal) throw new Error();
-        recStr = `${raffle.collected}/${raffle.goal} $`;
-      } catch {}
+      const recStr = raffle.goal 
+        ? `${raffle.collected}/${raffle.goal} $` 
+        : `${raffle.collected}$`;
 
       let fechaSorteo = 'Sin Fecha';
       if (raffle.endDate) {

@@ -1,8 +1,40 @@
-<div class="image-cropper-container rounded-3 h-100 w-100 d-flex flex-column">
+<div class="image-cropper-container rounded-3 h-100 w-100 d-flex flex-column position-relative">
+  @if (isCompressing) {
+    <div
+      class="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center bg-dark bg-opacity-75 rounded-3"
+      style="z-index: 20;"
+    >
+      <div class="spinner-border text-warning mb-2" role="status"></div>
+      <span class="text-white fs-7">Comprimiendo imagen...</span>
+    </div>
+  }
+
+  @if (successMessage) {
+    <div
+      class="position-absolute top-3 start-3 end-3 alert alert-success d-flex align-items-center justify-content-between p-2 shadow-sm rounded-pill border-0"
+      style="z-index: 25; font-size: 0.75rem; background-color: rgba(25, 135, 84, 0.95); color: #fff;"
+      (click)="$event.stopPropagation()"
+    >
+      <span class="d-flex align-items-center gap-2 px-2">
+        <i class="bi bi-check-circle-fill text-white"></i>
+        {{ successMessage }}
+      </span>
+      <i
+        class="bi bi-x-lg text-white-50 cursor-pointer px-2"
+        (click)="successMessage = ''; $event.stopPropagation()"
+        style="font-size: 0.8rem;"
+      ></i>
+    </div>
+  }
+
   @if (isEditing) {
     <div
-      class="cropper-edit-area position-relative w-100 flex-grow-1 overflow-hidden rounded-3"
+      class="cropper-edit-area position-relative overflow-hidden rounded-3"
       #viewport
+      [style.aspect-ratio]="aspectRatio || null"
+      [style.width]="aspectRatio ? 'auto' : '100%'"
+      [style.height]="aspectRatio ? 'auto' : '100%'"
+      style="margin: 0 auto; max-width: 100%; max-height: 100%; flex-grow: 1;"
     >
       <img
         #editImage
@@ -109,6 +141,30 @@
           >
             <i class="bi bi-crop text-white fs-6"></i>
           </button>
+        }
+
+        <!-- Overlay error message if any -->
+        @if (errorMessage) {
+          <div
+            class="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center bg-dark bg-opacity-80 p-3"
+            style="z-index: 10;"
+            (click)="$event.stopPropagation()"
+          >
+            <div class="text-danger fs-8 d-flex flex-column align-items-center gap-2 justify-content-center text-center" style="font-size: 0.75rem; color: #ef5350">
+              <span class="d-flex align-items-center gap-1 font-semibold">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                {{ errorMessage }}
+              </span>
+              <button
+                type="button"
+                (click)="errorMessage = ''; $event.stopPropagation()"
+                class="btn btn-sm btn-link text-white-50 mt-1"
+                style="font-size: 0.7rem;"
+              >
+                Cerrar aviso
+              </button>
+            </div>
+          </div>
         }
       </div>
     } @else {

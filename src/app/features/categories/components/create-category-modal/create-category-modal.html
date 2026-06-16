@@ -24,20 +24,22 @@
             <input
               type="text"
               class="form-control custom-dark-input py-2"
+              [class.is-invalid]="name && (name.trim().length < 3 || name.trim().length > 50)"
               [(ngModel)]="name"
               placeholder="ANIMALES"
               [disabled]="isReadOnly"
               required
             />
-            @if (!isReadOnly) {
-              <div class="d-flex justify-content-between mt-1 px-1" style="font-size: 0.75rem;">
-                <span class="text-white-50">Debe tener entre 3 y 50 caracteres</span>
-                @if (name.trim().length > 0 && name.trim().length < 3) {
-                  <span class="text-danger fw-semibold">Muy corto (mín. 3)</span>
-                } @else if (name.trim().length > 50) {
-                  <span class="text-danger fw-semibold">Muy largo (máx. 50)</span>
-                }
-              </div>
+            @if (!isReadOnly && name.trim().length > 0) {
+              @if (name.trim().length < 3) {
+                <div class="text-danger fs-8 mt-1" style="font-size: 0.75rem; color: #ef5350">
+                  El nombre debe tener al menos 3 caracteres.
+                </div>
+              } @else if (name.trim().length > 50) {
+                <div class="text-danger fs-8 mt-1" style="font-size: 0.75rem; color: #ef5350">
+                  El nombre no puede tener más de 50 caracteres.
+                </div>
+              }
             }
           </div>
 
@@ -45,20 +47,22 @@
             <label class="form-label text-white-50 text-uppercase fs-7 mb-2">Descripción de Categoría</label>
             <textarea
               class="form-control custom-dark-input py-2 desc-textarea"
+              [class.is-invalid]="description && (description.trim().length < 10 || description.trim().length > 500)"
               [(ngModel)]="description"
               placeholder="ANCHO DE TEXTO PRUEBA DE ESCRITORIO"
               [disabled]="isReadOnly"
               required
             ></textarea>
-            @if (!isReadOnly) {
-              <div class="d-flex justify-content-between mt-1 px-1" style="font-size: 0.75rem;">
-                <span class="text-white-50">Debe tener entre 10 y 500 caracteres</span>
-                @if (description.trim().length > 0 && description.trim().length < 10) {
-                  <span class="text-danger fw-semibold">Muy corta (mín. 10)</span>
-                } @else if (description.trim().length > 500) {
-                  <span class="text-danger fw-semibold">Muy larga (máx. 500)</span>
-                }
-              </div>
+            @if (!isReadOnly && description.trim().length > 0) {
+              @if (description.trim().length < 10) {
+                <div class="text-danger fs-8 mt-1" style="font-size: 0.75rem; color: #ef5350">
+                  La descripción debe tener al menos 10 caracteres.
+                </div>
+              } @else if (description.trim().length > 500) {
+                <div class="text-danger fs-8 mt-1" style="font-size: 0.75rem; color: #ef5350">
+                  La descripción no puede tener más de 500 caracteres.
+                </div>
+              }
             }
           </div>
 
