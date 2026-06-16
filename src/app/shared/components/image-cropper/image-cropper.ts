@@ -268,7 +268,7 @@ export class ImageCropperComponent implements OnChanges {
       const naturalHeight = image.naturalHeight;
 
       if (naturalWidth && naturalHeight && this.viewportWidth && this.viewportHeight) {
-        const scale = Math.max(
+        const scale = Math.min(
           this.viewportWidth / naturalWidth,
           this.viewportHeight / naturalHeight,
         );
@@ -349,13 +349,23 @@ export class ImageCropperComponent implements OnChanges {
   }
 
   private constrainBounds() {
-    const maxLeft = 0;
-    const minLeft = this.viewportWidth - this.baseWidth * this.zoom;
-    this.imgLeft = Math.max(minLeft, Math.min(maxLeft, this.imgLeft));
+    const imageWidth = this.baseWidth * this.zoom;
+    if (imageWidth < this.viewportWidth) {
+      this.imgLeft = (this.viewportWidth - imageWidth) / 2;
+    } else {
+      const minLeft = this.viewportWidth - imageWidth;
+      const maxLeft = 0;
+      this.imgLeft = Math.max(minLeft, Math.min(maxLeft, this.imgLeft));
+    }
 
-    const maxTop = 0;
-    const minTop = this.viewportHeight - this.baseHeight * this.zoom;
-    this.imgTop = Math.max(minTop, Math.min(maxTop, this.imgTop));
+    const imageHeight = this.baseHeight * this.zoom;
+    if (imageHeight < this.viewportHeight) {
+      this.imgTop = (this.viewportHeight - imageHeight) / 2;
+    } else {
+      const minTop = this.viewportHeight - imageHeight;
+      const maxTop = 0;
+      this.imgTop = Math.max(minTop, Math.min(maxTop, this.imgTop));
+    }
   }
 
   onZoomChange(event: Event) {
