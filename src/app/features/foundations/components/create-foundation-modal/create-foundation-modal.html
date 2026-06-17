@@ -16,7 +16,7 @@
         class="btn-close btn-close-white position-absolute top-0 end-0 m-3"
         data-bs-dismiss="modal"
         aria-label="Close"
-        style="z-index: 1055;"
+        style="z-index: 1055"
         (click)="resetForm()"
       ></button>
       <div class="modal-body p-4 p-md-5 pb-3">
@@ -34,7 +34,7 @@
             <div>
               <strong class="d-block mb-1 text-uppercase fs-7">Fundación Eliminada</strong>
               <span class="fs-7"
-                ><strong>Razón de la eliminación:</strong> {{ foundation?.deleteReason }}</span
+                ><strong>Razón de la eliminación:</strong> {{ foundation.deleteReason }}</span
               >
             </div>
           </div>
@@ -68,15 +68,20 @@
               >
               <textarea
                 class="form-control custom-dark-input py-2 desc-textarea w-100"
-                [class.is-invalid]="description && (description.trim().length < 10 || description.trim().length > 500)"
+                [class.is-invalid]="
+                  description && (description.trim().length < 10 || description.trim().length > 500)
+                "
                 [(ngModel)]="description"
                 placeholder="Descripción de la fundación"
                 [disabled]="isReadOnly"
                 required
               ></textarea>
-              @if (description && (description.trim().length < 10 || description.trim().length > 500)) {
+              @if (
+                description && (description.trim().length < 10 || description.trim().length > 500)
+              ) {
                 <div class="text-danger fs-8 mt-1" style="font-size: 0.75rem; color: #ef5350">
-                  La descripción debe tener entre 10 y 500 caracteres (actual: {{ description.trim().length }}).
+                  La descripción debe tener entre 10 y 500 caracteres (actual:
+                  {{ description.trim().length }}).
                 </div>
               }
             </div>
@@ -96,7 +101,9 @@
                     [disabled]="isReadOnly"
                     required
                   />
-                  <span class="input-group-text custom-dark-addon border-start-0 text-theme-secondary">
+                  <span
+                    class="input-group-text custom-dark-addon border-start-0 text-theme-secondary"
+                  >
                     <i class="bi bi-envelope"></i>
                   </span>
                 </div>
@@ -111,11 +118,20 @@
                 <label class="form-label text-theme-secondary text-uppercase fs-7 mb-2"
                   >Numero de Telefono</label
                 >
-                <div class="input-group" [class.is-invalid]="phone && (phone.trim().length < 10 || phone.trim().length > 15 || !esNumero(phone))">
+                <div
+                  class="input-group"
+                  [class.is-invalid]="
+                    phone &&
+                    (phone.trim().length < 10 || phone.trim().length > 15 || !esNumero(phone))
+                  "
+                >
                   <input
                     type="text"
                     class="form-control custom-dark-input border-end-0 py-2"
-                    [class.is-invalid]="phone && (phone.trim().length < 10 || phone.trim().length > 15 || !esNumero(phone))"
+                    [class.is-invalid]="
+                      phone &&
+                      (phone.trim().length < 10 || phone.trim().length > 15 || !esNumero(phone))
+                    "
                     [(ngModel)]="phone"
                     (keypress)="soloNumeros($event)"
                     inputmode="numeric"
@@ -124,13 +140,16 @@
                     [disabled]="isReadOnly"
                     required
                   />
-                  <span class="input-group-text custom-dark-addon border-start-0 text-theme-secondary">
+                  <span
+                    class="input-group-text custom-dark-addon border-start-0 text-theme-secondary"
+                  >
                     <i class="bi bi-telephone"></i>
                   </span>
                 </div>
                 @if (phone && (phone.trim().length < 10 || phone.trim().length > 15)) {
                   <div class="text-danger fs-8 mt-1" style="font-size: 0.75rem; color: #ef5350">
-                    El teléfono debe tener entre 10 y 15 dígitos (actual: {{ phone.trim().length }}).
+                    El teléfono debe tener entre 10 y 15 dígitos (actual:
+                    {{ phone.trim().length }}).
                   </div>
                 }
                 @if (phone && !esNumero(phone)) {
@@ -153,7 +172,10 @@
               style="aspect-ratio: 1; width: 100%; max-width: 380px; display: block"
             ></app-image-cropper>
             @if (!photo) {
-              <div class="text-warning fs-8 mt-2 text-center" style="font-size: 0.75rem; color: #ffb74d">
+              <div
+                class="text-warning fs-8 mt-2 text-center"
+                style="font-size: 0.75rem; color: #ffb74d"
+              >
                 La imagen es obligatoria. Por favor, selecciona y recorta una foto.
               </div>
             }
@@ -178,7 +200,11 @@
             (click)="onSaveClick()"
           >
             @if (isSaving) {
-              <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+              <span
+                class="spinner-border spinner-border-sm"
+                role="status"
+                aria-hidden="true"
+              ></span>
               Guardando...
             } @else {
               {{ foundation ? 'Guardar' : 'Crear' }}
