@@ -48,6 +48,7 @@ export class RaffleService {
       const val = (raffle as any)[key];
       if (
         key !== 'photo' &&
+        key !== 'banner' &&
         key !== 'tickets' &&
         key !== 'unlinks' &&
         val !== undefined &&
@@ -64,6 +65,16 @@ export class RaffleService {
         formData.append('photo', photoVal, `photo-${Date.now()}.${ext}`);
       } else if (typeof raffle.photo === 'string') {
         formData.append('photo', raffle.photo);
+      }
+    }
+
+    if (raffle.banner) {
+      const bannerVal = raffle.banner as any;
+      if (bannerVal instanceof Blob) {
+        const ext = bannerVal.type.split('/')[1] || 'webp';
+        formData.append('banner', bannerVal, `banner-${Date.now()}.${ext}`);
+      } else if (typeof raffle.banner === 'string') {
+        formData.append('banner', raffle.banner);
       }
     }
     return formData;

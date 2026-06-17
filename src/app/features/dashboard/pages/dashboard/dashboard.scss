@@ -21,7 +21,7 @@
 
 .welcome-card {
   background: linear-gradient(135deg, v.$welcome-grad-start 0%, v.$welcome-grad-mid 50%, v.$welcome-grad-end 100%);
-  border: 1px solid rgba(v.$primary-text, 0.1);
+  border: 1px solid color-mix(in srgb, v.$primary-text 10%, transparent);
   border-radius: 16px;
   padding: 2.25rem;
   position: relative;
@@ -68,7 +68,7 @@
 }
 
 .welcome-subtitle {
-  color: rgba(v.$primary-text, 0.85);
+  color: color-mix(in srgb, v.$primary-text 85%, transparent);
   font-size: 0.95rem;
   margin-bottom: 1.75rem;
   font-weight: 400;
@@ -80,12 +80,12 @@
   display: flex;
   align-items: center;
   gap: 0.6rem;
-  background: rgba(v.$primary-text, 0.1);
+  background: color-mix(in srgb, v.$primary-text 10%, transparent);
   padding: 0.6rem 1.2rem;
   border-radius: 30px;
   width: fit-content;
-  border: 1px solid rgba(v.$primary-text, 0.12);
-  color: rgba(v.$primary-text, 0.95);
+  border: 1px solid color-mix(in srgb, v.$primary-text 12%, transparent);
+  color: color-mix(in srgb, v.$primary-text 95%, transparent);
   font-size: 0.85rem;
   font-weight: 500;
   backdrop-filter: blur(8px);

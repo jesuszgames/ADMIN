@@ -10,24 +10,25 @@
     font-weight: 600;
     text-transform: uppercase;
     color: var.$secondary-text;
-    border-bottom: 2px solid rgba(255, 255, 255, 0.04) !important;
+    border-bottom: 2px solid var.$option-border !important;
     padding: 0.85rem 1rem !important;
   }
 
   td {
     font-size: 0.82rem;
     font-weight: 400;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.03) !important;
+    border-bottom: 1px solid var.$option-border !important;
     padding: 0.75rem 1rem !important;
     transition: var.$transition-fast;
+    color: var.$primary-text;
   }
 
   tr {
     transition: var.$transition-fast;
 
     &:hover td {
-      background-color: rgba(255, 255, 255, 0.015) !important;
-      color: #ffffff !important;
+      background-color: var.$option-hover-bg !important;
+      color: var.$primary-text !important;
     }
   }
 
@@ -120,9 +121,9 @@
   width: 80%;
   background: linear-gradient(
     90deg,
-    rgba(255, 255, 255, 0.02) 25%,
-    rgba(255, 255, 255, 0.06) 50%,
-    rgba(255, 255, 255, 0.02) 75%
+    var.$background 25%,
+    var.$option-hover-bg 50%,
+    var.$background 75%
   );
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite linear;

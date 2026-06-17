@@ -5,20 +5,37 @@
   </div>
   <nav class="sidebar-content__nav">
     <ul class="sidebar-content__menu">
-      <li class="sidebar-content__item">
-        @if (userRole !== 'SORTEADOR') {
+      @if (userRole !== 'SORTEADOR') {
+        <li class="sidebar-content__category">
+          <span class="sidebar-content__category-title">Principal</span>
           <a routerLink="/dashboard" routerLinkActive="is-active" class="sidebar-content__link">
             <img src="/assets/icon/dashboard.svg" class="sidebar-content__icon" />
             <span class="sidebar-content__text">Dashboard</span>
           </a>
+          <a routerLink="/history" routerLinkActive="is-active" class="sidebar-content__link">
+            <img src="/assets/icon/history.svg" class="sidebar-content__icon" />
+            <span class="sidebar-content__text">Historial</span>
+          </a>
+        </li>
+
+        <li class="sidebar-content__category">
+          <span class="sidebar-content__category-title">Gestión</span>
           <a routerLink="/raffles" routerLinkActive="is-active" class="sidebar-content__link">
             <img src="/assets/icon/tickets.svg" class="sidebar-content__icon" />
             <span class="sidebar-content__text">Mis Rifas</span>
           </a>
-          <a routerLink="/users" routerLinkActive="is-active" class="sidebar-content__link">
+          <a routerLink="/staff" routerLinkActive="is-active" class="sidebar-content__link">
             <img src="/assets/icon/user.svg" class="sidebar-content__icon" />
-            <span class="sidebar-content__text">Usuarios</span>
+            <span class="sidebar-content__text">Staff / Admins</span>
           </a>
+          <a routerLink="/players" routerLinkActive="is-active" class="sidebar-content__link">
+            <i class="bi bi-people sidebar-content__icon" style="font-size: 1.25rem;"></i>
+            <span class="sidebar-content__text">Jugadores</span>
+          </a>
+        </li>
+
+        <li class="sidebar-content__category">
+          <span class="sidebar-content__category-title">Catálogos</span>
           <a routerLink="/foundations" routerLinkActive="is-active" class="sidebar-content__link">
             <img src="/assets/icon/foundation.svg" class="sidebar-content__icon" />
             <span class="sidebar-content__text">Fundaciones</span>
@@ -27,14 +44,13 @@
             <img src="/assets/icon/category.svg" class="sidebar-content__icon" />
             <span class="sidebar-content__text">Categorias</span>
           </a>
-          <a routerLink="/history" routerLinkActive="is-active" class="sidebar-content__link">
-            <img src="/assets/icon/history.svg" class="sidebar-content__icon" />
-            <span class="sidebar-content__text">Historial</span>
-          </a>
-        }
-        <div class="sidebar-content__divider my-3" style="border-top: 1px solid var(--border-color); opacity: 0.15; margin-left: 24px; margin-right: 24px;"></div>
+        </li>
+      }
+
+      <li class="sidebar-content__category">
+        <span class="sidebar-content__category-title">Operaciones</span>
         <a routerLink="/draws" routerLinkActive="is-active" class="sidebar-content__link">
-          <i class="bi bi-trophy sidebar-content__icon text-secondary" style="font-size: 1.25rem;"></i>
+          <i class="bi bi-trophy sidebar-content__icon" style="font-size: 1.25rem;"></i>
           <span class="sidebar-content__text">Sorteos</span>
         </a>
       </li>

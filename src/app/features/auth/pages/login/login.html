@@ -33,14 +33,23 @@
           <div class="input-wrapper">
             <i class="bi bi-lock-fill input-icon"></i>
             <input
-              type="password"
+              [type]="showPassword ? 'text' : 'password'"
               id="password"
               name="password"
               [(ngModel)]="password"
               placeholder="Introduce tu contraseña"
               required
               autocomplete="current-password"
+              style="padding-right: 2.8rem;"
             />
+            <button
+              type="button"
+              class="password-toggle-btn"
+              (click)="togglePassword()"
+              tabindex="-1"
+            >
+              <i class="bi" [ngClass]="showPassword ? 'bi-eye-slash-fill' : 'bi-eye-fill'"></i>
+            </button>
           </div>
         </div>
 

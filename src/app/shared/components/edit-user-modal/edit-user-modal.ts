@@ -1,8 +1,8 @@
 import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { User } from '../../../../core/interfaces/api/user.interface';
-import { ConfirmChangesModal } from '../../../../shared/components/confirm-changes-modal/confirm-changes-modal';
+import { User } from '../../../core/interfaces/api/user.interface';
+import { ConfirmChangesModal } from '../confirm-changes-modal/confirm-changes-modal';
 
 @Component({
   selector: 'app-edit-user-modal',

@@ -49,18 +49,18 @@ body {
 }
 
 .custom-btn-secondary {
-  background-color: transparent !important;
-  color: $primary-text !important;
-  border: 1px solid rgba($primary-text, 0.08) !important;
+  background-color: rgba(239, 83, 80, 0.08) !important;
+  color: #ef5350 !important;
+  border: 1px solid rgba(239, 83, 80, 0.4) !important;
   font-weight: 500;
   letter-spacing: 0.5px;
   transition: $transition-premium;
 
   &:hover,
   &:focus {
-    background-color: rgba($primary-text, 0.04) !important;
-    border-color: rgba($primary-text, 0.15) !important;
-    color: $primary-text !important;
+    background-color: #ef5350 !important;
+    border-color: #ef5350 !important;
+    color: #ffffff !important;
   }
 }
 

@@ -3,15 +3,27 @@
     <span class="status-dot" [class]="getConnectionClass()"></span>
   </div>
 
+  <button 
+    type="button" 
+    class="theme-toggle-btn btn border-0 d-flex align-items-center justify-content-center me-3"
+    (click)="themeService.toggleTheme()"
+    [title]="themeService.currentTheme() === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'"
+    style="background: transparent; border-radius: 50%; width: 38px; height: 38px; color: var(--primary-text); transition: background-color 0.2s;"
+  >
+    @if (themeService.currentTheme() === 'dark') {
+      <i class="bi bi-sun-fill text-warning fs-5"></i>
+    } @else {
+      <i class="bi bi-moon-stars-fill fs-5" style="color: #6366f1;"></i>
+    }
+  </button>
+
   <div class="header-profile">
     <div class="header-profile__info">
       <span class="header-profile__name">{{ getUserName() }}</span>
       <span class="header-profile__role">{{ getUserRole() }}</span>
     </div>
-    <img
-      src="https://primefaces.org/cdn/primeng/images/demo/avatar/amyelsner.png"
-      alt="Avatar"
-      class="header-profile__avatar"
-    />
+    <div class="header-profile__avatar-initials">
+      {{ getInitials() }}
+    </div>
   </div>
 </div>

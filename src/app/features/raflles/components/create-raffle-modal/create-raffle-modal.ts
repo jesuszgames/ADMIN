@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, OnInit, inject } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, OnInit, inject, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -20,15 +20,18 @@ import { CategoryService } from '../../../../core/services/api/category.service'
 import { FoundationService } from '../../../../core/services/api/foundation.service';
 import { Category } from '../../../../core/interfaces/api/category.interface';
 import { Foundation } from '../../../../core/interfaces/api/foundation.interface';
+import { NgSelectComponent, NgOptionComponent } from '@ng-select/ng-select';
+import flatpickr from 'flatpickr';
+import { Spanish } from 'flatpickr/dist/l10n/es';
 
 @Component({
   selector: 'app-create-raffle-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule, ConfirmChangesModal, ImageCropperComponent],
+  imports: [CommonModule, FormsModule, ConfirmChangesModal, ImageCropperComponent, NgSelectComponent, NgOptionComponent],
   templateUrl: './create-raffle-modal.html',
   styleUrl: './create-raffle-modal.scss',
 })
-export class CreateRaffleModal implements OnChanges, OnInit {
+export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit {
   @Input() raffle: Raffle | null = null;
   @Input() isReadOnly = false;
   @Input() isSaving = false;
@@ -69,6 +72,12 @@ export class CreateRaffleModal implements OnChanges, OnInit {
     });
   }
 
+  @ViewChild('startDateInput') startDateInput!: ElementRef;
+  @ViewChild('endDateInput') endDateInput!: ElementRef;
+
+  startDatePicker: any;
+  endDatePicker: any;
+
   title = '';
   foundation = '';
   category = '';
@@ -82,11 +91,69 @@ export class CreateRaffleModal implements OnChanges, OnInit {
   blogCardText = '';
   blogDetailText = '';
   photo = '';
+  banner = '';
   link = '';
   drawMethod: 'AUTOMATIC' | 'MANUAL' = 'AUTOMATIC';
 
   activeTab: 'card' | 'detalle' = 'card';
   touchedFields: { [key: string]: boolean } = {};
+
+  ngAfterViewInit() {
+    this.initFlatpickr();
+  }
+
+  initFlatpickr() {
+    if (this.startDateInput && this.startDateInput.nativeElement) {
+      this.startDatePicker = flatpickr(this.startDateInput.nativeElement, {
+        locale: Spanish,
+        dateFormat: 'Y-m-d',
+        disableMobile: true,
+        allowInput: true,
+        clickOpens: !this.isReadOnly,
+        defaultDate: this.startDate,
+        minDate: this.getMinStartDate(),
+        onChange: (selectedDates, dateStr) => {
+          this.startDate = dateStr;
+          this.touchedFields['startDate'] = true;
+          if (this.endDatePicker) {
+            this.endDatePicker.set('minDate', dateStr || this.getTodayDate());
+          }
+        },
+        onClose: () => {
+          this.touchedFields['startDate'] = true;
+          setTimeout(() => {
+            if (this.startDateInput && this.startDateInput.nativeElement) {
+              this.startDateInput.nativeElement.focus();
+            }
+          }, 0);
+        }
+      });
+    }
+
+    if (this.endDateInput && this.endDateInput.nativeElement) {
+      this.endDatePicker = flatpickr(this.endDateInput.nativeElement, {
+        locale: Spanish,
+        dateFormat: 'Y-m-d',
+        disableMobile: true,
+        allowInput: true,
+        clickOpens: !this.isReadOnly,
+        defaultDate: this.endDate,
+        minDate: this.startDate || this.getTodayDate(),
+        onChange: (selectedDates, dateStr) => {
+          this.endDate = dateStr;
+          this.touchedFields['endDate'] = true;
+        },
+        onClose: () => {
+          this.touchedFields['endDate'] = true;
+          setTimeout(() => {
+            if (this.endDateInput && this.endDateInput.nativeElement) {
+              this.endDateInput.nativeElement.focus();
+            }
+          }, 0);
+        }
+      });
+    }
+  }
 
   formatDateToYYYYMMDD(dateVal: any): string {
     if (!dateVal) return '';
@@ -143,6 +210,7 @@ export class CreateRaffleModal implements OnChanges, OnInit {
       this.blogCardText = this.raffle.blogCardText || DEFAULT_RAFFLE_BLOG_CARD;
       this.blogDetailText = this.raffle.blogDetailText || DEFAULT_RAFFLE_BLOG_DETAIL;
       this.photo = this.raffle.photo || '';
+      this.banner = this.raffle.banner || '';
       this.link = this.raffle.link || '';
       this.drawMethod = this.raffle.drawMethod || DEFAULT_RAFFLE_METODO_SORTEO;
     } else {
@@ -159,8 +227,18 @@ export class CreateRaffleModal implements OnChanges, OnInit {
       this.blogCardText = '';
       this.blogDetailText = '';
       this.photo = '';
+      this.banner = '';
       this.link = '';
       this.drawMethod = DEFAULT_RAFFLE_METODO_SORTEO;
+    }
+
+    if (this.startDatePicker) {
+      this.startDatePicker.setDate(this.startDate);
+      this.startDatePicker.set('minDate', this.getMinStartDate());
+    }
+    if (this.endDatePicker) {
+      this.endDatePicker.setDate(this.endDate);
+      this.endDatePicker.set('minDate', this.startDate || this.getTodayDate());
     }
   }
 
@@ -253,6 +331,7 @@ export class CreateRaffleModal implements OnChanges, OnInit {
       this.winnerPercentage >= 0 &&
       this.winnerPercentage <= 100 &&
       this.photo !== '' &&
+      this.banner !== '' &&
       this.blogCardText.trim() !== '' &&
       this.blogDetailText.trim() !== ''
     );
@@ -266,9 +345,23 @@ export class CreateRaffleModal implements OnChanges, OnInit {
     this.cambios = [];
 
     const checkChange = (campo: string, anterior: any, nuevo: any) => {
-      const normAnterior =
+      let normAnterior =
         anterior === null || anterior === undefined ? '' : String(anterior).trim();
-      const normNuevo = nuevo === null || nuevo === undefined ? '' : String(nuevo).trim();
+      let normNuevo = nuevo === null || nuevo === undefined ? '' : String(nuevo).trim();
+
+      const translateVal = (val: string) => {
+        if (val === 'AUTOMATIC') return 'Automático (Sistema)';
+        if (val === 'MANUAL') return 'Manual (En vivo)';
+        if (val === 'ACTIVE') return 'Activo';
+        if (val === 'INACTIVE') return 'Inactivo';
+        if (val === 'DELETED') return 'Eliminado';
+        if (val === 'FINISHED') return 'Finalizado';
+        return val;
+      };
+
+      normAnterior = translateVal(normAnterior);
+      normNuevo = translateVal(normNuevo);
+
       if (normAnterior !== normNuevo) {
         this.cambios.push({
           campo,
@@ -299,9 +392,17 @@ export class CreateRaffleModal implements OnChanges, OnInit {
 
     if ((this.raffle.photo || '') !== (this.photo || '')) {
       this.cambios.push({
-        campo: 'Imagen',
+        campo: 'Imagen Card',
         anterior: this.raffle.photo ? 'Imagen Anterior' : '(Sin Imagen)',
         nuevo: this.photo ? 'Nueva Imagen' : '(Sin Imagen)',
+      });
+    }
+
+    if ((this.raffle.banner || '') !== (this.banner || '')) {
+      this.cambios.push({
+        campo: 'Imagen Banner',
+        anterior: this.raffle.banner ? 'Imagen Anterior' : '(Sin Imagen)',
+        nuevo: this.banner ? 'Nueva Imagen' : '(Sin Imagen)',
       });
     }
 
@@ -358,6 +459,7 @@ export class CreateRaffleModal implements OnChanges, OnInit {
       blogCardText: this.blogCardText,
       blogDetailText: this.blogDetailText,
       photo: this.photo,
+      banner: this.banner,
       link: this.link,
       tickets: this.raffle?.tickets ?? [],
       drawMethod: this.drawMethod,

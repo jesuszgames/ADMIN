@@ -13,6 +13,7 @@ export interface RaffleDetail {
   ticketsAvailable: number;
   totalCollected: number;
   photo: string;
+  banner?: string;
   beneficiaryAmount: number;
   beneficiaryPercentage: number;
   winnerAmount: number;

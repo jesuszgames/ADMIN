@@ -9,10 +9,18 @@
 >
   <div class="modal-dialog modal-xl modal-dialog-centered">
     <div
-      class="modal-content custom-modal-bg border-secondary border-opacity-25 rounded-3 shadow-lg"
+      class="modal-content custom-modal-bg border-secondary border-opacity-25 rounded-3 shadow-lg position-relative"
     >
+      <button
+        type="button"
+        class="btn-close btn-close-white position-absolute top-0 end-0 m-3"
+        data-bs-dismiss="modal"
+        aria-label="Close"
+        style="z-index: 1055;"
+        (click)="resetForm()"
+      ></button>
       <div class="modal-body p-4 p-md-5 pb-3">
-        <h3 class="text-white fw-bold mb-4 fs-4">
+        <h3 class="text-theme-primary fw-bold mb-4 fs-4">
           {{
             isReadOnly ? 'Detalle Fundacion' : foundation ? 'Editar Fundacion' : 'Crear Fundacion'
           }}
@@ -35,7 +43,7 @@
         <div class="row g-5">
           <div class="col-lg-6 d-flex flex-column gap-3">
             <div>
-              <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
+              <label class="form-label text-theme-secondary text-uppercase fs-7 mb-2"
                 >Nombre Fundacion</label
               >
               <input
@@ -55,7 +63,7 @@
             </div>
 
             <div>
-              <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
+              <label class="form-label text-theme-secondary text-uppercase fs-7 mb-2"
                 >Descripcion Fundacion</label
               >
               <textarea
@@ -75,7 +83,7 @@
 
             <div class="row g-3">
               <div class="col-md-6">
-                <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
+                <label class="form-label text-theme-secondary text-uppercase fs-7 mb-2"
                   >Correo Electronico</label
                 >
                 <div class="input-group" [class.is-invalid]="email && !isEmailValid(email)">
@@ -88,7 +96,7 @@
                     [disabled]="isReadOnly"
                     required
                   />
-                  <span class="input-group-text custom-dark-addon border-start-0 text-white-50">
+                  <span class="input-group-text custom-dark-addon border-start-0 text-theme-secondary">
                     <i class="bi bi-envelope"></i>
                   </span>
                 </div>
@@ -100,7 +108,7 @@
               </div>
 
               <div class="col-md-6">
-                <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
+                <label class="form-label text-theme-secondary text-uppercase fs-7 mb-2"
                   >Numero de Telefono</label
                 >
                 <div class="input-group" [class.is-invalid]="phone && (phone.trim().length < 10 || phone.trim().length > 15 || !esNumero(phone))">
@@ -116,7 +124,7 @@
                     [disabled]="isReadOnly"
                     required
                   />
-                  <span class="input-group-text custom-dark-addon border-start-0 text-white-50">
+                  <span class="input-group-text custom-dark-addon border-start-0 text-theme-secondary">
                     <i class="bi bi-telephone"></i>
                   </span>
                 </div>
@@ -135,7 +143,7 @@
           </div>
 
           <div class="col-lg-6 d-flex flex-column pt-lg-4 align-items-center">
-            <label class="form-label text-white-50 text-uppercase fs-7 mb-2 text-center"
+            <label class="form-label text-theme-secondary text-uppercase fs-7 mb-2 text-center"
               >Imagen</label
             >
             <app-image-cropper

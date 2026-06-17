@@ -15,7 +15,12 @@ export class LoginComponent {
 
   username = '';
   password = '';
+  showPassword = false;
   errorMessage = signal<string | null>(null);
+
+  togglePassword(): void {
+    this.showPassword = !this.showPassword;
+  }
 
   onSubmit(): void {
     if (!this.username.trim() || !this.password.trim()) {

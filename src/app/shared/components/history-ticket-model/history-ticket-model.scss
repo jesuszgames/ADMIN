@@ -32,7 +32,7 @@
   &.ticket-seleccionado {
     background-color: var.$button-primary;
     color: var.$primary-text;
-    border: 1px solid rgba(var.$primary-text, 0.2);
+    border: 1px solid color-mix(in srgb, var.$primary-text 20%, transparent);
   }
 
   &.ticket-ganador {
@@ -108,16 +108,17 @@
 }
 
 .custom-btn-secondary {
-  background-color: var.$button-secondary;
-  color: var.$primary-text;
-  border: none;
+  background-color: #ef5350;
+  color: #ffffff;
+  border: 1px solid #ef5350;
   font-weight: 500;
   letter-spacing: 0.5px;
-  transition: background-color 0.2s ease;
+  transition: all 0.2s ease;
 
   &:hover,
   &:focus {
-    background-color: var.$button-secondary-hover;
-    box-shadow: none;
+    background-color: #d32f2f;
+    color: #ffffff;
+    border-color: #d32f2f;
   }
 }

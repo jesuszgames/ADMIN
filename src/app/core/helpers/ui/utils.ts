@@ -122,6 +122,7 @@ export function mapRaffleDetails(raffle: any): RaffleDetail {
     ticketsAvailable: raffle.totalTickets,
     totalCollected,
     photo: raffle.photo || DEFAULT_RAFFLE_PHOTO,
+    banner: raffle.banner || '',
     beneficiaryAmount,
     beneficiaryPercentage,
     winnerAmount,

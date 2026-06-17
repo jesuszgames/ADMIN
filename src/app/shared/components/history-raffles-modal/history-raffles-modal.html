@@ -1,203 +1,171 @@
 <div class="modal fade" id="modalDetalleRifa" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-xl modal-dialog-centered">
     <div
-      class="modal-content custom-modal-bg border-secondary border-opacity-25 rounded-3 shadow-lg"
+      class="modal-content custom-modal-bg border-secondary border-opacity-25 rounded-3 shadow-lg position-relative"
     >
+      <button
+        type="button"
+        class="btn-close btn-close-white position-absolute top-0 end-0 m-3"
+        data-bs-dismiss="modal"
+        aria-label="Close"
+        style="z-index: 1055"
+      ></button>
       <div class="modal-body p-4 p-md-5 pb-3">
         <h3 class="text-white fw-bold mb-4 fs-4">Historial Rifa</h3>
 
-        @if (raffleData?.deleteReason) {
+        @if (raffleData && raffleData.deleteReason) {
           <div
             class="alert alert-danger border-danger border-opacity-25 bg-danger bg-opacity-10 text-danger rounded-3 p-3 mb-4 d-flex align-items-start gap-2"
           >
             <i class="bi bi-exclamation-octagon-fill fs-5 lh-1"></i>
             <div>
               <strong class="d-block mb-1 text-uppercase fs-7">Rifa Eliminada</strong>
-              <span class="fs-7"
-                ><strong>Razón de la eliminación:</strong> {{ raffleData?.deleteReason }}</span
-              >
+              <span class="fs-7"><strong>Razón de la eliminación:</strong> {{ raffleData.deleteReason }}</span>
             </div>
           </div>
         }
 
         <div class="row g-4 mb-2">
           <div class="col-lg-7">
-            <div class="row g-4">
-              <div class="col-md-6">
-                <label class="form-label text-white-50 text-uppercase fs-7 mb-2">Nombre Rifa</label>
-                <textarea class="form-control custom-dark-input" rows="2" readonly>{{
-                  raffleData?.name
-                }}</textarea>
-              </div>
-
-              <div class="col-md-6">
-                <label class="form-label text-white-50 text-uppercase fs-7 mb-2">Fundacion</label>
-                <textarea class="form-control custom-dark-input" rows="2" readonly>{{
-                  raffleData?.foundation
-                }}</textarea>
-              </div>
-
-              <div class="col-md-6">
-                <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
-                  >Fecha Inicio</label
-                >
-                <div class="input-group">
+            <div class="d-flex flex-column gap-4">
+              <div class="row g-4">
+                <div class="col-md-6">
+                  <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
+                    >Nombre Rifa</label
+                  >
                   <input
                     type="text"
-                    class="form-control custom-dark-input"
+                    class="form-control custom-dark-input py-2 w-100"
+                    [value]="raffleData?.name"
+                    readonly
+                  />
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label text-white-50 text-uppercase fs-7 mb-2">Fundacion</label>
+                  <input
+                    type="text"
+                    class="form-control custom-dark-input py-2 w-100"
+                    [value]="raffleData?.foundation"
+                    readonly
+                  />
+                </div>
+              </div>
+
+              <div class="row g-4">
+                <div class="col-md-6">
+                  <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
+                    >Fecha Inicio</label
+                  >
+                  <input
+                    type="text"
+                    class="form-control custom-dark-input py-2 w-100"
                     [value]="raffleData?.startDate"
                     readonly
                   />
-                  <span class="input-group-text custom-dark-addon border-start-0 text-white-50">
-                    <i class="bi bi-calendar"></i>
-                  </span>
                 </div>
-              </div>
 
-              <div class="col-md-6">
-                <label class="form-label text-white-50 text-uppercase fs-7 mb-2">Fecha Fin</label>
-                <div class="input-group">
+                <div class="col-md-6">
+                  <label class="form-label text-white-50 text-uppercase fs-7 mb-2">Fecha Fin</label>
                   <input
                     type="text"
-                    class="form-control custom-dark-input border-end-0"
+                    class="form-control custom-dark-input py-2 w-100"
                     [value]="raffleData?.endDate"
                     readonly
                   />
-                  <span class="input-group-text custom-dark-addon border-start-0 text-white-50">
-                    <i class="bi bi-calendar"></i>
-                  </span>
                 </div>
               </div>
 
-              <div class="col-md-6">
-                <label class="form-label text-white-50 text-uppercase fs-7 mb-2">Meta Dinero</label>
-                <div class="input-group">
-                  <input
-                    type="text"
-                    class="form-control custom-dark-input border-end-0"
-                    [value]="raffleData?.moneyGoal"
-                    readonly
-                  />
-                  <span class="input-group-text custom-dark-addon border-start-0 text-white">
-                    <i class="bi bi-currency-dollar fs-5"></i>
-                  </span>
-                </div>
-              </div>
-
-              <div class="col-md-6">
-                <label class="form-label text-white-50 text-uppercase fs-7 mb-2">Categoria</label>
-                <input
-                  type="text"
-                  class="form-control custom-dark-input"
-                  [value]="raffleData?.category"
-                  readonly
-                />
-              </div>
-
-              <div class="col-md-6">
-                <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
-                  >Método de Sorteo</label
-                >
-                <input
-                  type="text"
-                   class="form-control custom-dark-input"
-                  [value]="
-                    raffleData?.drawMethod === 'MANUAL'
-                      ? 'Manual (En vivo)'
-                      : 'Automático (Sistema)'
-                  "
-                  readonly
-                />
-              </div>
-
-              <div class="col-md-6">
-                <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
-                  >Numero Maximos De Boletos</label
-                >
-                <div class="input-group">
-                  <input
-                    type="text"
-                    class="form-control custom-dark-input border-end-0"
-                    [value]="raffleData?.ticketsAvailable"
-                    readonly
-                  />
-                  <span class="input-group-text custom-dark-addon border-start-0 text-white">
-                    <i class="bi bi-hash fs-5"></i>
-                  </span>
-                </div>
-              </div>
-
-              <div class="col-md-6">
-                <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
-                  >Precio Boleto</label
-                >
-                <div class="input-group">
-                  <input
-                    type="text"
-                    class="form-control custom-dark-input border-end-0"
-                    [value]="raffleData?.ticketPrice"
-                    readonly
-                  />
-                  <span class="input-group-text custom-dark-addon border-start-0 text-white">
-                    <i class="bi bi-currency-dollar fs-5"></i>
-                  </span>
-                </div>
-              </div>
-
-              <div class="col-md-6">
-                <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
-                  >Porcentaje Beneficiarios</label
-                >
-                <div class="input-group">
-                  <input
-                    type="text"
-                    class="form-control custom-dark-input border-end-0"
-                    [value]="
-                      raffleData?.beneficiaryPercentage !== undefined &&
-                      raffleData?.beneficiaryPercentage !== null
-                        ? raffleData?.beneficiaryPercentage
-                        : ''
-                    "
-                    readonly
-                  />
-                  <span class="input-group-text custom-dark-addon border-start-0">
-                    <span class="badge custom-pill"
-                      >{{ raffleData?.beneficiaryAmount | number: '1.0-2' }} $</span
-                    >
-                  </span>
-                </div>
-              </div>
-
-              <div class="col-md-6">
-                <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
-                  >Porcentaje Ganadores</label
-                >
-                <div class="input-group">
-                  <input
-                    type="text"
-                    class="form-control custom-dark-input border-end-0"
-                    [value]="
-                      raffleData?.winnerPercentage !== undefined &&
-                      raffleData?.winnerPercentage !== null
-                        ? raffleData?.winnerPercentage
-                        : ''
-                    "
-                    readonly
-                  />
-                  <span class="input-group-text custom-dark-addon border-start-0">
-                    <span class="badge custom-pill"
-                      >{{ raffleData?.winnerAmount | number: '1.0-2' }} $</span
-                      >
+              <div class="row g-4">
+                <div class="col-md-6">
+                  <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
+                    >Meta Dinero</label
+                  >
+                  <div class="input-group">
+                    <input
+                      type="text"
+                      class="form-control custom-dark-input border-end-0 py-2"
+                      [value]="raffleData?.moneyGoal"
+                      readonly
+                    />
+                    <span class="input-group-text custom-dark-addon border-start-0 text-white-50">
+                      <i class="bi bi-currency-dollar fs-5"></i>
                     </span>
                   </div>
                 </div>
 
                 <div class="col-md-6">
-                  <label class="form-label text-white-50 text-uppercase fs-7 mb-2">Link / URL</label>
+                  <label class="form-label text-white-50 text-uppercase fs-7 mb-2">Categoria</label>
+                  <input
+                    type="text"
+                    class="form-control custom-dark-input py-2 w-100"
+                    [value]="raffleData?.category"
+                    readonly
+                  />
+                </div>
+              </div>
+
+              <div class="row g-4">
+                <div class="col-md-6">
+                  <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
+                    >Método de Sorteo</label
+                  >
+                  <input
+                    type="text"
+                    class="form-control custom-dark-input py-2 w-100"
+                    [value]="
+                      raffleData?.drawMethod === 'MANUAL'
+                        ? 'Manual (En vivo)'
+                        : 'Automático (Sistema)'
+                    "
+                    readonly
+                  />
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
+                    >Numero Maximos de Boletos</label
+                  >
                   <div class="input-group">
                     <input
                       type="text"
-                      class="form-control custom-dark-input border-end-0"
+                      class="form-control custom-dark-input border-end-0 py-2"
+                      [value]="raffleData?.ticketsAvailable"
+                      readonly
+                    />
+                    <span class="input-group-text custom-dark-addon border-start-0 text-white-50">
+                      <i class="bi bi-hash fs-5"></i>
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row g-4">
+                <div class="col-md-6">
+                  <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
+                    >Precio Boleto</label
+                  >
+                  <div class="input-group">
+                    <input
+                      type="text"
+                      class="form-control custom-dark-input border-end-0 py-2"
+                      [value]="raffleData?.ticketPrice"
+                      readonly
+                    />
+                    <span class="input-group-text custom-dark-addon border-start-0 text-white-50">
+                      <i class="bi bi-currency-dollar fs-5"></i>
+                    </span>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
+                    >Link / URL (Opcional)</label
+                  >
+                  <div class="input-group">
+                    <input
+                      type="text"
+                      class="form-control custom-dark-input border-end-0 py-2"
                       [value]="raffleData?.link"
                       readonly
                     />
@@ -208,9 +176,50 @@
                 </div>
               </div>
 
+              <div class="row g-4">
+                <div class="col-md-6">
+                  <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
+                    >Porcentaje Beneficiarios</label
+                  >
+                  <div class="input-group">
+                    <input
+                      type="text"
+                      class="form-control custom-dark-input border-end-0 py-2"
+                      [value]="raffleData?.beneficiaryPercentage"
+                      readonly
+                    />
+                    <span class="input-group-text custom-dark-addon border-start-0">
+                      <span class="badge custom-pill"
+                        >$ {{ raffleData?.beneficiaryAmount | number: '1.2-2' }}</span
+                      >
+                    </span>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
+                    >Porcentaje Ganadores</label
+                  >
+                  <div class="input-group">
+                    <input
+                      type="text"
+                      class="form-control custom-dark-input border-end-0 py-2"
+                      [value]="raffleData?.winnerPercentage"
+                      readonly
+                    />
+                    <span class="input-group-text custom-dark-addon border-start-0">
+                      <span class="badge custom-pill"
+                        >$ {{ raffleData?.winnerAmount | number: '1.2-2' }}</span
+                      >
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div class="blog-section mt-5">
               <label class="form-label text-white-50 text-uppercase fs-7 mb-3"
-                >Blog y Registro</label
+                >Blog (Campos Requeridos)</label
               >
               <div class="d-flex gap-2 mb-3">
                 <button
@@ -233,7 +242,7 @@
 
               @if (activeTab === 'card') {
                 <div class="tab-content">
-                  <textarea class="form-control custom-dark-input blog-textarea" readonly>{{
+                  <textarea class="form-control custom-dark-input blog-textarea w-100" readonly>{{
                     raffleData?.blogCardText ||
                       'Ayuda a reforestar 10,000 hectáreas en el Amazonas.'
                   }}</textarea>
@@ -245,7 +254,7 @@
 
               @if (activeTab === 'detalle') {
                 <div class="tab-content">
-                  <textarea class="form-control custom-dark-input blog-textarea" readonly>{{
+                  <textarea class="form-control custom-dark-input blog-textarea w-100" readonly>{{
                     raffleData?.blogDetailText || 'Detalle completo de la rifa se muestra aquí...'
                   }}</textarea>
                   <div class="text-white-50 fs-8 mt-2 lh-sm">
@@ -256,25 +265,40 @@
             </div>
           </div>
 
-          <div class="col-lg-5 d-flex flex-column pt-lg-5">
-            <label class="form-label text-white-50 text-uppercase fs-7 mb-3 text-center"
-              >Imagen</label
-            >
-            <app-image-cropper
-              [photo]="raffleData?.photo || ''"
-              [isReadOnly]="true"
-              style="aspect-ratio: 1 / 1; width: 100%; display: block"
-            ></app-image-cropper>
+          <div class="col-lg-5 d-flex flex-column gap-3 pt-lg-2">
+            <div>
+              <label class="form-label text-white-50 text-uppercase fs-7 mb-2 text-center d-block"
+                >Imagen de Card</label
+              >
+              <app-image-cropper
+                [photo]="raffleData?.photo || ''"
+                [isReadOnly]="true"
+                [aspectRatio]="1.333333"
+                style="min-height: 300px; height: 300px; display: block"
+              ></app-image-cropper>
+            </div>
+
+            <div class="mt-2">
+              <label class="form-label text-white-50 text-uppercase fs-7 mb-2 text-center d-block"
+                >Imagen de Banner</label
+              >
+              <app-image-cropper
+                [photo]="raffleData?.banner || ''"
+                [isReadOnly]="true"
+                [aspectRatio]="2.333333"
+                style="min-height: 300px; height: 300px; display: block"
+              ></app-image-cropper>
+            </div>
           </div>
         </div>
 
-        <div class="modal-footer border-0 pt-0 pe-4 pe-md-5 pb-4 pb-md-5 justify-content-end">
+        <div class="modal-footer border-0 pt-0 pe-4 pe-md-5 pb-4 pb-md-5 justify-content-end mt-4">
           <button
             type="button"
-            class="btn px-4 rounded-3 text-uppercase fs-7 custom-btn-secondary"
+            class="btn px-4 py-2 rounded-3 text-uppercase fs-7 custom-btn-secondary"
             data-bs-dismiss="modal"
           >
-            CERRAR
+            Cerrar
           </button>
         </div>
       </div>

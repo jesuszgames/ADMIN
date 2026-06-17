@@ -8,13 +8,17 @@
   background-color: var.$background;
   color: var.$primary-text;
   border: 1px solid var.$input-border;
-  padding: 0.75rem 1rem;
+  padding: 0.5rem 1rem;
   border-radius: 8px;
   font-size: 0.9rem;
   resize: none;
   transition:
     border-color 0.2s ease,
     box-shadow 0.2s ease;
+
+  &:not(textarea) {
+    height: 42px !important;
+  }
 
   &::placeholder {
     color: var.$secondary-text;
@@ -56,6 +60,10 @@ select.custom-dark-input {
     background-color: var.$background !important;
     border: 1px solid var.$input-border !important;
     border-radius: 8px !important;
+    height: 42px !important;
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap !important;
     transition:
       border-color 0.2s ease,
       box-shadow 0.2s ease;
@@ -75,6 +83,7 @@ select.custom-dark-input {
       box-shadow: none !important;
       color: var.$primary-text !important;
       outline: none !important;
+      height: 100% !important;
 
       &::placeholder {
         color: var.$secondary-text !important;
@@ -150,7 +159,7 @@ select.custom-dark-input {
 
   &:hover {
     background-color: var.$option-bg;
-    border-color: rgba(var.$primary-text, 0.3);
+    border-color: color-mix(in srgb, var.$primary-text 30%, transparent);
   }
 }
 
@@ -159,17 +168,18 @@ select.custom-dark-input {
 }
 
 .custom-btn-secondary {
-  background-color: transparent;
-  color: var.$primary-text;
-  border: 1px solid var.$hover-cancel-button;
+  background-color: #ef5350;
+  color: #ffffff;
+  border: 1px solid #ef5350;
   font-weight: 500;
   letter-spacing: 0.5px;
   transition: all 0.2s ease;
 
   &:hover,
   &:focus {
-    background-color: var.$hover-cancel-button;
-    color: var.$primary-text;
+    background-color: #d32f2f;
+    color: #ffffff;
+    border-color: #d32f2f;
   }
 }
 
@@ -193,4 +203,27 @@ select.custom-dark-input {
     border-color: var.$hover-cancel-button;
     cursor: not-allowed;
   }
+}
+
+
+
+.form-info-text, .form-warning-text {
+  font-size: 0.72rem !important;
+  margin-top: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0 !important;
+  background-color: transparent !important;
+  border: none !important;
+  font-weight: normal;
+  width: auto;
+}
+
+.form-info-text {
+  color: #34d399 !important;
+}
+
+.form-warning-text {
+  color: #fbbf24 !important;
 }

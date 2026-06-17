@@ -22,27 +22,27 @@
     
     &.card-success {
       box-shadow: 0 8px 24px -6px v.$color-success-shadow;
-      border-color: rgba(v.$color-success, 0.4);
+      border-color: color-mix(in srgb, v.$color-success 40%, transparent);
     }
     &.card-danger {
       box-shadow: 0 8px 24px -6px v.$color-danger-shadow;
-      border-color: rgba(v.$color-danger, 0.4);
+      border-color: color-mix(in srgb, v.$color-danger 40%, transparent);
     }
     &.card-warning {
       box-shadow: 0 8px 24px -6px v.$color-warning-shadow;
-      border-color: rgba(v.$color-warning, 0.4);
+      border-color: color-mix(in srgb, v.$color-warning 40%, transparent);
     }
     &.card-info {
       box-shadow: 0 8px 24px -6px v.$color-info-shadow;
-      border-color: rgba(v.$color-info, 0.4);
+      border-color: color-mix(in srgb, v.$color-info 40%, transparent);
     }
     &.card-primary {
       box-shadow: 0 8px 24px -6px v.$color-primary-accent-shadow;
-      border-color: rgba(v.$color-primary-accent, 0.4);
+      border-color: color-mix(in srgb, v.$color-primary-accent 40%, transparent);
     }
     &.card-secondary {
       box-shadow: 0 8px 24px -6px v.$color-secondary-accent-shadow;
-      border-color: rgba(v.$color-secondary-accent, 0.4);
+      border-color: color-mix(in srgb, v.$color-secondary-accent 40%, transparent);
     }
 
     .icon-badge {

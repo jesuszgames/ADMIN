@@ -9,8 +9,16 @@
 >
   <div class="modal-dialog modal-xl modal-dialog-centered">
     <div
-      class="modal-content custom-modal-bg border-secondary border-opacity-25 rounded-3 shadow-lg"
+      class="modal-content custom-modal-bg border-secondary border-opacity-25 rounded-3 shadow-lg position-relative"
     >
+      <button
+        type="button"
+        class="btn-close btn-close-white position-absolute top-0 end-0 m-3"
+        data-bs-dismiss="modal"
+        aria-label="Close"
+        style="z-index: 1055;"
+        (click)="resetForm()"
+      ></button>
       <div class="modal-body p-4 p-md-5 pb-3">
         <h3 class="text-white fw-bold mb-4 fs-4">
           {{ isReadOnly ? 'Detalle Rifa' : raffle ? 'Editar Rifa' : 'Crear Rifa' }}
@@ -47,7 +55,7 @@
                     "
                     [(ngModel)]="title"
                     (blur)="touchedFields['title'] = true"
-                    placeholder="ANCHO DE TEXTO PRUEBA DE ESCRITORIO"
+                    placeholder="Rifa solidaria"
                     [disabled]="isReadOnly"
                     required
                   />
@@ -62,19 +70,20 @@
 
                 <div class="col-md-6">
                   <label class="form-label text-white-50 text-uppercase fs-7 mb-2">Fundacion</label>
-                  <select
-                    class="form-select custom-dark-input py-2 w-100"
+                  <ng-select
+                    class="custom-ng-select"
                     [class.is-invalid]="touchedFields['foundation'] && !foundation"
+                    [items]="foundations"
+                    bindLabel="name"
+                    bindValue="name"
                     [(ngModel)]="foundation"
                     (change)="touchedFields['foundation'] = true"
                     (blur)="touchedFields['foundation'] = true"
                     [disabled]="isReadOnly"
+                    [clearable]="false"
+                    placeholder="Seleccionar..."
                   >
-                    <option value="" disabled selected>Seleccionar...</option>
-                    @for (foundation of foundations; track foundation._id) {
-                      <option [value]="foundation.name">{{ foundation.name }}</option>
-                    }
-                  </select>
+                  </ng-select>
                   @if (touchedFields['foundation'] && !foundation) {
                     <div class="text-danger fs-8 mt-1" style="font-size: 0.75rem; color: #ef5350">
                       La fundación es requerida.
@@ -89,18 +98,17 @@
                     >Fecha Inicio</label
                   >
                   <input
-                    type="date"
+                    #startDateInput
+                    type="text"
                     class="form-control custom-dark-input py-2 w-100"
                     [class.is-invalid]="
                       (touchedFields['startDate'] && !startDate) ||
                       (startDate && endDate && startDate > endDate) ||
                       (startDate && startDate < getMinStartDate())
                     "
-                    [min]="getMinStartDate()"
                     [(ngModel)]="startDate"
-                    (change)="touchedFields['startDate'] = true"
-                    (blur)="touchedFields['startDate'] = true"
                     [disabled]="isReadOnly"
+                    placeholder="Seleccionar fecha..."
                     required
                   />
                   @if (touchedFields['startDate'] && !startDate) {
@@ -118,17 +126,16 @@
                 <div class="col-md-6">
                   <label class="form-label text-white-50 text-uppercase fs-7 mb-2">Fecha Fin</label>
                   <input
-                    type="date"
+                    #endDateInput
+                    type="text"
                     class="form-control custom-dark-input py-2 w-100"
                     [class.is-invalid]="
                       (touchedFields['endDate'] && !endDate) ||
                       (startDate && endDate && startDate > endDate)
                     "
-                    [min]="startDate || getTodayDate()"
                     [(ngModel)]="endDate"
-                    (change)="touchedFields['endDate'] = true"
-                    (blur)="touchedFields['endDate'] = true"
                     [disabled]="isReadOnly"
+                    placeholder="Seleccionar fecha..."
                     required
                   />
                   @if (touchedFields['endDate'] && !endDate) {
@@ -177,19 +184,20 @@
 
                 <div class="col-md-6">
                   <label class="form-label text-white-50 text-uppercase fs-7 mb-2">Categoria</label>
-                  <select
-                    class="form-select custom-dark-input py-2 w-100"
+                  <ng-select
+                    class="custom-ng-select"
                     [class.is-invalid]="touchedFields['category'] && !category"
+                    [items]="categories"
+                    bindLabel="name"
+                    bindValue="name"
                     [(ngModel)]="category"
                     (change)="touchedFields['category'] = true"
                     (blur)="touchedFields['category'] = true"
                     [disabled]="isReadOnly"
+                    [clearable]="false"
+                    placeholder="Seleccionar..."
                   >
-                    <option value="" disabled selected>Seleccionar...</option>
-                    @for (category of categories; track category._id) {
-                      <option [value]="category.name">{{ category.name }}</option>
-                    }
-                  </select>
+                  </ng-select>
                   @if (touchedFields['category'] && !category) {
                     <div class="text-danger fs-8 mt-1" style="font-size: 0.75rem; color: #ef5350">
                       La categoría es requerida.
@@ -203,14 +211,15 @@
                   <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
                     >Método de Sorteo</label
                   >
-                  <select
-                    class="form-select custom-dark-input py-2 w-100"
+                  <ng-select
+                    class="custom-ng-select"
                     [(ngModel)]="drawMethod"
                     [disabled]="isReadOnly"
+                    [clearable]="false"
                   >
-                    <option value="AUTOMATIC">Automático (Sistema)</option>
-                    <option value="MANUAL">Manual (En vivo)</option>
-                  </select>
+                    <ng-option value="AUTOMATIC">Automático (Sistema)</ng-option>
+                    <ng-option value="MANUAL">Manual (En vivo)</ng-option>
+                  </ng-select>
                 </div>
 
                 <div class="col-md-6">
@@ -259,10 +268,7 @@
                     </div>
                   }
                   @if (raffle && raffle.soldTickets > 0) {
-                    <div
-                      class="text-warning-muted fs-9 mt-1 d-flex align-items-center gap-1"
-                      style="font-size: 0.7rem; color: #a1a1aa"
-                    >
+                    <div class="form-warning-text">
                       <i class="bi bi-info-circle-fill text-warning"></i>
                       <span>Bloqueado ({{ raffle.soldTickets }} vendidos).</span>
                     </div>
@@ -315,50 +321,27 @@
                     </div>
                   }
 
-                  <div
-                    class="d-flex flex-column gap-1 mt-1"
-                    style="font-size: 0.7rem; line-height: 1.2"
-                  >
+                  <div class="d-flex flex-column gap-1 mt-1">
                     @if (minimumTicketPrice > 0) {
                       @if (ticketPrice === null || ticketPrice <= 0) {
-                        <div
-                          class="text-info d-flex align-items-center gap-1"
-                          style="color: #38bdf8"
-                        >
+                        <div class="form-info-text" style="color: #38bdf8 !important; background-color: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.15);">
                           <i class="bi bi-info-circle-fill"></i>
-                          <span
-                            >Mínimo sugerido:
-                            <strong>${{ minimumTicketPrice | number: '1.2-2' }}</strong
-                            >.</span
-                          >
+                          <span>Mínimo sugerido: <strong>${{ minimumTicketPrice | number: '1.2-2' }}</strong>.</span>
                         </div>
                       } @else if (ticketPrice >= minimumTicketPrice) {
-                        <div
-                          class="text-success d-flex align-items-center gap-1"
-                          style="color: #34d399"
-                        >
+                        <div class="form-info-text">
                           <i class="bi bi-check-circle-fill"></i>
                           <span>Cubre la meta (${{ minimumTicketPrice | number: '1.2-2' }}).</span>
                         </div>
                       } @else {
-                        <div
-                          class="text-warning d-flex align-items-center gap-1"
-                          style="color: #fbbf24"
-                        >
+                        <div class="form-warning-text">
                           <i class="bi bi-exclamation-triangle-fill"></i>
-                          <span
-                            >No cubre la meta (min: ${{
-                              minimumTicketPrice | number: '1.2-2'
-                            }}).</span
-                          >
+                          <span>No cubre la meta (min: ${{ minimumTicketPrice | number: '1.2-2' }}).</span>
                         </div>
                       }
                     }
                     @if (raffle && raffle.soldTickets > 0) {
-                      <div
-                        class="text-warning-muted d-flex align-items-center gap-1"
-                        style="color: #a1a1aa"
-                      >
+                      <div class="form-warning-text">
                         <i class="bi bi-info-circle-fill text-warning"></i>
                         <span>Precio bloqueado ({{ raffle.soldTickets }} vendidos).</span>
                       </div>
@@ -559,23 +542,46 @@
             </div>
           </div>
 
-          <div class="col-lg-5 d-flex flex-column pt-lg-5">
-            <label class="form-label text-white-50 text-uppercase fs-7 mb-3 text-center"
-              >Imagen</label
-            >
-            <app-image-cropper
-              [(photo)]="photo"
-              [isReadOnly]="isReadOnly"
-              style="min-height: 300px; height: 100%; max-height: 450px; display: block"
-            ></app-image-cropper>
-            @if (!photo && !isReadOnly) {
-              <div
-                class="text-danger fs-8 mt-2 text-center"
-                style="font-size: 0.75rem; color: #ef5350"
+          <div class="col-lg-5 d-flex flex-column gap-3 pt-lg-2">
+            <div>
+              <label class="form-label text-white-50 text-uppercase fs-7 mb-2 text-center d-block"
+                >Imagen de Card</label
               >
-                La imagen es requerida (debe recortar una imagen).
-              </div>
-            }
+              <app-image-cropper
+                [(photo)]="photo"
+                [isReadOnly]="isReadOnly"
+                aspectRatio="1.333333"
+                style="min-height: 300px; height: 300px; display: block"
+              ></app-image-cropper>
+              @if (!photo && !isReadOnly) {
+                <div
+                  class="text-danger fs-8 mt-1 text-center"
+                  style="font-size: 0.75rem; color: #ef5350"
+                >
+                  La imagen de card es requerida.
+                </div>
+              }
+            </div>
+
+            <div class="mt-2">
+              <label class="form-label text-white-50 text-uppercase fs-7 mb-2 text-center d-block"
+                >Imagen de Banner</label
+              >
+              <app-image-cropper
+                [(photo)]="banner"
+                [isReadOnly]="isReadOnly"
+                aspectRatio="2.333333"
+                style="min-height: 300px; height: 300px; display: block"
+              ></app-image-cropper>
+              @if (!banner && !isReadOnly) {
+                <div
+                  class="text-danger fs-8 mt-1 text-center"
+                  style="font-size: 0.75rem; color: #ef5350"
+                >
+                  La imagen de banner es requerida.
+                </div>
+              }
+            </div>
           </div>
         </div>
       </div>

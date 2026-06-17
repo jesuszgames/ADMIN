@@ -50,7 +50,7 @@
               >
                 @if (col.type === 'badge') {
                   <span [attr.class]="getBadgeClasses(row[col.field]) + ' badge-text'">
-                    {{ row[col.field] }}
+                    {{ translateStatus(row[col.field]) }}
                   </span>
                 } @else if (col.type === 'actions') {
                   <app-dropdown
@@ -64,10 +64,10 @@
                     @if (row[col.iconField || 'icon']) {
                       <i [class]="row[col.iconField || 'icon'] + ' text-secondary'"></i>
                     }
-                    <span>{{ row[col.field] }}</span>
+                    <span>{{ translateStatus(row[col.field]) }}</span>
                   </div>
                 } @else {
-                  {{ row[col.field] }}
+                  {{ translateStatus(row[col.field]) }}
                 }
               </td>
             }

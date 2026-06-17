@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { NgSelectComponent } from '@ng-select/ng-select';
 import { AVAILABLE_CATEGORIES_ICONS } from '../../../../core/helpers/global/category.constants';
 import { Category } from '../../../../core/interfaces/api/category.interface';
 import { ConfirmChangesModal } from '../../../../shared/components/confirm-changes-modal/confirm-changes-modal';
@@ -8,7 +9,7 @@ import { ConfirmChangesModal } from '../../../../shared/components/confirm-chang
 @Component({
   selector: 'app-create-category-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule, ConfirmChangesModal],
+  imports: [CommonModule, FormsModule, ConfirmChangesModal, NgSelectComponent],
   templateUrl: './create-category-modal.html',
   styleUrl: './create-category-modal.scss',
 })

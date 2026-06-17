@@ -1,4 +1,4 @@
-<div class="container-fluid px-3 pt-5 pb-4 mt-4">
+<div class="container-fluid px-3 pt-5 pb-4 mt-4 fade-in-up">
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h3 class="m-0">Historial de rifas</h3>
   </div>
@@ -18,6 +18,7 @@
         [pageSize]="pageSize"
         [currentPage]="currentPage"
         [loading]="loading"
+        [placeholderSearch]="'Buscar por nombre de rifa...'"
         (actionClicked)="manejarAccion($event)"
         (pageChanged)="onPageChange($event)"
         (searchChanged)="onSearchChange($event)"

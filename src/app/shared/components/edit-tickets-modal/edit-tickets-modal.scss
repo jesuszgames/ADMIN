@@ -10,6 +10,32 @@
   grid-template-columns: repeat(10, 1fr);
   gap: 8px;
   width: 100%;
+  min-height: 450px;
+  transition: opacity 0.25s ease-in-out;
+
+  &.loading-fade {
+    opacity: 0.4;
+    pointer-events: none;
+  }
+}
+
+.ticket-skeleton {
+  background: linear-gradient(90deg, var.$background 25%, var.$option-hover-bg 50%, var.$background 75%);
+  background-size: 200% 100%;
+  animation: loading-shimmer 1.5s infinite;
+  border-radius: 4px;
+  aspect-ratio: 1;
+  width: 100%;
+  height: 38px;
+}
+
+@keyframes loading-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 .ticket-btn {
@@ -30,17 +56,17 @@
   justify-content: center;
 
   &:hover {
-    background-color: rgba(var.$primary-text, 0.05);
+    background-color: color-mix(in srgb, var.$primary-text 5%, transparent);
     color: var.$primary-text;
   }
 
   &.ticket-comprado {
     background-color: var.$finished-bg-opaco;
     color: var.$finished-text;
-    border: 1px solid rgba(var.$finished-text, 0.15);
+    border: 1px solid color-mix(in srgb, var.$finished-text 15%, transparent);
 
     &:hover {
-      background-color: rgba(var.$finished-text, 0.35);
+      background-color: color-mix(in srgb, var.$finished-text 35%, transparent);
       color: var.$primary-text;
     }
   }
@@ -48,7 +74,7 @@
   &.ticket-seleccionado {
     background-color: var.$button-primary;
     color: var.$primary-text;
-    border: 1px solid rgba(var.$primary-text, 0.2);
+    border: 1px solid color-mix(in srgb, var.$primary-text 20%, transparent);
 
     &:hover {
       background-color: var.$button-primary-hover;
@@ -58,7 +84,7 @@
   &.ticket-active {
     outline: 2px solid var.$primary-text;
     outline-offset: 2px;
-    box-shadow: 0 0 10px rgba(var.$primary-text, 0.4);
+    box-shadow: 0 0 10px color-mix(in srgb, var.$primary-text 40%, transparent);
     transform: scale(1.05);
     z-index: 2;
   }
@@ -179,17 +205,18 @@
 
 /* Footer Buttons */
 .custom-btn-secondary {
-  background-color: transparent;
-  color: var.$primary-text;
-  border: 1px solid var.$hover-cancel-button;
+  background-color: #ef5350;
+  color: #ffffff;
+  border: 1px solid #ef5350;
   font-weight: 500;
   letter-spacing: 0.5px;
   transition: all 0.2s ease;
 
   &:hover,
   &:focus {
-    background-color: var.$hover-cancel-button;
-    color: var.$primary-text;
+    background-color: #d32f2f;
+    color: #ffffff;
+    border-color: #d32f2f;
   }
 }
 

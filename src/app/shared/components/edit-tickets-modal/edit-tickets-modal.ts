@@ -29,6 +29,19 @@ export class EditTicketsModal implements OnChanges {
   @Input() mode: 'rifas' | 'sorteos' = 'rifas';
   @Input() isSaving = false;
   @Output() save = new EventEmitter<Raffle>();
+  @Output() closed = new EventEmitter<void>();
+
+  closeModal() {
+    this.selectedTicket = null;
+    this.searchPurchaseId = '';
+    this.clearForm();
+    this.unlinkedLogs = [];
+    this.showConfirmModal = false;
+    this.unlinkReason = '';
+    this.winnerTicketNumber = null;
+    this.winnerBuyer = null;
+    this.closed.emit();
+  }
 
   private readonly authService = inject(AuthService);
   private readonly ticketService = inject(TicketService);
@@ -39,36 +52,39 @@ export class EditTicketsModal implements OnChanges {
   tickets: Ticket[] = [];
   selectedTicket: Ticket | null = null;
   searchPurchaseId = '';
+  isLoadingTickets = false;
+  showSkeleton = false;
 
   currentPage = 1;
   pageSize = 100;
   totalItems = 0;
 
   get totalPages(): number {
-    return Math.max(1, Math.ceil(this.tickets.length / this.pageSize));
+    return Math.max(1, Math.ceil(this.totalItems / this.pageSize));
   }
 
   get paginatedTickets(): Ticket[] {
-    const startIndex = (this.currentPage - 1) * this.pageSize;
-    const endIndex = startIndex + this.pageSize;
-    return this.tickets.slice(startIndex, endIndex);
+    return this.tickets;
   }
 
   nextPage() {
     if (this.currentPage < this.totalPages) {
       this.currentPage++;
+      this.fetchTickets();
     }
   }
 
   prevPage() {
     if (this.currentPage > 1) {
       this.currentPage--;
+      this.fetchTickets();
     }
   }
 
   setPage(page: number) {
     if (page >= 1 && page <= this.totalPages) {
       this.currentPage = page;
+      this.fetchTickets();
     }
   }
 
@@ -101,14 +117,8 @@ export class EditTicketsModal implements OnChanges {
     if (!this.selectedTicket || !this.selectedTicket.buyer) return;
     this.winnerTicketNumber = this.selectedTicket.number;
     this.winnerBuyer = this.selectedTicket.buyer;
-
-    this.tickets.forEach((b) => {
-      if (b.status === 'winner') {
-        b.status = 'selected';
-      }
-    });
-    this.selectedTicket.status = 'winner';
-
+    this.unlinkedLogs = [];
+    this.showConfirmModal = true;
     this.showOptions = false;
   }
 
@@ -121,21 +131,29 @@ export class EditTicketsModal implements OnChanges {
     this.unlinkReason = '';
     this.winnerTicketNumber = this.raffle?.winner || null;
     this.winnerBuyer = null;
-
     this.currentPage = 1;
+    this.tickets = [];
+    this.totalItems = 0;
+    this.showSkeleton = true;
+    this.fetchTickets();
+  }
 
+  fetchTickets() {
     const raffle = this.raffle;
     if (!raffle || !raffle._id) {
       this.tickets = [];
       this.totalItems = 0;
+      this.isLoadingTickets = false;
+      this.showSkeleton = false;
       return;
     }
 
-    // Traemos todos (hasta 5000 o el límite por defecto del backend)
-    const fetchLimit = 5000;
+    this.isLoadingTickets = true;
+    this.cdr.detectChanges();
+
     const tickets$ = this.mode === 'sorteos'
-      ? this.drawService.getTicketsByRaffle(raffle._id, 1, fetchLimit)
-      : this.ticketService.getTicketsByRaffle(raffle._id, 1, fetchLimit);
+      ? this.drawService.getTicketsByRaffle(raffle._id, this.currentPage, this.pageSize)
+      : this.ticketService.getTicketsByRaffle(raffle._id, this.currentPage, this.pageSize);
 
     tickets$.subscribe({
       next: (res) => {
@@ -146,12 +164,16 @@ export class EditTicketsModal implements OnChanges {
           this.tickets = [];
           this.totalItems = 0;
         }
+        this.isLoadingTickets = false;
+        this.showSkeleton = false;
         this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('API Error: No se pudieron cargar los boletos del backend.', err);
         this.tickets = [];
         this.totalItems = 0;
+        this.isLoadingTickets = false;
+        this.showSkeleton = false;
         this.cdr.detectChanges();
       },
     });
@@ -235,9 +257,7 @@ export class EditTicketsModal implements OnChanges {
     if (found) {
       this.selectTicket(found);
     } else {
-      // NOTE: En paginación real de servidor, si no lo encuentra en la pag actual,
-      // habría que hacer un request al backend para buscarlo. Por ahora advertimos
-      console.warn("Boleto no encontrado en esta página. La búsqueda global requiere un endpoint específico.");
+      console.warn("Boleto no encontrado en esta página.");
       this.selectedTicket = null;
       this.clearForm();
     }
@@ -249,31 +269,14 @@ export class EditTicketsModal implements OnChanges {
     const buyer = this.selectedTicket.buyer;
     const numToUnlink = this.selectedTicket.number;
 
-    this.unlinkedLogs.push({
+    this.unlinkedLogs = [{
       number: numToUnlink,
       user: buyer.name,
       purchaseId: buyer.id,
-    });
-
-    buyer.tickets = buyer.tickets.filter((num) => num !== numToUnlink);
-
-    this.selectedTicket.status = 'available';
-    delete this.selectedTicket.buyer;
-    if (buyer.tickets.length > 0) {
-      this.tickets.forEach((b) => {
-        if (b.buyer && b.buyer.id === buyer.id) {
-          b.buyer = buyer;
-          if (b.number === numToUnlink) {
-            b.status = 'available';
-            delete b.buyer;
-          }
-        }
-      });
-      this.loadBuyer(buyer);
-    } else {
-      this.clearForm();
-      this.selectedTicket = null;
-    }
+    }];
+    this.winnerTicketNumber = null;
+    this.winnerBuyer = null;
+    this.showConfirmModal = true;
     this.showOptions = false;
   }
 
@@ -282,24 +285,15 @@ export class EditTicketsModal implements OnChanges {
 
     const buyer = this.selectedTicket.buyer;
     const buyerName = buyer.name;
-    this.tickets.forEach((b) => {
-      const match = b.buyer && (buyer.userId && b.buyer.userId 
-        ? b.buyer.userId === buyer.userId 
-        : b.buyer.id === buyer.id);
 
-      if (match) {
-        this.unlinkedLogs.push({
-          number: b.number,
-          user: buyerName,
-          purchaseId: b.buyer!.id,
-        });
-        b.status = 'available';
-        delete b.buyer;
-      }
-    });
-
-    this.clearForm();
-    this.selectedTicket = null;
+    this.unlinkedLogs = buyer.tickets.map((num) => ({
+      number: num,
+      user: buyerName,
+      purchaseId: buyer.id,
+    }));
+    this.winnerTicketNumber = null;
+    this.winnerBuyer = null;
+    this.showConfirmModal = true;
     this.showOptions = false;
   }
 
@@ -310,58 +304,49 @@ export class EditTicketsModal implements OnChanges {
   }
 
   get hasWinnerChanged(): boolean {
-    return this.winnerTicketNumber !== (this.raffle?.winner || null);
-  }
-
-  onSaveClick() {
-    if (this.isSaving) return;
-    if (this.hasWinnerChanged || this.unlinkedLogs.length > 0) {
-      this.showConfirmModal = true;
-    } else {
-      this.confirmSubmit();
-    }
+    return this.winnerTicketNumber !== null && this.winnerTicketNumber !== (this.raffle?.winner || null);
   }
 
   cancelConfirm() {
     this.showConfirmModal = false;
+    this.unlinkedLogs = [];
+    this.winnerTicketNumber = this.raffle?.winner || null;
+    this.winnerBuyer = null;
   }
 
   confirmSubmit() {
     if (this.isSaving) return;
-    this.showConfirmModal = false;
     const raffle = this.raffle;
     if (!raffle || !raffle._id) return;
 
     this.isSaving = true;
-    const unlink$: Observable<any> = this.unlinkedLogs.length > 0
+    this.cdr.detectChanges();
+
+    const action$: Observable<any> = this.unlinkedLogs.length > 0
       ? this.ticketService.unlinkBulk(
           raffle._id,
           this.unlinkedLogs.map((log) => log.number),
           this.unlinkReason.trim()
         )
-      : of(null);
+      : this.drawService.executeDraw(raffle._id, this.winnerTicketNumber!);
 
-    unlink$
-      .pipe(
-        switchMap(() => {
-          if (this.hasWinnerChanged && this.winnerTicketNumber) {
-            return this.drawService.executeDraw(raffle._id, this.winnerTicketNumber);
-          }
-          return of(null);
-        }),
-      )
-      .subscribe({
-        next: () => {
-          this.isSaving = false;
-          this.save.emit(raffle);
-          document.getElementById('btn-cerrar-modal-editar-boletos')?.click();
-        },
-        error: (err: any) => {
-          console.error('Error al guardar cambios de boletos/sorteo:', err);
-          this.isSaving = false;
-          this.save.emit(raffle);
-          document.getElementById('btn-cerrar-modal-editar-boletos')?.click();
-        },
-      });
+    action$.subscribe({
+      next: () => {
+        this.isSaving = false;
+        this.showConfirmModal = false;
+        this.unlinkedLogs = [];
+        this.unlinkReason = '';
+        this.selectedTicket = null;
+        this.clearForm();
+        this.fetchTickets();
+        this.save.emit(raffle);
+      },
+      error: (err: any) => {
+        console.error('Error al ejecutar acción inmediata:', err);
+        this.isSaving = false;
+        this.showConfirmModal = false;
+        this.cdr.detectChanges();
+      },
+    });
   }
 }

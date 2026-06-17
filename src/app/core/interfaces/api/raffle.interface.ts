@@ -29,6 +29,7 @@ export interface Raffle {
   blogCardText?: string;
   blogDetailText?: string;
   photo?: string;
+  banner?: string;
   tickets?: Ticket[];
   associatedNumbers?: string;
   drawMethod?: 'AUTOMATIC' | 'MANUAL';

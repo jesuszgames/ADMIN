@@ -1,0 +1,37 @@
+<div class="container-fluid px-3 pt-5 pb-4 mt-4 fade-in-up">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="m-0 text-theme-primary fw-bold">Jugadores / Compradores</h3>
+  </div>
+
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <app-filter [options]="filters" (onFilter)="filtrarPorEstado($event)"></app-filter>
+  </div>
+  <div class="row">
+    <div class="col-12">
+      <app-tables
+        [principalheader]="'Lista Jugadores / Compradores'"
+        [columns]="columns"
+        [data]="tableData"
+        [rowActions]="rowActions"
+        [loading]="loading"
+        [serverSide]="true"
+        [totalItems]="totalItems"
+        [pageSize]="pageSize"
+        [currentPage]="currentPage"
+        [placeholderSearch]="'Buscar por usuario...'"
+        (actionClicked)="manejarAccion($event)"
+        (pageChanged)="onPageChange($event)"
+        (searchChanged)="onSearchChange($event)"
+      >
+      </app-tables>
+    </div>
+  </div>
+</div>
+
+<app-confirm-changes-modal
+  [title]="'Confirmar Cambio de Estado'"
+  [changes]="changesToConfirm"
+  [isOpen]="showConfirmModal"
+  (confirm)="confirmarCambioEstado()"
+  (cancel)="cancelarCambioEstado()"
+></app-confirm-changes-modal>

@@ -57,6 +57,24 @@ export class Tables<T extends Record<string, unknown> = Record<string, unknown>>
     }
   }
 
+  translateStatus(value: unknown): string {
+    if (value === null || value === undefined || String(value).trim() === '') return '—';
+    const valStr = String(value).toUpperCase();
+    const translations: Record<string, string> = {
+      'ACTIVE': 'Activo',
+      'INACTIVE': 'Inactivo',
+      'FINISHED': 'Finalizado',
+      'DRAFT': 'Borrador',
+      'DELETED': 'Eliminado',
+      'PENDING': 'Pendiente',
+      'PAID': 'Pagado',
+      'SUCCESS': 'Éxito',
+      'AUTOMATIC': 'Automático',
+      'MANUAL': 'Manual'
+    };
+    return translations[valStr] || String(value);
+  }
+
   ngOnChanges(changes: SimpleChanges): void {
     try {
       const shouldUpdate = changes['data'] || changes['pageSize'] || changes['totalItems'];

@@ -23,7 +23,7 @@ import { environment } from '../../../../environments/environment';
 export class ImageCropperComponent implements OnChanges {
   @Input() photo: string | Blob | File | null = null;
   @Input() isReadOnly = false;
-  @Input() aspectRatio = '';
+  @Input() aspectRatio: string | number = '';
   @Output() photoChange = new EventEmitter<Blob | File | string | null>();
 
   @ViewChild('viewport', { static: false }) viewportElement!: ElementRef<HTMLDivElement>;
@@ -96,6 +96,20 @@ export class ImageCropperComponent implements OnChanges {
           this.tempImageSrc = this.previewUrl;
         }
       }
+    }
+  }
+
+  clearPhoto() {
+    this.photo = null;
+    this.originalPhoto = '';
+    this.tempImageSrc = '';
+    this.previewUrl = '';
+    this.isEditing = false;
+    this.errorMessage = '';
+    this.successMessage = '';
+    this.photoChange.emit(null);
+    if (this.fileInputElement) {
+      this.fileInputElement.nativeElement.value = '';
     }
   }
 

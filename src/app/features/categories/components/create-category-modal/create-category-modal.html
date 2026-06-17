@@ -1,26 +1,48 @@
-<div class="modal fade" id="modalCrearCategoria" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false" (hidden.bs.modal)="onModalClosed()">
+<div
+  class="modal fade"
+  id="modalCrearCategoria"
+  tabindex="-1"
+  aria-hidden="true"
+  data-bs-backdrop="static"
+  data-bs-keyboard="false"
+  (hidden.bs.modal)="onModalClosed()"
+>
   <div class="modal-dialog modal-lg modal-dialog-centered">
     <div
-      class="modal-content custom-modal-bg border-secondary border-opacity-25 rounded-3 shadow-lg"
+      class="modal-content custom-modal-bg border-secondary border-opacity-25 rounded-3 shadow-lg position-relative"
     >
+      <button
+        type="button"
+        class="btn-close btn-close-white position-absolute top-0 end-0 m-3"
+        data-bs-dismiss="modal"
+        aria-label="Close"
+        style="z-index: 1055;"
+        (click)="resetForm()"
+      ></button>
       <div class="modal-body p-4 p-md-5 pb-3">
-        <h3 class="text-white fw-bold mb-4 fs-4">
-          {{ isReadOnly ? 'Detalle categoría' : (category ? 'Editar categoria' : 'Crear categoria') }}
+        <h3 class="text-theme-primary fw-bold mb-4 fs-4">
+          {{ isReadOnly ? 'Detalle categoría' : category ? 'Editar categoria' : 'Crear categoria' }}
         </h3>
 
-        @if (isReadOnly && category?.deleteReason) {
-          <div class="alert alert-danger border-danger border-opacity-25 bg-danger bg-opacity-10 text-danger rounded-3 p-3 mb-4 d-flex align-items-start gap-2">
+        @if (isReadOnly && category && category.deleteReason) {
+          <div
+            class="alert alert-danger border-danger border-opacity-25 bg-danger bg-opacity-10 text-danger rounded-3 p-3 mb-4 d-flex align-items-start gap-2"
+          >
             <i class="bi bi-exclamation-octagon-fill fs-5 lh-1"></i>
             <div>
               <strong class="d-block mb-1 text-uppercase fs-7">Categoría Eliminada</strong>
-              <span class="fs-7"><strong>Razón de la eliminación:</strong> {{ category?.deleteReason }}</span>
+              <span class="fs-7"
+                ><strong>Razón de la eliminación:</strong> {{ category.deleteReason }}</span
+              >
             </div>
           </div>
         }
 
         <div class="row g-3">
           <div class="col-12">
-            <label class="form-label text-white-50 text-uppercase fs-7 mb-2">Nombre Categoría</label>
+            <label class="form-label text-theme-secondary text-uppercase fs-7 mb-2"
+              >Nombre Categoría</label
+            >
             <input
               type="text"
               class="form-control custom-dark-input py-2"
@@ -44,12 +66,16 @@
           </div>
 
           <div class="col-12">
-            <label class="form-label text-white-50 text-uppercase fs-7 mb-2">Descripción de Categoría</label>
+            <label class="form-label text-theme-secondary text-uppercase fs-7 mb-2"
+              >Descripción de Categoría</label
+            >
             <textarea
               class="form-control custom-dark-input py-2 desc-textarea"
-              [class.is-invalid]="description && (description.trim().length < 10 || description.trim().length > 500)"
+              [class.is-invalid]="
+                description && (description.trim().length < 10 || description.trim().length > 500)
+              "
               [(ngModel)]="description"
-              placeholder="ANCHO DE TEXTO PRUEBA DE ESCRITORIO"
+              placeholder="SALUD"
               [disabled]="isReadOnly"
               required
             ></textarea>
@@ -67,25 +93,30 @@
           </div>
 
           <div class="col-12">
-            <label class="form-label text-white-50 text-uppercase fs-7 mb-2">Icono</label>
-            <div class="input-group">
-              <span class="input-group-text custom-dark-addon border-end-0 text-white-50">
-                <i class="bi fs-4" [ngClass]="selectedIcon || 'bi-question-circle'"></i>
-              </span>
-              <select
-                class="form-select custom-dark-input border-start-0 py-2"
-                [(ngModel)]="selectedIcon"
-                [disabled]="isReadOnly"
-                required
-              >
-                @if (selectedIcon === '') {
-                  <option value="" disabled selected>Selecciona un icono...</option>
-                }
-                @for (icon of availableIcons; track icon.value) {
-                  <option [value]="icon.value">{{ icon.label }}</option>
-                }
-              </select>
-            </div>
+            <label class="form-label text-theme-secondary text-uppercase fs-7 mb-2">Icono</label>
+            <ng-select
+              class="custom-ng-select"
+              [items]="availableIcons"
+              bindLabel="label"
+              bindValue="value"
+              [(ngModel)]="selectedIcon"
+              [disabled]="isReadOnly"
+              [clearable]="false"
+              placeholder="Selecciona un icono..."
+            >
+              <ng-template ng-label-tmp let-item="item">
+                <div class="d-flex align-items-center gap-2">
+                  <i class="bi fs-5" [ngClass]="item.value"></i>
+                  <span>{{ item.label }}</span>
+                </div>
+              </ng-template>
+              <ng-template ng-option-tmp let-item="item">
+                <div class="d-flex align-items-center gap-2">
+                  <i class="bi fs-5" [ngClass]="item.value"></i>
+                  <span>{{ item.label }}</span>
+                </div>
+              </ng-template>
+            </ng-select>
           </div>
         </div>
       </div>
@@ -107,7 +138,11 @@
             (click)="onSaveClick()"
           >
             @if (isSaving) {
-              <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+              <span
+                class="spinner-border spinner-border-sm"
+                role="status"
+                aria-hidden="true"
+              ></span>
               Guardando...
             } @else {
               {{ category ? 'Guardar' : 'Crear' }}

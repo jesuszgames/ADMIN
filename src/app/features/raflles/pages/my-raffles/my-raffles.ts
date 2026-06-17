@@ -97,16 +97,33 @@ export class Raffles implements OnInit, OnDestroy {
   totalItems = 0;
   searchText = '';
 
+  private pollingIntervalId: any;
+
   ngOnInit(): void {
     this.cargarRifas();
+    this.startPolling();
   }
 
-  cargarRifas(): void {
+  startPolling() {
+    this.pollingIntervalId = setInterval(() => {
+      this.cargarRifas(true);
+    }, 10000); // Polling cada 10 segundos
+  }
+
+  stopPolling() {
+    if (this.pollingIntervalId) {
+      clearInterval(this.pollingIntervalId);
+    }
+  }
+
+  cargarRifas(isSilent = false): void {
     if (this.activeSub) {
       this.activeSub.unsubscribe();
     }
-    this.loading = true;
-    this.cdr.detectChanges();
+    if (!isSilent) {
+      this.loading = true;
+      this.cdr.detectChanges();
+    }
     let statuses = 'ACTIVE,INACTIVE,NO-TICKETS,SOON-TO-EXPIRED,GOAL';
 
     let backendFilter = '';
@@ -153,6 +170,7 @@ export class Raffles implements OnInit, OnDestroy {
     if (this.activeSub) {
       this.activeSub.unsubscribe();
     }
+    this.stopPolling();
   }
 
   filtrarPorCategoria(id: string) {

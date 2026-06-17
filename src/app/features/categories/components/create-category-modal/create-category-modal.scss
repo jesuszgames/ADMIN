@@ -80,17 +80,18 @@ select.custom-dark-input {
 }
 
 .custom-btn-secondary {
-  background-color: transparent;
-  color: var.$primary-text;
-  border: 1px solid var.$hover-cancel-button;
+  background-color: #ef5350;
+  color: #ffffff;
+  border: 1px solid #ef5350;
   font-weight: 500;
   letter-spacing: 0.5px;
   transition: all 0.2s ease;
 
   &:hover,
   &:focus {
-    background-color: var.$hover-cancel-button;
-    color: var.$primary-text;
+    background-color: #d32f2f;
+    color: #ffffff;
+    border-color: #d32f2f;
   }
 }
 

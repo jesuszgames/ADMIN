@@ -2,7 +2,14 @@
 
 .image-cropper-container {
   overflow: hidden;
-  background-color: rgba(20, 20, 20, 0.4);
+  background-color: var.$container-bg;
+  background-image: 
+    linear-gradient(45deg, var.$background 25%, transparent 25%), 
+    linear-gradient(-45deg, var.$background 25%, transparent 25%), 
+    linear-gradient(45deg, transparent 75%, var.$background 75%), 
+    linear-gradient(-45deg, transparent 75%, var.$background 75%);
+  background-size: 16px 16px;
+  background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
   border: 1px solid var.$option-border;
   transition: all 0.3s ease;
 
@@ -12,8 +19,15 @@
 }
 
 .cropper-edit-area {
-  background-color: var.$background;
-  min-height: 250px;
+  background-color: var.$container-bg;
+  background-image: 
+    linear-gradient(45deg, var.$background 25%, transparent 25%), 
+    linear-gradient(-45deg, var.$background 25%, transparent 25%), 
+    linear-gradient(45deg, transparent 75%, var.$background 75%), 
+    linear-gradient(-45deg, transparent 75%, var.$background 75%);
+  background-size: 16px 16px;
+  background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+  min-height: 150px;
   cursor: move;
   user-select: none;
 }
@@ -158,8 +172,8 @@
 
 // Empty Upload State Area
 .cropper-empty-area {
-  border: 2px dashed rgba(255, 255, 255, 0.15);
-  background: rgba(255, 255, 255, 0.01);
+  border: 2px dashed var.$option-border;
+  background: var.$option-bg;
   min-height: 250px;
   cursor: default;
 
@@ -168,7 +182,7 @@
 
     &:hover {
       border-color: var.$button-primary;
-      background: rgba(37, 99, 235, 0.04);
+      background: var.$hover-sidebar;
 
       .bounce-on-hover {
         animation: bounce 1s infinite alternate;

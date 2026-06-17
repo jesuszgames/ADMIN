@@ -80,3 +80,102 @@
   --transition-fast: all 0.15s ease-in-out;
   --border-glow-blue: rgba(59, 130, 246, 0.15);
 }
+
+[data-theme="light"] {
+  --background: #f3f4f6;
+  --container-bg: #ffffff;
+  --container-info-bg: rgba(37, 99, 235, 0.12);
+  --primary-text: #1f2937;
+  --secondary-text: #6b7280;
+  --active-text: #16a34a;
+  --no-tickets-text: #d97706;
+  --eliminated-text: #dc2626;
+  --eliminated-text-hover: #b91c1c;
+  --finished-text: #2563eb;
+  --border-color: #e5e7eb;
+  --button-primary: rgb(37, 99, 235);
+  --button-secondary: #f3f4f6;
+  --button-navigation: rgba(37, 99, 235, 0.08);
+  --hover-sidebar: rgba(37, 99, 235, 0.08);
+  --text-hover: rgb(37, 99, 235);
+  --hover-cancel-button: rgba(0, 0, 0, 0.04);
+  --button-secondary-hover: #e5e7eb;
+  --active-bg-opaco: rgba(220, 252, 231, 0.8);
+  --finished-bg-opaco: rgba(219, 234, 254, 0.8);
+  --eliminated-bg-opaco: rgba(254, 226, 226, 0.8);
+  --no-tickets-bg-opaco: rgba(254, 243, 199, 0.8);
+  --desactive-bg-opaco: rgba(243, 244, 246, 0.8);
+ 
+  // Standardized light theme colors
+  --input-border: #d1d5db;
+  --input-focus-shadow: rgba(37, 99, 235, 0.15);
+  --button-primary-hover: #1d4ed8;
+  --button-success: #16a34a;
+  --button-success-bg: rgba(22, 163, 74, 0.12);
+  --option-bg: #f9fafb;
+  --option-border: #e5e7eb;
+  --option-hover-bg: #f3f4f6;
+  --option-hover-border: #d1d5db;
+
+  --dashboard-title-start: #111827;
+  --dashboard-title-end: #4b5563;
+  --welcome-grad-start: #2563eb;
+  --welcome-grad-mid: #3b82f6;
+  --welcome-grad-end: #7c3aed;
+  --welcome-shadow: rgba(59, 130, 246, 0.15);
+
+  --color-success: #10b981;
+  --color-success-bg: rgba(16, 185, 129, 0.08);
+  --color-success-shadow: rgba(16, 185, 129, 0.12);
+  --color-success-border: rgba(16, 185, 129, 0.15);
+
+  --color-danger: #ef4444;
+  --color-danger-bg: rgba(239, 68, 68, 0.08);
+  --color-danger-shadow: rgba(239, 68, 68, 0.12);
+  --color-danger-border: rgba(239, 68, 68, 0.15);
+
+  --color-warning: #f59e0b;
+  --color-warning-bg: rgba(245, 158, 11, 0.08);
+  --color-warning-shadow: rgba(245, 158, 11, 0.12);
+  --color-warning-border: rgba(245, 158, 11, 0.15);
+
+  --color-info: #2563eb;
+  --color-info-bg: rgba(37, 99, 235, 0.08);
+  --color-info-shadow: rgba(37, 99, 235, 0.12);
+  --color-info-border: rgba(37, 99, 235, 0.15);
+
+  --color-primary-accent: #8b5cf6;
+  --color-primary-accent-bg: rgba(139, 92, 246, 0.08);
+  --color-primary-accent-shadow: rgba(139, 92, 246, 0.12);
+  --color-primary-accent-border: rgba(139, 92, 246, 0.15);
+
+  --color-secondary-accent: #475569;
+  --color-secondary-accent-bg: rgba(71, 85, 105, 0.08);
+  --color-secondary-accent-shadow: rgba(71, 85, 105, 0.1);
+  --color-secondary-accent-border: rgba(71, 85, 105, 0.15);
+  
+  --color-pink: #ec4899;
+  --color-pink-bg: rgba(236, 72, 153, 0.08);
+  --color-pink-border: rgba(236, 72, 153, 0.15);
+  
+  --border-glow-blue: rgba(59, 130, 246, 0.08);
+
+  // Global Bootstrap overrides for light mode readability
+  .text-white:not(.btn):not(.badge):not(.status-dot) {
+    color: var(--primary-text) !important;
+  }
+  .text-white-50:not(.btn):not(.badge) {
+    color: var(--secondary-text) !important;
+  }
+  .modal .btn-close-white {
+    filter: invert(1) grayscale(100%) brightness(0) !important;
+  }
+}
+
+.text-theme-primary {
+  color: var(--primary-text) !important;
+}
+
+.text-theme-secondary {
+  color: var(--secondary-text) !important;
+}
