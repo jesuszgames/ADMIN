@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RaffleService } from '../../../../core/services/api/raffle.service';
-import { TicketService } from '../../../../core/services/api/ticket.service';
+import { TicketService, BackendUnlinkLog } from '../../../../core/services/api/ticket.service';
 import { Subscription } from 'rxjs';
 import { RouterModule } from '@angular/router';
 import { Filter } from '../../../../shared/components/filter/filter';
@@ -97,11 +97,13 @@ export class Raffles implements OnInit, OnDestroy {
   totalItems = 0;
   searchText = '';
 
-  private pollingIntervalId: any;
+  private pollingIntervalId?: ReturnType<typeof setInterval> | number;
 
   ngOnInit(): void {
-    this.cargarRifas();
-    this.startPolling();
+    setTimeout(() => {
+      this.cargarRifas();
+      this.startPolling();
+    });
   }
 
   startPolling() {
@@ -241,16 +243,16 @@ export class Raffles implements OnInit, OnDestroy {
           this.selectedRaffleForLogs = { ...row, unlinks: [] };
           this.ticketService.getUnlinkedLogs(row._id, 1, 1000).subscribe({
             next: (res) => {
-              const logs = res?.data?.result || [];
+              const logs = res?.data && !Array.isArray(res.data) && res.data.result ? res.data.result : (Array.isArray(res?.data) ? res.data : []);
               if (this.selectedRaffleForLogs) {
-                this.selectedRaffleForLogs.unlinks = logs.map((log: any) => {
+                this.selectedRaffleForLogs.unlinks = logs.map((log: BackendUnlinkLog) => {
                   const userVal = log.userId
-                    ? log.userId.name || log.userId.username || log.userId
+                    ? (typeof log.userId === 'object' ? log.userId.name || log.userId.username : log.userId)
                     : 'User';
                   return {
                     number: log.number,
                     user: typeof userVal === 'object'
-                      ? userVal.name || userVal.username || 'User'
+                      ? (userVal as { name?: string; username?: string }).name || (userVal as { name?: string; username?: string }).username || 'User'
                       : String(userVal),
                     purchaseId: log.purchaseId,
                     reason: log.reason,
@@ -309,7 +311,7 @@ export class Raffles implements OnInit, OnDestroy {
     }
     this.cancelarCambioEstado();
   }
-
+ 
   cancelarCambioEstado() {
     this.showConfirmModal = false;
     this.changesToConfirm = [];

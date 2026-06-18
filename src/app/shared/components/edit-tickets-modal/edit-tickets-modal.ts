@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { forkJoin, of, Observable, switchMap, concat, toArray } from 'rxjs';
+import { Observable } from 'rxjs';
 import { AuthService } from '../../../core/services/api/auth.service';
 import { Raffle } from '../../../core/interfaces/api/raffle.interface';
 import { Ticket, BuyerInfo } from '../../../core/interfaces/api/ticket.interface';
@@ -201,7 +201,7 @@ export class EditTicketsModal implements OnChanges {
     }
   }
 
-  formatPurchaseDate(dateVal: any): string {
+  formatPurchaseDate(dateVal: Date | string | number | null | undefined): string {
     if (!dateVal) return '';
     try {
       const date = new Date(dateVal);
@@ -366,7 +366,7 @@ export class EditTicketsModal implements OnChanges {
 
     const isDraw = this.unlinkedLogs.length === 0;
 
-    const action$: Observable<any> = this.unlinkedLogs.length > 0
+    const action$: Observable<unknown> = this.unlinkedLogs.length > 0
       ? this.ticketService.unlinkBulk(
           raffle._id,
           this.unlinkedLogs.map((log) => log.number),
@@ -388,7 +388,7 @@ export class EditTicketsModal implements OnChanges {
           document.getElementById('btn-cerrar-modal-editar-boletos')?.click();
         }
       },
-      error: (err: any) => {
+      error: (err: unknown) => {
         console.error('Error al ejecutar acción inmediata:', err);
         this.isSaving = false;
         this.showConfirmModal = false;

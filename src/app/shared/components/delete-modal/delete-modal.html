@@ -5,6 +5,7 @@
   tabindex="-1"
   aria-labelledby="modal-{{ id }}"
   aria-hidden="true"
+  (hidden.bs.modal)="onModalClosed()"
 >
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content border-0 shadow-lg position-relative">

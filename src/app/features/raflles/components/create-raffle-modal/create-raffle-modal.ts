@@ -86,23 +86,27 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit {
   }
 
   initSearchSubjects() {
-    this.categoryInput$.pipe(
-      debounceTime(300),
-      distinctUntilChanged(),
-      tap((term) => {
-        this.categoriesSearchTerm = term || '';
-      }),
-      switchMap((term) => this.loadCategories(term || ''))
-    ).subscribe();
+    this.categoryInput$
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        tap((term) => {
+          this.categoriesSearchTerm = term || '';
+        }),
+        switchMap((term) => this.loadCategories(term || '')),
+      )
+      .subscribe();
 
-    this.foundationInput$.pipe(
-      debounceTime(300),
-      distinctUntilChanged(),
-      tap((term) => {
-        this.foundationsSearchTerm = term || '';
-      }),
-      switchMap((term) => this.loadFoundations(term || ''))
-    ).subscribe();
+    this.foundationInput$
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        tap((term) => {
+          this.foundationsSearchTerm = term || '';
+        }),
+        switchMap((term) => this.loadFoundations(term || '')),
+      )
+      .subscribe();
   }
 
   triggerInitialDropdownLoad() {
@@ -151,7 +155,7 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit {
             }
           }
         }
-      })
+      }),
     );
   }
 
@@ -202,7 +206,7 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit {
             }
           }
         }
-      })
+      }),
     );
   }
 
@@ -217,8 +221,8 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit {
   @ViewChild('startDateInput') startDateInput!: ElementRef;
   @ViewChild('endDateInput') endDateInput!: ElementRef;
 
-  startDatePicker: any;
-  endDatePicker: any;
+  startDatePicker?: flatpickr.Instance;
+  endDatePicker?: flatpickr.Instance;
 
   title = '';
   foundation: string | null = null;
@@ -287,7 +291,7 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit {
     }
   }
 
-  formatDateToYYYYMMDD(dateVal: any): string {
+  formatDateToYYYYMMDD(dateVal: Date | string | number | null | undefined): string {
     if (!dateVal) return '';
     if (typeof dateVal === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateVal)) {
       return dateVal;
@@ -431,13 +435,55 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit {
   }
 
   preventInvalidNumbers(event: KeyboardEvent) {
-    if (['e', 'E', '+', '-'].includes(event.key)) {
+    const allowedKeys = [
+      'Backspace',
+      'Delete',
+      'Tab',
+      'Escape',
+      'Enter',
+      'ArrowLeft',
+      'ArrowRight',
+      'ArrowUp',
+      'ArrowDown',
+      'Home',
+      'End',
+      '.',
+      ',',
+    ];
+    if (
+      allowedKeys.includes(event.key) ||
+      ((event.ctrlKey === true || event.metaKey === true) &&
+        ['a', 'c', 'v', 'x'].includes(event.key.toLowerCase()))
+    ) {
+      return;
+    }
+    if (!/^\d$/.test(event.key)) {
       event.preventDefault();
     }
   }
 
   preventDecimalsAndSigns(event: KeyboardEvent) {
-    if (['e', 'E', '+', '-', '.', ','].includes(event.key)) {
+    const allowedKeys = [
+      'Backspace',
+      'Delete',
+      'Tab',
+      'Escape',
+      'Enter',
+      'ArrowLeft',
+      'ArrowRight',
+      'ArrowUp',
+      'ArrowDown',
+      'Home',
+      'End',
+    ];
+    if (
+      allowedKeys.includes(event.key) ||
+      ((event.ctrlKey === true || event.metaKey === true) &&
+        ['a', 'c', 'v', 'x'].includes(event.key.toLowerCase()))
+    ) {
+      return;
+    }
+    if (!/^\d$/.test(event.key)) {
       event.preventDefault();
     }
   }
@@ -489,9 +535,14 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit {
     if (!this.raffle) return false;
     this.cambios = [];
 
-    const checkChange = (campo: string, anterior: any, nuevo: any) => {
+    const checkChange = (campo: string, anterior: unknown, nuevo: unknown) => {
       let normAnterior = anterior === null || anterior === undefined ? '' : String(anterior).trim();
       let normNuevo = nuevo === null || nuevo === undefined ? '' : String(nuevo).trim();
+
+      if (campo === 'Fecha Inicio' || campo === 'Fecha Fin') {
+        normAnterior = this.formatDateToYYYYMMDD(normAnterior);
+        normNuevo = this.formatDateToYYYYMMDD(normNuevo);
+      }
 
       const translateVal = (val: string) => {
         if (val === 'AUTOMATIC') return 'Automático (Sistema)';

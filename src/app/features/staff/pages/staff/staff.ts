@@ -76,7 +76,9 @@ export class StaffComponent implements OnInit {
   private readonly BTN_EDIT_USER_ID = 'btn-abrir-modal-edit-user';
 
   ngOnInit(): void {
-    this.loadUsers();
+    setTimeout(() => {
+      this.loadUsers();
+    });
   }
 
   loadUsers(): void {
@@ -115,7 +117,7 @@ export class StaffComponent implements OnInit {
             statusMapped = STATE_DELETED;
           }
 
-          const formatDate = (dateVal: any) => {
+          const formatDate = (dateVal: Date | string | number | null | undefined) => {
             if (!dateVal) return '';
             try {
               const d = new Date(dateVal);
@@ -257,8 +259,8 @@ export class StaffComponent implements OnInit {
       this.isUserUpdatingState = true;
       this.userService.update(targetUser._id, { status: nextStatus }).subscribe({
         next: () => {
-          this.loadUsers();
           this.cancelarCambioEstado();
+          this.loadUsers();
           this.isUserUpdatingState = false;
         },
         error: (err) => {
@@ -282,10 +284,9 @@ export class StaffComponent implements OnInit {
     if (userData._id) {
       this.userService.update(userData._id, userData).subscribe({
         next: () => {
-          this.loadUsers();
           this.isUserSaving = false;
+          this.loadUsers();
           document.getElementById('btn-cerrar-modal-editar-usuario')?.click();
-          this.selectedUserForEdit = null;
         },
         error: (err) => {
           console.error('Error al guardar cambios de usuario:', err);
@@ -295,10 +296,9 @@ export class StaffComponent implements OnInit {
     } else {
       this.userService.create(userData).subscribe({
         next: () => {
-          this.loadUsers();
           this.isUserSaving = false;
+          this.loadUsers();
           document.getElementById('btn-cerrar-modal-editar-usuario')?.click();
-          this.selectedUserForEdit = null;
         },
         error: (err) => {
           console.error('Error al crear usuario:', err);

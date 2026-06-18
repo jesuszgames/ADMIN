@@ -26,4 +26,8 @@ export class DeleteModal {
       this.razon = '';
     }
   }
+
+  onModalClosed(): void {
+    this.razon = '';
+  }
 }

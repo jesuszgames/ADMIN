@@ -18,17 +18,28 @@ export class CategoryService {
     if (search) params = params.set('search', search);
     if (status) params = params.set('status', status);
 
-    return this.http.get<any>(`${this.apiUrl}/get-all`, { params }).pipe(
+    interface GetAllResponse {
+      data?: {
+        result?: Category[];
+        totalCount?: number;
+        page?: number;
+        limit?: number;
+      } | Category[];
+    }
+
+    return this.http.get<GetAllResponse>(`${this.apiUrl}/get-all`, { params }).pipe(
       map((res) => {
-        const dataArray = res?.data?.result || (Array.isArray(res?.data) ? res.data : []);
+        const dataArray = res?.data && !Array.isArray(res.data) && res.data.result ? res.data.result : (Array.isArray(res?.data) ? res.data : []);
+        const totalCount = res?.data && !Array.isArray(res.data) && res.data.totalCount !== undefined ? res.data.totalCount : dataArray.length;
+        const resPage = res?.data && !Array.isArray(res.data) && res.data.page !== undefined ? res.data.page : 1;
+        const resLimit = res?.data && !Array.isArray(res.data) && res.data.limit !== undefined ? res.data.limit : dataArray.length;
         return {
-          ...res,
           data: dataArray,
-          totalCount: res?.data?.totalCount ?? dataArray.length,
-          page: res?.data?.page ?? 1,
-          limit: res?.data?.limit ?? dataArray.length,
+          totalCount,
+          page: resPage,
+          limit: resLimit,
         };
-      }),
+      })
     );
   }
 

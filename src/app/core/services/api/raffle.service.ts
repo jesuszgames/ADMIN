@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, map, throwError } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { Raffle } from '../../interfaces/api/raffle.interface';
 import { environment } from '../../../../environments/environment';
 
@@ -29,10 +29,17 @@ export class RaffleService {
     if (filter) params = params.set('filter', filter);
     if (sort) params = params.set('sort', sort);
 
-    return this.http.get<any>(`${this.apiUrl}/get-all`, { params }).pipe(
+    interface GetRafflesResponse {
+      data?: {
+        result?: Raffle[];
+        totalCount?: number;
+      } | Raffle[];
+    }
+
+    return this.http.get<GetRafflesResponse>(`${this.apiUrl}/get-all`, { params }).pipe(
       map((res) => {
-        const list = res?.data?.result || (Array.isArray(res?.data) ? res.data : []);
-        const total = res?.data?.totalCount !== undefined ? res.data.totalCount : list.length;
+        const list = res?.data && !Array.isArray(res.data) && res.data.result ? res.data.result : (Array.isArray(res?.data) ? res.data : []);
+        const total = res?.data && !Array.isArray(res.data) && res.data.totalCount !== undefined ? res.data.totalCount : list.length;
         return { data: list, totalCount: total };
       })
     );
@@ -45,7 +52,7 @@ export class RaffleService {
   private buildFormData(raffle: Partial<Raffle>): FormData {
     const formData = new FormData();
     Object.keys(raffle).forEach((key) => {
-      const val = (raffle as any)[key];
+      const val = (raffle as Record<string, unknown>)[key];
       if (
         key !== 'photo' &&
         key !== 'banner' &&
@@ -54,12 +61,12 @@ export class RaffleService {
         val !== undefined &&
         val !== null
       ) {
-        formData.append(key, val.toString());
+        formData.append(key, String(val));
       }
     });
 
     if (raffle.photo) {
-      const photoVal = raffle.photo as any;
+      const photoVal = raffle.photo as unknown;
       if (photoVal instanceof Blob) {
         const ext = photoVal.type.split('/')[1] || 'webp';
         formData.append('photo', photoVal, `photo-${Date.now()}.${ext}`);
@@ -69,7 +76,7 @@ export class RaffleService {
     }
 
     if (raffle.banner) {
-      const bannerVal = raffle.banner as any;
+      const bannerVal = raffle.banner as unknown;
       if (bannerVal instanceof Blob) {
         const ext = bannerVal.type.split('/')[1] || 'webp';
         formData.append('banner', bannerVal, `banner-${Date.now()}.${ext}`);

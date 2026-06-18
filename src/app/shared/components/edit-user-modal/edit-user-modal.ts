@@ -130,7 +130,7 @@ export class EditUserModal implements OnChanges {
     if (!this.user) return false;
     this.cambios = [];
 
-    const checkChange = (campo: string, anterior: any, nuevo: any) => {
+    const checkChange = (campo: string, anterior: unknown, nuevo: unknown) => {
       const normAnterior =
         anterior === null || anterior === undefined ? '' : String(anterior).trim();
       const normNuevo = nuevo === null || nuevo === undefined ? '' : String(nuevo).trim();
@@ -196,7 +196,7 @@ export class EditUserModal implements OnChanges {
       name: this.name.trim(),
       email: this.email.trim(),
       phone: this.phone.trim(),
-      role: [this.role === 'ADMIN' ? 'admin' : 'sort'] as any,
+      role: [this.role === 'ADMIN' ? 'admin' : 'sort'] as unknown as ('ADMIN' | 'SORTEADOR' | 'USUARIO'),
       status: this.user?.status ?? 'ACTIVE',
       actions: this.user?.actions ?? '',
     };

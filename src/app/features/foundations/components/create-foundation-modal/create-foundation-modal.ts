@@ -90,7 +90,7 @@ export class CreateFoundationModal implements OnChanges {
     if (!this.foundation) return false;
     this.cambios = [];
 
-    const checkChange = (campo: string, anterior: any, nuevo: any) => {
+    const checkChange = (campo: string, anterior: unknown, nuevo: unknown) => {
       const normAnterior =
         anterior === null || anterior === undefined ? '' : String(anterior).trim();
       const normNuevo = nuevo === null || nuevo === undefined ? '' : String(nuevo).trim();

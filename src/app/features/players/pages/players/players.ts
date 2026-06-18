@@ -22,7 +22,6 @@ import {
   BACKEND_STATUS_ACTIVE,
   BACKEND_STATUS_INACTIVE,
   BACKEND_STATUS_DELETED,
-  BACKEND_ROLE_PLAYER,
 } from '../../../../core/helpers/global/auth.constants';
 import { User } from '../../../../core/interfaces/api/user.interface';
 import { UserService } from '../../../../core/services/api/user.service';
@@ -60,7 +59,9 @@ export class PlayersComponent implements OnInit {
   pendingRowToToggle: User | null = null;
 
   ngOnInit(): void {
-    this.loadUsers();
+    setTimeout(() => {
+      this.loadUsers();
+    });
   }
 
   loadUsers(): void {
@@ -104,7 +105,7 @@ export class PlayersComponent implements OnInit {
               statusMapped = STATE_DELETED;
             }
 
-            const formatDate = (dateVal: any) => {
+            const formatDate = (dateVal: Date | string | number | null | undefined) => {
               if (!dateVal) return '';
               try {
                 const d = new Date(dateVal);
@@ -200,8 +201,8 @@ export class PlayersComponent implements OnInit {
       this.isUserUpdatingState = true;
       this.userService.update(targetUser._id, { status: nextStatus }).subscribe({
         next: () => {
-          this.loadUsers();
           this.cancelarCambioEstado();
+          this.loadUsers();
           this.isUserUpdatingState = false;
         },
         error: (err) => {

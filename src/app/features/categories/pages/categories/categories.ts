@@ -77,7 +77,9 @@ export class Categories implements OnInit {
   searchTerm = '';
 
   ngOnInit(): void {
-    this.loadCategories();
+    setTimeout(() => {
+      this.loadCategories();
+    });
   }
 
   getBackendStatus(filterId: string): string {
@@ -179,10 +181,9 @@ export class Categories implements OnInit {
     if (editCategory) {
       this.categoryService.update(editCategory._id, catData).subscribe({
         next: () => {
-          this.loadCategories();
           this.isCategorySaving = false;
+          this.loadCategories();
           document.getElementById('btn-cerrar-modal-crear-categoria')?.click();
-          this.selectedCategoryForEdit = null;
         },
         error: (err) => {
           console.error('API Error: No se pudo actualizar la categoría.', err);
@@ -192,10 +193,9 @@ export class Categories implements OnInit {
     } else {
       this.categoryService.create(catData).subscribe({
         next: () => {
-          this.loadCategories();
           this.isCategorySaving = false;
+          this.loadCategories();
           document.getElementById('btn-cerrar-modal-crear-categoria')?.click();
-          this.selectedCategoryForEdit = null;
         },
         error: (err) => {
           console.error('API Error: No se pudo crear la categoría.', err);

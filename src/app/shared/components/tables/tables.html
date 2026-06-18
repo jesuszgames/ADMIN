@@ -41,7 +41,7 @@
           </tr>
         }
       } @else {
-        @for (row of pagedData; track row) {
+        @for (row of pagedData; track row['_id'] || row['id'] || $index) {
           <tr class="border-secondary">
             @for (col of columns; track col.field) {
               <td

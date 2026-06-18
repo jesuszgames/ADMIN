@@ -30,6 +30,13 @@ import {
 } from '../../../../core/helpers/global/raffle.constants';
 import { Raffle } from '../../../../core/interfaces/api/raffle.interface';
 
+export interface DashboardCard {
+  label: string;
+  value: string;
+  icon: string;
+  color: string;
+}
+
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -56,7 +63,7 @@ export class Dashboard implements OnInit {
   selectedTicketData: TicketHistoryData | null = null;
   selectedRaffleForLogs: Raffle | null = null;
 
-  cards: any[] = [];
+  cards: DashboardCard[] = [];
   welcomeGreeting: string = '';
   currentDate: string = '';
 
@@ -71,7 +78,9 @@ export class Dashboard implements OnInit {
 
   ngOnInit(): void {
     this.initWelcomeMessage();
-    this.cargarRifas();
+    setTimeout(() => {
+      this.cargarRifas();
+    });
   }
 
   cargarRifas(): void {

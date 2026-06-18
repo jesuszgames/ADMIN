@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { RaffleService } from '../../../../core/services/api/raffle.service';
 import { Subscription } from 'rxjs';
-import { TicketService } from '../../../../core/services/api/ticket.service';
+import { TicketService, BackendUnlinkLog } from '../../../../core/services/api/ticket.service';
 import { Filter } from '../../../../shared/components/filter/filter';
 import { Tables } from '../../../../shared/components/tables/tables';
 import { DeleteModal } from '../../../../shared/components/delete-modal/delete-modal';
@@ -78,7 +78,9 @@ export class History implements OnInit, OnDestroy {
   loading = false;
 
   ngOnInit(): void {
-    this.cargarRifas();
+    setTimeout(() => {
+      this.cargarRifas();
+    });
   }
 
   cargarRifas(): void {
@@ -110,7 +112,7 @@ export class History implements OnInit, OnDestroy {
         next: (res) => {
           if (res && res.data) {
             this.totalItems = res.totalCount || 0;
-            this.tableData = res.data.map((r: any) => ({
+            this.tableData = res.data.map((r: Raffle) => ({
               ...r,
               goal: r.goal || 0,
               drawMethod: r.drawMethod || (METHOD_AUTOMATIC as 'AUTOMATIC' | 'MANUAL'),
@@ -171,16 +173,16 @@ export class History implements OnInit, OnDestroy {
           this.selectedRaffleForLogs = { ...(evento.row as unknown as Raffle), unlinks: [] };
           this.ticketService.getUnlinkedLogs(evento.row._id, 1, 1000).subscribe({
             next: (res) => {
-              const logs = res?.data?.result || [];
+              const logs = res?.data && !Array.isArray(res.data) && res.data.result ? res.data.result : (Array.isArray(res?.data) ? res.data : []);
               if (this.selectedRaffleForLogs) {
-                this.selectedRaffleForLogs.unlinks = logs.map((log: any) => {
+                this.selectedRaffleForLogs.unlinks = logs.map((log: BackendUnlinkLog) => {
                   const userVal = log.userId
-                    ? log.userId.name || log.userId.username || log.userId
+                    ? (typeof log.userId === 'object' ? log.userId.name || log.userId.username : log.userId)
                     : 'User';
                   return {
                     number: log.number,
                     user: typeof userVal === 'object'
-                      ? userVal.name || userVal.username || 'User'
+                      ? (userVal as { name?: string; username?: string }).name || (userVal as { name?: string; username?: string }).username || 'User'
                       : String(userVal),
                     purchaseId: log.purchaseId,
                     reason: log.reason,

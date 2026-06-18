@@ -62,7 +62,7 @@ export class CreateCategoryModal implements OnChanges {
     if (!this.category) return false;
     this.cambios = [];
 
-    const checkChange = (campo: string, anterior: any, nuevo: any) => {
+    const checkChange = (campo: string, anterior: unknown, nuevo: unknown) => {
       const normAnterior = (anterior === null || anterior === undefined) ? '' : String(anterior).trim();
       const normNuevo = (nuevo === null || nuevo === undefined) ? '' : String(nuevo).trim();
       if (normAnterior !== normNuevo) {
@@ -89,7 +89,7 @@ export class CreateCategoryModal implements OnChanges {
        }
     } else {
        this.onSubmit();
-    }
+     }
   }
 
   cancelConfirm() {

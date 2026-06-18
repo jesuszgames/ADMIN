@@ -65,7 +65,9 @@ export class Foundations implements OnInit {
   searchTerm = '';
 
   ngOnInit(): void {
-    this.loadFoundations();
+    setTimeout(() => {
+      this.loadFoundations();
+    });
   }
 
   loading = false;
@@ -171,10 +173,9 @@ export class Foundations implements OnInit {
     if (editFoundation) {
       this.foundationService.update(editFoundation._id, foundData).subscribe({
         next: () => {
-          this.loadFoundations();
           this.isFoundationSaving = false;
+          this.loadFoundations();
           document.getElementById('btn-cerrar-modal-crear-fundacion')?.click();
-          this.selectedFoundationForEdit = null;
         },
         error: (err) => {
           console.error('API Error: No se pudo actualizar la fundación.', err);
@@ -184,10 +185,9 @@ export class Foundations implements OnInit {
     } else {
       this.foundationService.create(foundData).subscribe({
         next: () => {
-          this.loadFoundations();
           this.isFoundationSaving = false;
+          this.loadFoundations();
           document.getElementById('btn-cerrar-modal-crear-fundacion')?.click();
-          this.selectedFoundationForEdit = null;
         },
         error: (err) => {
           console.error('API Error: No se pudo crear la fundación.', err);

@@ -43,7 +43,9 @@ export class Draws implements OnInit {
   rowActions = [{ id: 1, icon: 'bi-trophy', label: 'Realizar Sorteo' }];
 
   ngOnInit(): void {
-    this.cargarDatos();
+    setTimeout(() => {
+      this.cargarDatos();
+    });
   }
 
   cargarDatos() {

@@ -116,7 +116,7 @@
 
   &.active {
     background-color: var.$button-primary;
-    color: var.$primary-text;
+    color: #ffffff !important;
   }
 
   &:focus {

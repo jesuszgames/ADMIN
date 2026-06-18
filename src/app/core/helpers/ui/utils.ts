@@ -1,3 +1,4 @@
+import { Raffle } from '../../interfaces/api/raffle.interface';
 import { RaffleDetail } from '../../interfaces/api/raffle-detail.interface';
 import { TicketHistoryData } from '../../interfaces/api/ticket-history-data.interface';
 import { Ticket } from '../../interfaces/api/ticket.interface';
@@ -82,7 +83,7 @@ export function calculateRemainingTime(endDateStr: string, status?: string): str
   }
 }
 
-export function mapRaffleDetails(raffle: any): RaffleDetail {
+export function mapRaffleDetails(raffle: Raffle): RaffleDetail {
   const totalCollected = raffle.collected || 0;
   const moneyGoal = raffle.goal || DEFAULT_MONEY_GOAL;
   const beneficiaryPercentage =
@@ -95,7 +96,7 @@ export function mapRaffleDetails(raffle: any): RaffleDetail {
   const beneficiaryAmount = (totalCollected * beneficiaryPercentage) / 100;
   const winnerAmount = (totalCollected * winnerPercentage) / 100;
 
-  const formatDate = (dateVal: any) => {
+  const formatDate = (dateVal: Date | string | number | null | undefined) => {
     if (!dateVal) return '';
     try {
       const d = new Date(dateVal);
@@ -138,7 +139,7 @@ export function mapRaffleDetails(raffle: any): RaffleDetail {
   };
 }
 
-export function mapTicketDetails(tickets: Ticket[], raffle: any): TicketHistoryData {
+export function mapTicketDetails(tickets: Ticket[], raffle: Raffle): TicketHistoryData {
   const winnerTicketObj = tickets.find((t) => t.status === 'winner');
   const firstBuyerTicket = tickets.find((t) => t.buyer);
   const representativeTicket = winnerTicketObj || firstBuyerTicket;

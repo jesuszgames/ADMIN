@@ -80,7 +80,7 @@ export class ImageCropperComponent implements OnChanges {
               } else {
                 this.previewUrl = `${origin}/v1/api/public/uploads/raffle/${this.photo}`;
               }
-            } catch (e) {
+            } catch {
               this.previewUrl = this.photo;
             }
           }
@@ -209,7 +209,7 @@ export class ImageCropperComponent implements OnChanges {
   private compressImage(file: File): Promise<Blob> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.onload = (e: any) => {
+      reader.onload = (e: ProgressEvent<FileReader>) => {
         const img = new Image();
         img.onload = () => {
           const canvas = document.createElement('canvas');
@@ -248,7 +248,11 @@ export class ImageCropperComponent implements OnChanges {
           }
         };
         img.onerror = () => reject(new Error('El archivo no es una imagen válida.'));
-        img.src = e.target.result;
+        if (e.target?.result) {
+          img.src = e.target.result as string;
+        } else {
+          reject(new Error('Error al leer los datos de la imagen.'));
+        }
       };
       reader.onerror = () => reject(new Error('Error de lectura del archivo.'));
       reader.readAsDataURL(file);
