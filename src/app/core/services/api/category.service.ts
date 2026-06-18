@@ -11,17 +11,24 @@ export class CategoryService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = `${environment.apiUrl}/category`;
 
-  getAll(page?: number, limit?: number, search?: string): Observable<{ data: Category[] }> {
+  getAll(page?: number, limit?: number, search?: string, status?: string): Observable<{ data: Category[]; totalCount: number; page: number; limit: number }> {
     let params = new HttpParams();
     if (page) params = params.set('page', page.toString());
     if (limit) params = params.set('limit', limit.toString());
     if (search) params = params.set('search', search);
+    if (status) params = params.set('status', status);
 
     return this.http.get<any>(`${this.apiUrl}/get-all`, { params }).pipe(
-      map((res) => ({
-        ...res,
-        data: res?.data?.result || (Array.isArray(res?.data) ? res.data : []),
-      })),
+      map((res) => {
+        const dataArray = res?.data?.result || (Array.isArray(res?.data) ? res.data : []);
+        return {
+          ...res,
+          data: dataArray,
+          totalCount: res?.data?.totalCount ?? dataArray.length,
+          page: res?.data?.page ?? 1,
+          limit: res?.data?.limit ?? dataArray.length,
+        };
+      }),
     );
   }
 

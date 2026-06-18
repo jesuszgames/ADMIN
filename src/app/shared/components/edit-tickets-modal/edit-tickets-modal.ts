@@ -183,6 +183,19 @@ export class EditTicketsModal implements OnChanges {
     this.selectedTicket = ticket;
     if (ticket.buyer) {
       this.loadBuyer(ticket.buyer);
+      if (ticket.buyer.userId && this.raffle?._id) {
+        this.ticketService.getUserTicketsInRaffle(this.raffle._id, ticket.buyer.userId).subscribe({
+          next: (res) => {
+            if (res && res.data && this.selectedTicket && this.selectedTicket.buyer && this.selectedTicket.buyer.userId === ticket.buyer!.userId) {
+              this.selectedTicket.buyer.tickets = res.data;
+              this.loadBuyer(this.selectedTicket.buyer);
+            }
+          },
+          error: (err) => {
+            console.error('Error fetching complete user tickets:', err);
+          }
+        });
+      }
     } else {
       this.clearForm();
     }
@@ -212,21 +225,26 @@ export class EditTicketsModal implements OnChanges {
     const rawDate = this.selectedTicket?.buyer?.purchaseDate || buyer.purchaseDate;
     this.purchaseDate = this.formatPurchaseDate(rawDate);
 
-    if (buyer.userId) {
-      const userTickets = this.tickets
-        .filter((t) => t.buyer && t.buyer.userId === buyer.userId)
-        .map((t) => t.number);
+    const ticketSet = new Set<string>();
 
-      this.ticketsPurchased = userTickets.length;
-      this.allAssociatedNumbers = userTickets
-        .map((num) => parseInt(num, 10))
-        .sort((a, b) => a - b)
-        .map((num) => `[${num}]`)
-        .join(' ');
-    } else {
-      this.ticketsPurchased = buyer.tickets.length;
-      this.allAssociatedNumbers = buyer.tickets.map((num) => `[${num}]`).join(' ');
+    if (buyer.tickets && Array.isArray(buyer.tickets)) {
+      buyer.tickets.forEach((num) => ticketSet.add(num));
     }
+
+    if (buyer.userId) {
+      this.tickets
+        .filter((t) => t.buyer && t.buyer.userId === buyer.userId)
+        .forEach((t) => ticketSet.add(t.number));
+    }
+
+    const uniqueTickets = Array.from(ticketSet);
+
+    this.ticketsPurchased = uniqueTickets.length;
+    this.allAssociatedNumbers = uniqueTickets
+      .map((num) => parseInt(num, 10))
+      .sort((a, b) => a - b)
+      .map((num) => `[${num}]`)
+      .join(' ');
   }
 
   clearForm() {
@@ -286,11 +304,35 @@ export class EditTicketsModal implements OnChanges {
     const buyer = this.selectedTicket.buyer;
     const buyerName = buyer.name;
 
-    this.unlinkedLogs = buyer.tickets.map((num) => ({
-      number: num,
-      user: buyerName,
-      purchaseId: buyer.id,
-    }));
+    const ticketSet = new Set<string>();
+
+    if (buyer.tickets && Array.isArray(buyer.tickets)) {
+      buyer.tickets.forEach((num) => ticketSet.add(num));
+    }
+
+    if (buyer.userId) {
+      this.tickets
+        .filter((t) => t.buyer && t.buyer.userId === buyer.userId)
+        .forEach((t) => ticketSet.add(t.number));
+    }
+
+    if (buyer.id) {
+      this.tickets
+        .filter((t) => t.buyer && t.buyer.id === buyer.id)
+        .forEach((t) => ticketSet.add(t.number));
+    }
+
+    const uniqueTickets = Array.from(ticketSet);
+
+    this.unlinkedLogs = uniqueTickets.map((num) => {
+      const tDoc = this.tickets.find((t) => t.number === num);
+      return {
+        number: num,
+        user: buyerName,
+        purchaseId: tDoc?.buyer?.id || buyer.id,
+      };
+    });
+
     this.winnerTicketNumber = null;
     this.winnerBuyer = null;
     this.showConfirmModal = true;
@@ -322,6 +364,8 @@ export class EditTicketsModal implements OnChanges {
     this.isSaving = true;
     this.cdr.detectChanges();
 
+    const isDraw = this.unlinkedLogs.length === 0;
+
     const action$: Observable<any> = this.unlinkedLogs.length > 0
       ? this.ticketService.unlinkBulk(
           raffle._id,
@@ -340,6 +384,9 @@ export class EditTicketsModal implements OnChanges {
         this.clearForm();
         this.fetchTickets();
         this.save.emit(raffle);
+        if (isDraw) {
+          document.getElementById('btn-cerrar-modal-editar-boletos')?.click();
+        }
       },
       error: (err: any) => {
         console.error('Error al ejecutar acción inmediata:', err);

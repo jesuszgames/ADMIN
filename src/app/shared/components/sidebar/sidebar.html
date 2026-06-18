@@ -26,10 +26,10 @@
           </a>
           <a routerLink="/staff" routerLinkActive="is-active" class="sidebar-content__link">
             <img src="/assets/icon/user.svg" class="sidebar-content__icon" />
-            <span class="sidebar-content__text">Staff / Admins</span>
+            <span class="sidebar-content__text">Admins</span>
           </a>
           <a routerLink="/players" routerLinkActive="is-active" class="sidebar-content__link">
-            <i class="bi bi-people sidebar-content__icon" style="font-size: 1.25rem;"></i>
+            <i class="bi bi-people sidebar-content__icon" style="font-size: 1.25rem"></i>
             <span class="sidebar-content__text">Jugadores</span>
           </a>
         </li>
@@ -50,7 +50,7 @@
       <li class="sidebar-content__category">
         <span class="sidebar-content__category-title">Operaciones</span>
         <a routerLink="/draws" routerLinkActive="is-active" class="sidebar-content__link">
-          <i class="bi bi-trophy sidebar-content__icon" style="font-size: 1.25rem;"></i>
+          <i class="bi bi-trophy sidebar-content__icon" style="font-size: 1.25rem"></i>
           <span class="sidebar-content__text">Sorteos</span>
         </a>
       </li>
@@ -58,7 +58,11 @@
   </nav>
 
   <div class="sidebar-content__footer">
-    <a (click)="logout()" class="sidebar-content__link sidebar-content__link--logout" style="cursor: pointer;">
+    <a
+      (click)="logout()"
+      class="sidebar-content__link sidebar-content__link--logout"
+      style="cursor: pointer"
+    >
       <i class="bi bi-box-arrow-right sidebar-content__icon sidebar-content__icon--logout"></i>
       <span class="sidebar-content__text">Cerrar Sesión</span>
     </a>

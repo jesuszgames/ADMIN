@@ -59,19 +59,33 @@ export class Foundations implements OnInit {
   private readonly BTN_DELETE_FOUNDATION_ID = 'btn-abrir-modal-delete-foundation';
   private readonly BTN_CREATE_FOUNDATION_ID = 'btn-abrir-modal-create-foundation';
 
+  currentPage = 1;
+  pageSize = 10;
+  totalCount = 0;
+  searchTerm = '';
+
   ngOnInit(): void {
     this.loadFoundations();
   }
 
   loading = false;
 
+  getBackendStatus(filterId: string): string {
+    if (filterId === FOUNDATION_FILTER_ALL) return 'ALL_ACTIVE_INACTIVE';
+    if (filterId === FOUNDATION_FILTER_INACTIVE) return 'INACTIVE';
+    if (filterId === FOUNDATION_FILTER_DELETE) return 'DELETED';
+    return '';
+  }
+
   loadFoundations(): void {
     this.loading = true;
-    this.foundationService.getAll().subscribe({
+    const statusParam = this.getBackendStatus(this.filtroActual);
+    this.foundationService.getAll(this.currentPage, this.pageSize, this.searchTerm, statusParam).subscribe({
       next: (res) => {
-        if (res && res.data) {
-          this.foundationsData = res.data;
-          this.tableData = this.getFilteredData(this.filtroActual);
+        if (res) {
+          this.foundationsData = res.data || [];
+          this.tableData = this.foundationsData;
+          this.totalCount = res.totalCount || 0;
         }
         this.loading = false;
         this.cdr.detectChanges();
@@ -86,7 +100,19 @@ export class Foundations implements OnInit {
 
   filtrarPorCategoria(id: string): void {
     this.filtroActual = id;
-    this.tableData = this.getFilteredData(id);
+    this.currentPage = 1;
+    this.loadFoundations();
+  }
+
+  onPageChanged(page: number): void {
+    this.currentPage = page;
+    this.loadFoundations();
+  }
+
+  onSearchChanged(term: string): void {
+    this.searchTerm = term;
+    this.currentPage = 1;
+    this.loadFoundations();
   }
 
   foundationsData: Foundation[] = [];
@@ -212,21 +238,7 @@ export class Foundations implements OnInit {
     this.changesToConfirm = [];
     this.pendingRowToToggle = null;
   }
-
-  private getFilteredData(filterId: string): Foundation[] {
-    let filtered = this.foundationsData;
-    try {
-      const filterActions: Record<string, () => Foundation[]> = {
-        [FOUNDATION_FILTER_ALL]: () => this.foundationsData.filter((f) => !isDeletedStatus(f.status)),
-        [FOUNDATION_FILTER_INACTIVE]: () => this.foundationsData.filter((f) => isInactiveStatus(f.status)),
-        [FOUNDATION_FILTER_DELETE]: () => this.foundationsData.filter((f) => isDeletedStatus(f.status)),
-      };
-
-      const filterFn = filterActions[filterId];
-      if (!filterFn) throw new Error();
-      filtered = filterFn();
-    } catch { }
-    return filtered.map((foundation) => ({ ...foundation }));
-  }
 }
+
+
 

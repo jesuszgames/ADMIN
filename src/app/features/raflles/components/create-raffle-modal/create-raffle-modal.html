@@ -5,6 +5,8 @@
   aria-hidden="true"
   data-bs-backdrop="static"
   data-bs-keyboard="false"
+  (scroll)="closePickers()"
+  (hide.bs.modal)="closePickers()"
   (hidden.bs.modal)="onModalClosed()"
 >
   <div class="modal-dialog modal-xl modal-dialog-centered">
@@ -82,6 +84,10 @@
                     [disabled]="isReadOnly"
                     [clearable]="false"
                     placeholder="Seleccionar..."
+                    [typeahead]="foundationInput$"
+                    [loading]="foundationsLoading"
+                    (scrollToEnd)="loadNextFoundations()"
+                    [typeToSearchText]="'Escribe para buscar...'"
                   >
                   </ng-select>
                   @if (touchedFields['foundation'] && !foundation) {
@@ -167,6 +173,7 @@
                       [(ngModel)]="goal"
                       (blur)="touchedFields['goal'] = true"
                       (ngModelChange)="autoCalculateTicketPrice()"
+                      (keydown)="preventInvalidNumbers($event)"
                       placeholder="150000"
                       [disabled]="isReadOnly"
                       required
@@ -184,20 +191,24 @@
 
                 <div class="col-md-6">
                   <label class="form-label text-white-50 text-uppercase fs-7 mb-2">Categoria</label>
-                  <ng-select
-                    class="custom-ng-select"
-                    [class.is-invalid]="touchedFields['category'] && !category"
-                    [items]="categories"
-                    bindLabel="name"
-                    bindValue="name"
-                    [(ngModel)]="category"
-                    (change)="touchedFields['category'] = true"
-                    (blur)="touchedFields['category'] = true"
-                    [disabled]="isReadOnly"
-                    [clearable]="false"
-                    placeholder="Seleccionar..."
-                  >
-                  </ng-select>
+                   <ng-select
+                     class="custom-ng-select"
+                     [class.is-invalid]="touchedFields['category'] && !category"
+                     [items]="categories"
+                     bindLabel="name"
+                     bindValue="name"
+                     [(ngModel)]="category"
+                     (change)="touchedFields['category'] = true"
+                     (blur)="touchedFields['category'] = true"
+                     [disabled]="isReadOnly"
+                     [clearable]="false"
+                     placeholder="Seleccionar..."
+                     [typeahead]="categoryInput$"
+                     [loading]="categoriesLoading"
+                     (scrollToEnd)="loadNextCategories()"
+                     [typeToSearchText]="'Escribe para buscar...'"
+                   >
+                   </ng-select>
                   @if (touchedFields['category'] && !category) {
                     <div class="text-danger fs-8 mt-1" style="font-size: 0.75rem; color: #ef5350">
                       La categoría es requerida.
@@ -251,6 +262,7 @@
                       [(ngModel)]="ticketsAvailable"
                       (blur)="touchedFields['ticketsAvailable'] = true"
                       (ngModelChange)="autoCalculateTicketPrice()"
+                      (keydown)="preventDecimalsAndSigns($event)"
                       placeholder="100"
                       [disabled]="isReadOnly || !!(raffle && raffle.soldTickets > 0)"
                       required
@@ -307,6 +319,7 @@
                       "
                       [(ngModel)]="ticketPrice"
                       (blur)="touchedFields['ticketPrice'] = true"
+                      (keydown)="preventInvalidNumbers($event)"
                       placeholder="5.00"
                       [disabled]="isReadOnly || !!(raffle && raffle.soldTickets > 0)"
                       required
@@ -394,6 +407,7 @@
                       [(ngModel)]="beneficiaryPercentage"
                       (blur)="touchedFields['beneficiaryPercentage'] = true"
                       (ngModelChange)="onBeneficiaryPercentageChange()"
+                      (keydown)="preventInvalidNumbers($event)"
                       placeholder="80"
                       [disabled]="isReadOnly"
                       required
@@ -442,6 +456,7 @@
                       [(ngModel)]="winnerPercentage"
                       (blur)="touchedFields['winnerPercentage'] = true"
                       (ngModelChange)="onWinnerPercentageChange()"
+                      (keydown)="preventInvalidNumbers($event)"
                       placeholder="20"
                       [disabled]="isReadOnly"
                       required

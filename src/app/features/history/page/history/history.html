@@ -18,7 +18,7 @@
         [pageSize]="pageSize"
         [currentPage]="currentPage"
         [loading]="loading"
-        [placeholderSearch]="'Buscar por nombre de rifa...'"
+        [placeholderSearch]="'Buscar nombre rifa'"
         (actionClicked)="manejarAccion($event)"
         (pageChanged)="onPageChange($event)"
         (searchChanged)="onSearchChange($event)"
@@ -67,9 +67,16 @@
     <div
       class="modal-content custom-modal-bg border-secondary border-opacity-25 rounded-3 shadow-lg"
     >
-      <div class="modal-header border-0 pb-0 pt-4 px-4 px-md-5 d-flex justify-content-between align-items-center">
+      <div
+        class="modal-header border-0 pb-0 pt-4 px-4 px-md-5 d-flex justify-content-between align-items-center"
+      >
         <h5 class="modal-title text-white fw-bold">Bitácora de Desvinculaciones</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button
+          type="button"
+          class="btn-close btn-close-white"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
       </div>
       <div class="modal-body p-4 p-md-5 pt-3 pb-3">
         <app-unlink-logs [raffleData]="selectedRaffleForLogs"></app-unlink-logs>
@@ -86,4 +93,3 @@
     </div>
   </div>
 </div>
-

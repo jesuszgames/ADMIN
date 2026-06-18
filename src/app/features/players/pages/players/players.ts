@@ -15,6 +15,7 @@ import {
   USER_FILTER_INACTIVE,
   USER_FILTER_DELETE,
   STATE_DELETED,
+  PLAYERS_PRINCIPAL_HEADER,
 } from '../../../../core/helpers/global/user.constants';
 import {
   ROLE_USUARIO,
@@ -38,10 +39,10 @@ export class PlayersComponent implements OnInit {
   private readonly userService = inject(UserService);
   private readonly cdr = inject(ChangeDetectorRef);
 
+  principalHeader = PLAYERS_PRINCIPAL_HEADER;
   columns = PLAYERS_COLUMNS;
   filters = USERS_FILTERS;
-  // Players only get to change status, not edit or delete
-  rowActions = USER_ROW_ACTIONS.filter(action => action.id === USER_ACTION_TOGGLE_STATUS);
+  rowActions = USER_ROW_ACTIONS.filter((action) => action.id === USER_ACTION_TOGGLE_STATUS);
 
   usersData: User[] = [];
   tableData: User[] = [];
@@ -75,67 +76,75 @@ export class PlayersComponent implements OnInit {
       backendStatus = 'ACTIVE,INACTIVE';
     }
 
-    this.userService.getAll(this.currentPage, this.pageSize, this.searchText, backendStatus, 'player').subscribe({
-      next: (res) => {
-        if (!res || !res.data) {
-          this.usersData = [];
-          this.tableData = [];
-          this.totalItems = 0;
-          this.loading = false;
-          this.cdr.detectChanges();
-          return;
-        }
-
-        this.totalItems = res.totalCount || 0;
-        this.usersData = res.data.map((u: User) => {
-          let statusMapped: typeof USER_STATUS_ACTIVE | typeof USER_STATUS_INACTIVE | typeof STATE_DELETED = USER_STATUS_ACTIVE;
-          const s = String(u.status || '').toUpperCase();
-          if (s === BACKEND_STATUS_ACTIVE || s === USER_STATUS_ACTIVE) {
-            statusMapped = USER_STATUS_ACTIVE;
-          } else if (s === BACKEND_STATUS_INACTIVE || s === USER_STATUS_INACTIVE) {
-            statusMapped = USER_STATUS_INACTIVE;
-          } else if (s === BACKEND_STATUS_DELETED || s === STATE_DELETED) {
-            statusMapped = STATE_DELETED;
+    this.userService
+      .getAll(this.currentPage, this.pageSize, this.searchText, backendStatus, 'player')
+      .subscribe({
+        next: (res) => {
+          if (!res || !res.data) {
+            this.usersData = [];
+            this.tableData = [];
+            this.totalItems = 0;
+            this.loading = false;
+            this.cdr.detectChanges();
+            return;
           }
 
-          const formatDate = (dateVal: any) => {
-            if (!dateVal) return '';
-            try {
-              const d = new Date(dateVal);
-              if (isNaN(d.getTime())) return String(dateVal);
-              const day = String(d.getDate()).padStart(2, '0');
-              const month = String(d.getMonth() + 1).padStart(2, '0');
-              const year = d.getFullYear();
-              const hours = String(d.getHours()).padStart(2, '0');
-              const minutes = String(d.getMinutes()).padStart(2, '0');
-              return `${day}/${month}/${year} ${hours}:${minutes}`;
-            } catch {
-              return String(dateVal);
+          this.totalItems = res.totalCount || 0;
+          this.usersData = res.data.map((u: User) => {
+            let statusMapped:
+              | typeof USER_STATUS_ACTIVE
+              | typeof USER_STATUS_INACTIVE
+              | typeof STATE_DELETED = USER_STATUS_ACTIVE;
+            const s = String(u.status || '').toUpperCase();
+            if (s === BACKEND_STATUS_ACTIVE || s === USER_STATUS_ACTIVE) {
+              statusMapped = USER_STATUS_ACTIVE;
+            } else if (s === BACKEND_STATUS_INACTIVE || s === USER_STATUS_INACTIVE) {
+              statusMapped = USER_STATUS_INACTIVE;
+            } else if (s === BACKEND_STATUS_DELETED || s === STATE_DELETED) {
+              statusMapped = STATE_DELETED;
             }
-          };
 
-          return {
-            ...u,
-            name: u.name || DEFAULT_USER_NAME_LABEL,
-            username: u.username || '',
-            roleText: ROLE_USUARIO,
-            status: statusMapped,
-            balance: u['balance'] !== undefined ? `$${Number(u['balance'] || 0).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '$0.00',
-            createdAtText: formatDate(u.createdAt),
-            updatedAtText: formatDate(u.updatedAt),
-          } as User;
-        });
+            const formatDate = (dateVal: any) => {
+              if (!dateVal) return '';
+              try {
+                const d = new Date(dateVal);
+                if (isNaN(d.getTime())) return String(dateVal);
+                const day = String(d.getDate()).padStart(2, '0');
+                const month = String(d.getMonth() + 1).padStart(2, '0');
+                const year = d.getFullYear();
+                const hours = String(d.getHours()).padStart(2, '0');
+                const minutes = String(d.getMinutes()).padStart(2, '0');
+                return `${day}/${month}/${year} ${hours}:${minutes}`;
+              } catch {
+                return String(dateVal);
+              }
+            };
 
-        this.tableData = this.usersData;
-        this.loading = false;
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        console.error('UserService.getAll failed with error:', err);
-        this.loading = false;
-        this.cdr.detectChanges();
-      },
-    });
+            return {
+              ...u,
+              name: u.name || DEFAULT_USER_NAME_LABEL,
+              username: u.username || '',
+              roleText: ROLE_USUARIO,
+              status: statusMapped,
+              balance:
+                u['balance'] !== undefined
+                  ? `$${Number(u['balance'] || 0).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                  : '$0.00',
+              createdAtText: formatDate(u.createdAt),
+              updatedAtText: formatDate(u.updatedAt),
+            } as User;
+          });
+
+          this.tableData = this.usersData;
+          this.loading = false;
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('UserService.getAll failed with error:', err);
+          this.loading = false;
+          this.cdr.detectChanges();
+        },
+      });
   }
 
   filtrarPorEstado(estadoId: string) {
@@ -179,13 +188,15 @@ export class PlayersComponent implements OnInit {
         ];
         this.showConfirmModal = true;
       }
-    } catch { }
+    } catch {}
   }
 
   confirmarCambioEstado() {
     if (this.pendingRowToToggle && this.changesToConfirm.length > 0 && !this.isUserUpdatingState) {
       const targetUser = this.pendingRowToToggle;
-      const nextStatus = this.changesToConfirm[0].nuevo as typeof USER_STATUS_ACTIVE | typeof USER_STATUS_INACTIVE;
+      const nextStatus = this.changesToConfirm[0].nuevo as
+        | typeof USER_STATUS_ACTIVE
+        | typeof USER_STATUS_INACTIVE;
       this.isUserUpdatingState = true;
       this.userService.update(targetUser._id, { status: nextStatus }).subscribe({
         next: () => {
@@ -196,7 +207,7 @@ export class PlayersComponent implements OnInit {
         error: (err) => {
           console.error('Error al cambiar estado de jugador:', err);
           this.isUserUpdatingState = false;
-        }
+        },
       });
     }
   }

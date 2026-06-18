@@ -22,7 +22,8 @@ export class CreateCategoryModal implements OnChanges {
 
   name = '';
   description = '';
-  selectedIcon = '';
+  selectedIcon: string | null = null;
+  touchedFields: { [key: string]: boolean } = {};
 
   availableIcons = AVAILABLE_CATEGORIES_ICONS;
 
@@ -33,21 +34,22 @@ export class CreateCategoryModal implements OnChanges {
   }
 
   resetForm() {
+    this.touchedFields = {};
     if (this.category) {
       this.name = this.category.name || '';
       this.description = this.category.description || '';
-      this.selectedIcon = this.category.icon || '';
+      this.selectedIcon = this.category.icon || null;
     } else {
       this.name = '';
       this.description = '';
-      this.selectedIcon = '';
+      this.selectedIcon = null;
     }
   }
 
   isFormValid(): boolean {
     const nameLen = this.name.trim().length;
     const descLen = this.description.trim().length;
-    const iconLen = this.selectedIcon.trim().length;
+    const iconLen = this.selectedIcon ? this.selectedIcon.trim().length : 0;
     return nameLen >= 3 && nameLen <= 50 &&
            descLen >= 10 && descLen <= 500 &&
            iconLen >= 5 && iconLen <= 50;
@@ -109,7 +111,7 @@ export class CreateCategoryModal implements OnChanges {
       actions: this.category?.actions ?? '',
       name: this.name.toUpperCase().trim(),
       description: this.description.trim(),
-      icon: this.selectedIcon,
+      icon: this.selectedIcon || '',
     };
 
 

@@ -16,13 +16,13 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba($primary-text, 0.08);
+  background: color-mix(in srgb, $primary-text 8%, transparent);
   border-radius: 99px;
   border: 2px solid transparent;
   background-clip: padding-box;
   
   &:hover {
-    background: rgba($primary-text, 0.18);
+    background: color-mix(in srgb, $primary-text 18%, transparent);
     border: 2px solid transparent;
     background-clip: padding-box;
   }
@@ -30,7 +30,7 @@ body {
 
 .containers-colors {
   background-color: $container-bg;
-  border: 1px solid rgba($primary-text, 0.04);
+  border: 1px solid color-mix(in srgb, $primary-text 4%, transparent);
   box-shadow: 0 10px 30px -15px rgba(0, 0, 0, 0.3);
   table,
   th,
@@ -87,7 +87,7 @@ textarea {
   }
   
   &::placeholder {
-    color: rgba($primary-text, 0.3);
+    color: color-mix(in srgb, $primary-text 55%, transparent);
   }
 }
 
@@ -98,10 +98,16 @@ input.form-control.custom-dark-input[readonly],
 input.form-control.custom-dark-input:disabled,
 textarea.form-control.custom-dark-input[readonly],
 textarea.form-control.custom-dark-input:disabled {
-  background-color: var(--background, #0d1117) !important;
-  color: var(--primary-text, #e6edf3) !important;
+  background-color: var(--background) !important;
+  color: var(--primary-text) !important;
   border-color: $input-border !important;
   opacity: 1 !important;
+}
+
+[data-theme="light"] {
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: none !important;
+  }
 }
 
 .animate-slide-in {
@@ -132,6 +138,66 @@ textarea.form-control.custom-dark-input:disabled {
   to {
     transform: translateY(0);
     opacity: 1;
+  }
+}
+
+.ticket-skeleton {
+  background: linear-gradient(90deg, $background 25%, $option-hover-bg 50%, $background 75%);
+  background-size: 200% 100%;
+  animation: loading-shimmer 1.5s infinite;
+  border-radius: 4px;
+  aspect-ratio: 1;
+  width: 100%;
+  height: 38px;
+}
+
+@keyframes loading-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.custom-paginator-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1.5rem;
+  background-color: var(--background) !important;
+  border: 1px solid var(--option-border) !important;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+
+  span {
+    color: var(--secondary-text) !important;
+    font-size: 0.8rem;
+    
+    strong {
+      color: var(--primary-text) !important;
+    }
+  }
+}
+
+.custom-paginator-btn {
+  background-color: transparent !important;
+  color: var(--primary-text) !important;
+  border: 1px solid var(--option-border) !important;
+  padding: 0.35rem 1rem !important;
+  font-size: 0.8rem !important;
+  border-radius: 6px !important;
+  transition: all 0.2s ease !important;
+
+  &:hover:not(:disabled) {
+    background-color: var(--option-hover-bg) !important;
+    border-color: var(--option-hover-border) !important;
+    color: var(--primary-text) !important;
+  }
+
+  &:disabled {
+    opacity: 0.4 !important;
+    cursor: not-allowed !important;
   }
 }
 

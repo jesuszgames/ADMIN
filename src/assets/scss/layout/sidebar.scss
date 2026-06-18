@@ -65,7 +65,7 @@
     align-items: center;
     gap: 16px;
     padding: 16px 20px;
-    color: var.$secondary-text;
+    color: var.$primary-text;
     text-decoration: none;
     font-size: 0.85rem;
     font-weight: 500;
@@ -101,7 +101,7 @@
   }
 
   &__icon {
-    color: var.$secondary-text;
+    color: var.$primary-text;
     font-size: 1.15rem;
     display: flex;
     align-items: center;
@@ -138,5 +138,45 @@
     color: var.$secondary-text;
     font-size: 1.15rem;
     transition: color 0.2s ease;
+  }
+}
+
+[data-theme="light"] {
+  .sidebar-content {
+    &__link {
+      color: var.$secondary-text;
+
+      img.sidebar-content__icon {
+        filter: brightness(0) opacity(0.35);
+      }
+
+      .sidebar-content__icon {
+        color: var.$secondary-text;
+      }
+
+      &:hover {
+        color: var.$primary-text;
+
+        img.sidebar-content__icon {
+          filter: brightness(0) opacity(0.85);
+        }
+
+        .sidebar-content__icon {
+          color: var.$primary-text;
+        }
+      }
+
+      &.is-active {
+        color: var.$color-info;
+
+        .sidebar-content__icon {
+          color: var.$color-info;
+        }
+
+        img.sidebar-content__icon {
+          filter: brightness(0) invert(29%) sepia(93%) saturate(1832%) hue-rotate(212deg) brightness(98%) contrast(92%);
+        }
+      }
+    }
   }
 }

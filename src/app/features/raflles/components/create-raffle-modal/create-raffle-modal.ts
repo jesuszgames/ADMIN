@@ -1,4 +1,16 @@
-import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, OnInit, inject, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  OnChanges,
+  SimpleChanges,
+  OnInit,
+  inject,
+  ViewChild,
+  ElementRef,
+  AfterViewInit,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -23,11 +35,20 @@ import { Foundation } from '../../../../core/interfaces/api/foundation.interface
 import { NgSelectComponent, NgOptionComponent } from '@ng-select/ng-select';
 import flatpickr from 'flatpickr';
 import { Spanish } from 'flatpickr/dist/l10n/es';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap, tap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-create-raffle-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule, ConfirmChangesModal, ImageCropperComponent, NgSelectComponent, NgOptionComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ConfirmChangesModal,
+    ImageCropperComponent,
+    NgSelectComponent,
+    NgOptionComponent,
+  ],
   templateUrl: './create-raffle-modal.html',
   styleUrl: './create-raffle-modal.scss',
 })
@@ -41,35 +62,156 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit {
   private readonly categoryService = inject(CategoryService);
   private readonly foundationService = inject(FoundationService);
 
+  // Categories Pagination & Search State
   categories: Category[] = [];
+  categoriesPage = 1;
+  categoriesLimit = 20;
+  categoriesTotal = 0;
+  categoriesLoading = false;
+  categoriesSearchTerm = '';
+  categoryInput$ = new Subject<string>();
+
+  // Foundations Pagination & Search State
   foundations: Foundation[] = [];
+  foundationsPage = 1;
+  foundationsLimit = 20;
+  foundationsTotal = 0;
+  foundationsLoading = false;
+  foundationsSearchTerm = '';
+  foundationInput$ = new Subject<string>();
 
   ngOnInit() {
-    this.loadDropdownData();
+    this.initSearchSubjects();
+    this.triggerInitialDropdownLoad();
   }
 
-  loadDropdownData() {
-    this.categoryService.getAll().subscribe({
-      next: (res) => {
-        if (res && res.data) {
-          this.categories = res.data.filter((c) => c.status !== STATE_DELETED);
-        }
-      },
-      error: (err) => {
-        console.error('CreateRaffleModal: Error al cargar categorías', err);
-      }
-    });
+  initSearchSubjects() {
+    this.categoryInput$.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      tap((term) => {
+        this.categoriesSearchTerm = term || '';
+      }),
+      switchMap((term) => this.loadCategories(term || ''))
+    ).subscribe();
 
-    this.foundationService.getAll().subscribe({
-      next: (res) => {
+    this.foundationInput$.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      tap((term) => {
+        this.foundationsSearchTerm = term || '';
+      }),
+      switchMap((term) => this.loadFoundations(term || ''))
+    ).subscribe();
+  }
+
+  triggerInitialDropdownLoad() {
+    this.categoriesSearchTerm = '';
+    this.foundationsSearchTerm = '';
+    this.loadCategories().subscribe();
+    this.loadFoundations().subscribe();
+  }
+
+  loadCategories(search = '', append = false) {
+    this.categoriesLoading = true;
+    if (!append) {
+      this.categoriesPage = 1;
+    }
+    return this.categoryService.getAll(this.categoriesPage, this.categoriesLimit, search).pipe(
+      tap((res) => {
+        this.categoriesLoading = false;
         if (res && res.data) {
-          this.foundations = res.data.filter((f) => f.status !== STATE_DELETED);
+          const filtered = res.data.filter((c) => {
+            if (c.status === STATE_DELETED) return false;
+            if (!this.raffle) {
+              return c.status === 'ACTIVE';
+            }
+            return c.status === 'ACTIVE' || c.name === this.raffle.category;
+          });
+
+          if (append) {
+            const existingNames = new Set(this.categories.map((c) => c.name));
+            const uniqueNew = filtered.filter((c) => !existingNames.has(c.name));
+            this.categories = [...this.categories, ...uniqueNew];
+          } else {
+            this.categories = filtered;
+          }
+          this.categoriesTotal = res.totalCount || 0;
+
+          if (this.raffle && this.raffle.category) {
+            const hasCurrent = this.categories.some((c) => c.name === this.raffle!.category);
+            if (!hasCurrent && !search) {
+              this.categories.push({
+                _id: 'temp_cat',
+                name: this.raffle.category,
+                status: 'ACTIVE',
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+              } as Category);
+            }
+          }
         }
-      },
-      error: (err) => {
-        console.error('CreateRaffleModal: Error al cargar fundaciones', err);
-      }
-    });
+      })
+    );
+  }
+
+  loadNextCategories() {
+    if (this.categoriesLoading || this.categories.length >= this.categoriesTotal) {
+      return;
+    }
+    this.categoriesPage++;
+    this.loadCategories(this.categoriesSearchTerm, true).subscribe();
+  }
+
+  loadFoundations(search = '', append = false) {
+    this.foundationsLoading = true;
+    if (!append) {
+      this.foundationsPage = 1;
+    }
+    return this.foundationService.getAll(this.foundationsPage, this.foundationsLimit, search).pipe(
+      tap((res) => {
+        this.foundationsLoading = false;
+        if (res && res.data) {
+          const filtered = res.data.filter((f) => {
+            if (f.status === STATE_DELETED) return false;
+            if (!this.raffle) {
+              return f.status === 'ACTIVE';
+            }
+            return f.status === 'ACTIVE' || f.name === this.raffle.foundation;
+          });
+
+          if (append) {
+            const existingNames = new Set(this.foundations.map((f) => f.name));
+            const uniqueNew = filtered.filter((f) => !existingNames.has(f.name));
+            this.foundations = [...this.foundations, ...uniqueNew];
+          } else {
+            this.foundations = filtered;
+          }
+          this.foundationsTotal = res.totalCount || 0;
+
+          if (this.raffle && this.raffle.foundation) {
+            const hasCurrent = this.foundations.some((f) => f.name === this.raffle!.foundation);
+            if (!hasCurrent && !search) {
+              this.foundations.push({
+                _id: 'temp_found',
+                name: this.raffle.foundation,
+                status: 'ACTIVE',
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+              } as Foundation);
+            }
+          }
+        }
+      })
+    );
+  }
+
+  loadNextFoundations() {
+    if (this.foundationsLoading || this.foundations.length >= this.foundationsTotal) {
+      return;
+    }
+    this.foundationsPage++;
+    this.loadFoundations(this.foundationsSearchTerm, true).subscribe();
   }
 
   @ViewChild('startDateInput') startDateInput!: ElementRef;
@@ -79,8 +221,8 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit {
   endDatePicker: any;
 
   title = '';
-  foundation = '';
-  category = '';
+  foundation: string | null = null;
+  category: string | null = null;
   startDate = '';
   endDate = '';
   goal: number | null = null;
@@ -121,12 +263,7 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit {
         },
         onClose: () => {
           this.touchedFields['startDate'] = true;
-          setTimeout(() => {
-            if (this.startDateInput && this.startDateInput.nativeElement) {
-              this.startDateInput.nativeElement.focus();
-            }
-          }, 0);
-        }
+        },
       });
     }
 
@@ -145,12 +282,7 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit {
         },
         onClose: () => {
           this.touchedFields['endDate'] = true;
-          setTimeout(() => {
-            if (this.endDateInput && this.endDateInput.nativeElement) {
-              this.endDateInput.nativeElement.focus();
-            }
-          }, 0);
-        }
+        },
       });
     }
   }
@@ -163,7 +295,6 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit {
     try {
       const date = new Date(dateVal);
       if (isNaN(date.getTime())) return '';
-      // Shift date by -5 hours (matching backend offset) to get the correct date in UTC-5
       const offsetDate = new Date(date.getTime() - 5 * 60 * 60 * 1000);
       const year = offsetDate.getUTCFullYear();
       const month = String(offsetDate.getUTCMonth() + 1).padStart(2, '0');
@@ -188,8 +319,8 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit {
     this.touchedFields = {};
     if (this.raffle) {
       this.title = this.raffle.title || '';
-      this.foundation = this.raffle.foundation || '';
-      this.category = this.raffle.category || '';
+      this.foundation = this.raffle.foundation || null;
+      this.category = this.raffle.category || null;
       this.startDate = this.formatDateToYYYYMMDD(this.raffle.startDate);
       this.endDate = this.formatDateToYYYYMMDD(this.raffle.endDate);
       this.goal =
@@ -215,8 +346,8 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit {
       this.drawMethod = this.raffle.drawMethod || DEFAULT_RAFFLE_METODO_SORTEO;
     } else {
       this.title = '';
-      this.foundation = '';
-      this.category = '';
+      this.foundation = null;
+      this.category = null;
       this.startDate = '';
       this.endDate = '';
       this.goal = null;
@@ -240,6 +371,8 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit {
       this.endDatePicker.setDate(this.endDate);
       this.endDatePicker.set('minDate', this.startDate || this.getTodayDate());
     }
+
+    this.triggerInitialDropdownLoad();
   }
 
   onBeneficiaryPercentageChange() {
@@ -297,6 +430,18 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit {
     }
   }
 
+  preventInvalidNumbers(event: KeyboardEvent) {
+    if (['e', 'E', '+', '-'].includes(event.key)) {
+      event.preventDefault();
+    }
+  }
+
+  preventDecimalsAndSigns(event: KeyboardEvent) {
+    if (['e', 'E', '+', '-', '.', ','].includes(event.key)) {
+      event.preventDefault();
+    }
+  }
+
   isFormValid(): boolean {
     if (this.raffle && this.raffle.soldTickets > 0) {
       if (this.ticketsAvailable !== null && this.ticketsAvailable < this.raffle.soldTickets) {
@@ -345,8 +490,7 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit {
     this.cambios = [];
 
     const checkChange = (campo: string, anterior: any, nuevo: any) => {
-      let normAnterior =
-        anterior === null || anterior === undefined ? '' : String(anterior).trim();
+      let normAnterior = anterior === null || anterior === undefined ? '' : String(anterior).trim();
       let normNuevo = nuevo === null || nuevo === undefined ? '' : String(nuevo).trim();
 
       const translateVal = (val: string) => {
@@ -447,8 +591,8 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit {
       remainingTime: this.raffle?.remainingTime ?? DEFAULT_RAFFLE_TIME_LEFT,
       actions: this.raffle?.actions ?? '',
       title: this.title,
-      foundation: this.foundation,
-      category: this.category,
+      foundation: this.foundation ?? '',
+      category: this.category ?? '',
       startDate: this.startDate,
       endDate: this.endDate,
       goal: this.goal,
@@ -468,7 +612,17 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit {
     this.save.emit(data);
   }
 
+  closePickers() {
+    if (this.startDatePicker && this.startDatePicker.isOpen) {
+      this.startDatePicker.close();
+    }
+    if (this.endDatePicker && this.endDatePicker.isOpen) {
+      this.endDatePicker.close();
+    }
+  }
+
   onModalClosed() {
+    this.closePickers();
     this.resetForm();
     this.closed.emit();
   }

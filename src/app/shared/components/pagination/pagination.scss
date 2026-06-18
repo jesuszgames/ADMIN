@@ -12,7 +12,9 @@
   }
 
   .page-item.active .page-link {
-    background-color: var.$button-navigation;
-    color: var.$primary-text;
+    background-color: var.$button-primary !important;
+    color: #ffffff !important;
+    border-color: var.$button-primary !important;
+    font-weight: 600;
   }
 }

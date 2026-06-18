@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { User } from '../../../core/interfaces/api/user.interface';
 import { ConfirmChangesModal } from '../confirm-changes-modal/confirm-changes-modal';
+import { NgSelectComponent, NgOptionComponent } from '@ng-select/ng-select';
 
 @Component({
   selector: 'app-edit-user-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule, ConfirmChangesModal],
+  imports: [CommonModule, FormsModule, ConfirmChangesModal, NgSelectComponent, NgOptionComponent],
   templateUrl: './edit-user-modal.html',
   styleUrl: './edit-user-modal.scss',
 })
@@ -48,7 +49,7 @@ export class EditUserModal implements OnChanges {
       this.name = this.user.name || '';
       this.email = this.user.email || '';
       this.phone = this.user.phone || '';
-      
+
       const rawRole = this.user.role;
       if (Array.isArray(rawRole)) {
         if (rawRole.includes('admin')) {
@@ -104,14 +105,19 @@ export class EditUserModal implements OnChanges {
     const trimmedPassword = (this.password || '').trim();
 
     // Password is required only for new users
-    const isPasswordValid = this.user ? (trimmedPassword.length === 0 || trimmedPassword.length >= 6) : trimmedPassword.length >= 6;
+    const isPasswordValid = this.user
+      ? trimmedPassword.length === 0 || trimmedPassword.length >= 6
+      : trimmedPassword.length >= 6;
 
     return (
-      trimmedUsername.length >= 3 && trimmedUsername.length <= 30 &&
-      trimmedName.length >= 3 && trimmedName.length <= 50 &&
+      trimmedUsername.length >= 3 &&
+      trimmedUsername.length <= 30 &&
+      trimmedName.length >= 3 &&
+      trimmedName.length <= 50 &&
       this.isEmailValid(trimmedEmail) &&
       this.esNumero(trimmedPhone) &&
-      trimmedPhone.length >= 10 && trimmedPhone.length <= 15 &&
+      trimmedPhone.length >= 10 &&
+      trimmedPhone.length <= 15 &&
       isPasswordValid &&
       (this.role === 'ADMIN' || this.role === 'SORTEADOR')
     );
@@ -125,10 +131,15 @@ export class EditUserModal implements OnChanges {
     this.cambios = [];
 
     const checkChange = (campo: string, anterior: any, nuevo: any) => {
-      const normAnterior = (anterior === null || anterior === undefined) ? '' : String(anterior).trim();
-      const normNuevo = (nuevo === null || nuevo === undefined) ? '' : String(nuevo).trim();
+      const normAnterior =
+        anterior === null || anterior === undefined ? '' : String(anterior).trim();
+      const normNuevo = nuevo === null || nuevo === undefined ? '' : String(nuevo).trim();
       if (normAnterior !== normNuevo) {
-        this.cambios.push({ campo, anterior: normAnterior || '(Vacío)', nuevo: normNuevo || '(Vacío)' });
+        this.cambios.push({
+          campo,
+          anterior: normAnterior || '(Vacío)',
+          nuevo: normNuevo || '(Vacío)',
+        });
       }
     };
 
@@ -136,9 +147,17 @@ export class EditUserModal implements OnChanges {
     checkChange('Nombre Completo', this.user.name, this.name);
     checkChange('Correo Electrónico', this.user.email, this.email);
     checkChange('Teléfono', this.user.phone, this.phone);
-    checkChange('Rol de Usuario', Array.isArray(this.user.role) ? this.user.role.join(', ') : this.user.role, this.role === 'ADMIN' ? 'admin' : 'sort');
+    checkChange(
+      'Rol de Usuario',
+      Array.isArray(this.user.role) ? this.user.role.join(', ') : this.user.role,
+      this.role === 'ADMIN' ? 'admin' : 'sort',
+    );
     if (this.password.trim().length > 0) {
-      this.cambios.push({ campo: 'Contraseña', anterior: '*****', nuevo: 'Nueva Contraseña Establecida' });
+      this.cambios.push({
+        campo: 'Contraseña',
+        anterior: '*****',
+        nuevo: 'Nueva Contraseña Establecida',
+      });
     }
 
     return this.cambios.length > 0;

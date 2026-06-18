@@ -24,6 +24,7 @@ export class CreateFoundationModal implements OnChanges {
   email = '';
   phone = '';
   photo: string | Blob | File | null = null;
+  touchedFields: { [key: string]: boolean } = {};
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['foundation']) {
@@ -32,6 +33,7 @@ export class CreateFoundationModal implements OnChanges {
   }
 
   resetForm() {
+    this.touchedFields = {};
     if (this.foundation) {
       this.name = this.foundation.name || '';
       this.description = this.foundation.description || '';

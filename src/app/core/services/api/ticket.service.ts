@@ -27,6 +27,10 @@ export class TicketService {
     );
   }
 
+  getUserTicketsInRaffle(raffleId: string, userId: string): Observable<{ data: string[] }> {
+    return this.http.get<any>(`${this.apiUrl}/user-tickets?raffleId=${raffleId}&userId=${userId}`);
+  }
+
   unlinkTicket(raffleId: string, ticketNumber: string, reason: string): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/unlink`, {
       raffleId,

@@ -61,30 +61,31 @@ export class Tables<T extends Record<string, unknown> = Record<string, unknown>>
     if (value === null || value === undefined || String(value).trim() === '') return '—';
     const valStr = String(value).toUpperCase();
     const translations: Record<string, string> = {
-      'ACTIVE': 'Activo',
-      'INACTIVE': 'Inactivo',
-      'FINISHED': 'Finalizado',
-      'DRAFT': 'Borrador',
-      'DELETED': 'Eliminado',
-      'PENDING': 'Pendiente',
-      'PAID': 'Pagado',
-      'SUCCESS': 'Éxito',
-      'AUTOMATIC': 'Automático',
-      'MANUAL': 'Manual'
+      ACTIVE: 'Activo',
+      INACTIVE: 'Inactivo',
+      FINISHED: 'Finalizado',
+      DRAFT: 'Borrador',
+      DELETED: 'Eliminado',
+      PENDING: 'Pendiente',
+      PAID: 'Pagado',
+      SUCCESS: 'Éxito',
+      AUTOMATIC: 'Automático',
+      MANUAL: 'Manual',
     };
     return translations[valStr] || String(value);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    try {
-      const shouldUpdate = changes['data'] || changes['pageSize'] || changes['totalItems'];
-      if (!shouldUpdate) throw new Error();
-      if (!this.serverSide && changes['data']) {
+    const hasDataChange = !!changes['data'];
+    const hasPageSizeChange = !!changes['pageSize'];
+    const hasTotalItemsChange = !!changes['totalItems'];
+    const hasCurrentPageChange = !!changes['currentPage'];
+
+    if (hasDataChange || hasPageSizeChange || hasTotalItemsChange || hasCurrentPageChange) {
+      if (!this.serverSide && hasDataChange) {
         this.currentPage = 1;
       }
       this.updatePagedData();
-    } catch (err) {
-      console.error('Error in ngOnChanges:', err);
     }
   }
 
@@ -134,6 +135,7 @@ export class Tables<T extends Record<string, unknown> = Record<string, unknown>>
   getRowActions(row: T): DropdownAction[] {
     try {
       const estado = String(row['status'] || '').toUpperCase();
+
       if (estado === 'DELETED') {
         const filtered: DropdownAction[] = [];
         for (const action of this.rowActions) {
@@ -154,7 +156,7 @@ export class Tables<T extends Record<string, unknown> = Record<string, unknown>>
         }
         return filtered;
       }
-    } catch { }
+    } catch {}
     return this.rowActions;
   }
   isCenteredColumn(field: string, type?: string): boolean {

@@ -78,49 +78,35 @@
 }
 
 .custom-table {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
   background-color: transparent !important;
-  border-collapse: collapse;
-
-  --bs-table-bg: transparent !important;
-  --bs-table-color: var.$primary-text !important;
-  --bs-table-hover-bg: var.$option-hover-bg !important;
-  --bs-table-hover-color: var.$primary-text !important;
-  --bs-table-striped-bg: transparent !important;
-  --bs-table-active-bg: transparent !important;
-  --bs-table-border-color: var.$border-color !important;
 
   thead th {
     background-color: transparent !important;
-    --bs-table-bg: transparent !important;
     color: var.$secondary-text !important;
-    border-bottom: 1px solid var.$border-color !important;
-    font-size: 0.75rem;
-    font-weight: 500;
-    letter-spacing: 0.05em;
+    border-bottom: 2px solid var.$option-border !important;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    padding: 0.85rem 1rem;
+    padding: 0.85rem 1rem !important;
   }
 
   tbody tr {
-    background-color: transparent !important;
-    --bs-table-bg: transparent !important;
-    border-bottom: 1px solid var.$border-color !important;
-    transition: background-color 0.15s ease-in-out;
+    transition: var.$transition-fast;
 
-    &:hover {
+    &:hover td {
       background-color: var.$option-hover-bg !important;
-      --bs-table-bg: var.$option-hover-bg !important;
+      color: var.$primary-text !important;
     }
 
     td {
       background-color: transparent !important;
-      --bs-table-bg: transparent !important;
-      border: none !important;
-      font-size: 0.75rem;
-      padding: 0.85rem 1rem;
+      border-bottom: 1px solid var.$option-border !important;
+      font-size: 0.82rem;
+      padding: 0.75rem 1rem !important;
       color: var.$primary-text;
     }
   }

@@ -71,18 +71,32 @@ export class Categories implements OnInit {
   isCategoryDeleting = false;
   isCategoryUpdatingState = false;
 
+  currentPage = 1;
+  pageSize = 10;
+  totalCount = 0;
+  searchTerm = '';
+
   ngOnInit(): void {
     this.loadCategories();
+  }
+
+  getBackendStatus(filterId: string): string {
+    if (filterId === CATEGORY_FILTER_ALL) return 'ALL_ACTIVE_INACTIVE';
+    if (filterId === CATEGORY_FILTER_INACTIVE) return 'INACTIVE';
+    if (filterId === CATEGORY_FILTER_DELETE) return 'DELETED';
+    return '';
   }
 
   loadCategories(): void {
     this.loading = true;
     this.cdr.detectChanges();
-    this.categoryService.getAll().subscribe({
+    const statusParam = this.getBackendStatus(this.filtroActual);
+    this.categoryService.getAll(this.currentPage, this.pageSize, this.searchTerm, statusParam).subscribe({
       next: (res) => {
-        if (res && res.data) {
-          this.categoriesData = res.data;
-          this.tableData = this.getFilteredData(this.filtroActual);
+        if (res) {
+          this.categoriesData = res.data || [];
+          this.tableData = this.categoriesData;
+          this.totalCount = res.totalCount || 0;
         }
         this.loading = false;
         this.cdr.detectChanges();
@@ -97,8 +111,19 @@ export class Categories implements OnInit {
 
   filtrarPorCategoria(id: string): void {
     this.filtroActual = id;
-    this.tableData = this.getFilteredData(id);
-    this.cdr.detectChanges();
+    this.currentPage = 1;
+    this.loadCategories();
+  }
+
+  onPageChanged(page: number): void {
+    this.currentPage = page;
+    this.loadCategories();
+  }
+
+  onSearchChanged(term: string): void {
+    this.searchTerm = term;
+    this.currentPage = 1;
+    this.loadCategories();
   }
 
   abrirCrearCategoria(): void {
@@ -221,22 +246,6 @@ export class Categories implements OnInit {
     this.changesToConfirm = [];
     this.pendingRowToToggle = null;
   }
-
-  private getFilteredData(filterId: string): Category[] {
-    let filtered = this.categoriesData;
-    try {
-      const filterActions: Record<string, () => Category[]> = {
-        [CATEGORY_FILTER_ALL]: () => this.categoriesData.filter((c) => !isDeletedStatus(c.status)),
-        [CATEGORY_FILTER_INACTIVE]: () =>
-          this.categoriesData.filter((c) => isInactiveStatus(c.status)),
-        [CATEGORY_FILTER_DELETE]: () =>
-          this.categoriesData.filter((c) => isDeletedStatus(c.status)),
-      };
-
-      const filterFn = filterActions[filterId];
-      if (!filterFn) throw new Error();
-      filtered = filterFn();
-    } catch { }
-    return filtered.map((category) => ({ ...category }));
-  }
 }
+
+

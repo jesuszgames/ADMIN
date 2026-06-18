@@ -31,19 +31,28 @@ const ERROR_TRANSLATIONS: { [key: string]: string } = {
   'Logged out successfully': 'Sesión cerrada correctamente',
   'jwt expired': 'Tu sesión ha expirado. Por favor, vuelve a iniciar sesión',
   'Invalid token': 'Sesión inválida o expirada',
+  'Cannot delete a raffle with sold tickets': 'No se puede eliminar una rifa que ya tiene boletos vendidos',
+  'Cannot select an inactive category': 'No se puede seleccionar una categoría inactiva',
+  'Cannot select an inactive foundation': 'No se puede seleccionar una fundación inactiva',
+  'Cannot select a deleted category': 'No se puede seleccionar una categoría eliminada',
+  'Cannot select a deleted foundation': 'No se puede seleccionar una fundación eliminada',
 };
 
 function translateError(msg: string): string {
   if (!msg) return msg;
   const trimmed = msg.trim();
 
+  if (ERROR_TRANSLATIONS[trimmed]) {
+    return ERROR_TRANSLATIONS[trimmed];
+  }
+
   const lowerMsg = trimmed.toLowerCase();
   if (
+    lowerMsg.startsWith('cannot get /') ||
+    lowerMsg.startsWith('cannot post /') ||
+    lowerMsg.startsWith('cannot put /') ||
+    lowerMsg.startsWith('cannot delete /') ||
     lowerMsg.includes('http failure response') ||
-    lowerMsg.includes('cannot get') ||
-    lowerMsg.includes('cannot post') ||
-    lowerMsg.includes('cannot put') ||
-    lowerMsg.includes('cannot delete') ||
     lowerMsg.includes('internal server error') ||
     lowerMsg.includes('500')
   ) {
@@ -53,10 +62,6 @@ function translateError(msg: string): string {
   // Hide token or unauthorized technical errors
   if (lowerMsg.includes('token missing') || lowerMsg.includes('unauthorized')) {
     return 'Acceso no autorizado o sesión expirada. Por favor, vuelve a iniciar sesión.';
-  }
-
-  if (ERROR_TRANSLATIONS[trimmed]) {
-    return ERROR_TRANSLATIONS[trimmed];
   }
 
   // Common phrase translations for Joi validator

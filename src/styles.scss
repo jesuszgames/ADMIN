@@ -14,12 +14,10 @@
 @import 'bootstrap-icons/font/bootstrap-icons.css';
 
 @import 'flatpickr/dist/flatpickr.css';
-@import 'flatpickr/dist/themes/dark.css';
-
 
 .ng-select.custom-ng-select {
   padding: 0;
-  
+
   .ng-select-container {
     background-color: var.$background !important;
     border: 1px solid var.$input-border !important;
@@ -28,13 +26,15 @@
     min-height: 42px !important;
     align-items: center;
     padding: 0 0.5rem !important;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-    
+    transition:
+      border-color 0.2s ease,
+      box-shadow 0.2s ease;
+
     .ng-value-container {
       padding: 0 8px;
       .ng-placeholder {
         color: var.$secondary-text !important;
-        opacity: 0.4;
+        opacity: 1 !important;
       }
       .ng-value {
         color: var.$primary-text !important;
@@ -55,7 +55,9 @@
 
   &.ng-select-focused .ng-select-container {
     border-color: var.$color-info !important;
-    box-shadow: 0 0 0 1px var.$color-info, 0 0 14px var.$color-info-shadow !important;
+    box-shadow:
+      0 0 0 1px var.$color-info,
+      0 0 14px var.$color-info-shadow !important;
   }
 
   &.is-invalid .ng-select-container {
@@ -68,19 +70,20 @@
     border-radius: 8px !important;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5) !important;
     z-index: 1050;
-    
+
     .ng-dropdown-panel-items {
       .ng-option {
         background-color: transparent !important;
         color: var.$primary-text !important;
         padding: 8px 12px;
         transition: background-color 0.1s ease;
-        
-        &:hover, &.ng-option-marked {
+
+        &:hover,
+        &.ng-option-marked {
           background-color: var.$hover-cancel-button !important;
           color: var.$primary-text !important;
         }
-        
+
         &.ng-option-selected {
           background-color: var.$button-primary !important;
           color: var.$primary-text !important;
@@ -94,16 +97,18 @@
 .flatpickr-calendar {
   background: var.$container-bg !important;
   border: 1px solid var.$input-border !important;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
   color: var.$primary-text !important;
   border-radius: 12px !important;
+  z-index: 99999 !important;
 
   .flatpickr-months {
     background: transparent !important;
     .flatpickr-month {
       color: var.$primary-text !important;
     }
-    .flatpickr-prev-month, .flatpickr-next-month {
+    .flatpickr-prev-month,
+    .flatpickr-next-month {
       fill: var.$primary-text !important;
       color: var.$primary-text !important;
       &:hover {
@@ -123,25 +128,32 @@
     .flatpickr-day {
       color: var.$primary-text !important;
       border-radius: 6px !important;
-      
-      &:hover, &:focus {
+
+      &:hover,
+      &:focus {
         background: var.$hover-cancel-button !important;
         border-color: var.$hover-cancel-button !important;
       }
-      
+
       &.today {
         border-color: var.$color-info !important;
         color: var.$color-info !important;
       }
-      
-      &.selected, &.startRange, &.endRange {
+
+      &.selected,
+      &.startRange,
+      &.endRange {
         background: var.$button-primary !important;
         border-color: var.$button-primary !important;
-        color: var.$primary-text !important;
+        color: #ffffff !important;
       }
-      
-      &.flatpickr-disabled, &.flatpickr-disabled:hover {
-        color: rgba(255, 255, 255, 0.15) !important;
+
+      &.flatpickr-disabled,
+      &.flatpickr-disabled:hover,
+      &.prevMonthDay,
+      &.nextMonthDay {
+        color: var.$secondary-text !important;
+        opacity: 0.3 !important;
         background: transparent !important;
       }
     }

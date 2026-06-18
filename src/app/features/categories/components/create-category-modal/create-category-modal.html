@@ -46,12 +46,21 @@
             <input
               type="text"
               class="form-control custom-dark-input py-2"
-              [class.is-invalid]="name && (name.trim().length < 3 || name.trim().length > 50)"
+              [class.is-invalid]="
+                (touchedFields['name'] && !name) ||
+                (name && (name.trim().length < 3 || name.trim().length > 50))
+              "
               [(ngModel)]="name"
+              (blur)="touchedFields['name'] = true"
               placeholder="ANIMALES"
               [disabled]="isReadOnly"
               required
             />
+            @if (!isReadOnly && touchedFields['name'] && !name) {
+              <div class="text-danger fs-8 mt-1" style="font-size: 0.75rem; color: #ef5350">
+                El nombre es requerido.
+              </div>
+            }
             @if (!isReadOnly && name.trim().length > 0) {
               @if (name.trim().length < 3) {
                 <div class="text-danger fs-8 mt-1" style="font-size: 0.75rem; color: #ef5350">
@@ -72,13 +81,20 @@
             <textarea
               class="form-control custom-dark-input py-2 desc-textarea"
               [class.is-invalid]="
-                description && (description.trim().length < 10 || description.trim().length > 500)
+                (touchedFields['description'] && !description) ||
+                (description && (description.trim().length < 10 || description.trim().length > 500))
               "
               [(ngModel)]="description"
+              (blur)="touchedFields['description'] = true"
               placeholder="SALUD"
               [disabled]="isReadOnly"
               required
             ></textarea>
+            @if (!isReadOnly && touchedFields['description'] && !description) {
+              <div class="text-danger fs-8 mt-1" style="font-size: 0.75rem; color: #ef5350">
+                La descripción es requerida.
+              </div>
+            }
             @if (!isReadOnly && description.trim().length > 0) {
               @if (description.trim().length < 10) {
                 <div class="text-danger fs-8 mt-1" style="font-size: 0.75rem; color: #ef5350">

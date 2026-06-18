@@ -1,5 +1,20 @@
 @use '../../../../assets/scss/utils/variables.scss' as var;
 
+.dropdown {
+  .btn-link {
+    color: var.$secondary-text !important;
+    font-weight: bold;
+    font-size: 1.1rem;
+    line-height: 1;
+    transition: color 0.15s ease-in-out;
+
+    &:hover,
+    &:focus {
+      color: var.$primary-text !important;
+    }
+  }
+}
+
 .custom-dropdown {
   background-color: var.$background;
   border-radius: 8px;

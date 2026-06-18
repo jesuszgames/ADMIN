@@ -62,13 +62,13 @@
 .welcome-title {
   font-weight: 800;
   font-size: 1.65rem;
-  color: v.$primary-text;
+  color: #ffffff !important;
   margin-bottom: 0.5rem;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 }
 
 .welcome-subtitle {
-  color: color-mix(in srgb, v.$primary-text 85%, transparent);
+  color: rgba(255, 255, 255, 0.85) !important;
   font-size: 0.95rem;
   margin-bottom: 1.75rem;
   font-weight: 400;
@@ -80,12 +80,12 @@
   display: flex;
   align-items: center;
   gap: 0.6rem;
-  background: color-mix(in srgb, v.$primary-text 10%, transparent);
+  background: rgba(255, 255, 255, 0.1);
   padding: 0.6rem 1.2rem;
   border-radius: 30px;
   width: fit-content;
-  border: 1px solid color-mix(in srgb, v.$primary-text 12%, transparent);
-  color: color-mix(in srgb, v.$primary-text 95%, transparent);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.95) !important;
   font-size: 0.85rem;
   font-weight: 500;
   backdrop-filter: blur(8px);
@@ -93,7 +93,7 @@
   
   i {
     font-size: 1.05rem;
-    color: v.$dashboard-title-end;
+    color: #ffffff !important;
   }
 }
 

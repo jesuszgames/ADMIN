@@ -19,7 +19,13 @@
         [data]="tableData"
         [rowActions]="foundationActions"
         [loading]="loading"
-        [placeholderSearch]="'Buscar por nombre de fundación...'"
+        [placeholderSearch]="'Buscar nombre fundación'"
+        [serverSide]="true"
+        [totalItems]="totalCount"
+        [pageSize]="pageSize"
+        [currentPage]="currentPage"
+        (pageChanged)="onPageChanged($event)"
+        (searchChanged)="onSearchChanged($event)"
         (actionClicked)="manejarAccion($event)"
       >
       </app-tables>

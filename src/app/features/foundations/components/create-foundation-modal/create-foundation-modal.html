@@ -26,7 +26,7 @@
           }}
         </h3>
 
-        @if (isReadOnly && foundation?.deleteReason) {
+        @if (isReadOnly && foundation && foundation.deleteReason) {
           <div
             class="alert alert-danger border-danger border-opacity-25 bg-danger bg-opacity-10 text-danger rounded-3 p-3 mb-4 d-flex align-items-start gap-2"
           >
@@ -49,12 +49,18 @@
               <input
                 type="text"
                 class="form-control custom-dark-input py-2"
-                [class.is-invalid]="name && (name.trim().length < 3 || name.trim().length > 50)"
+                [class.is-invalid]="(touchedFields['name'] && !name) || (name && (name.trim().length < 3 || name.trim().length > 50))"
                 [(ngModel)]="name"
+                (blur)="touchedFields['name'] = true"
                 placeholder="Nombre de la fundación"
                 [disabled]="isReadOnly"
                 required
               />
+              @if (touchedFields['name'] && !name) {
+                <div class="text-danger fs-8 mt-1" style="font-size: 0.75rem; color: #ef5350">
+                  El nombre es requerido.
+                </div>
+              }
               @if (name && (name.trim().length < 3 || name.trim().length > 50)) {
                 <div class="text-danger fs-8 mt-1" style="font-size: 0.75rem; color: #ef5350">
                   El nombre debe tener entre 3 y 50 caracteres (actual: {{ name.trim().length }}).
@@ -69,13 +75,20 @@
               <textarea
                 class="form-control custom-dark-input py-2 desc-textarea w-100"
                 [class.is-invalid]="
-                  description && (description.trim().length < 10 || description.trim().length > 500)
+                  (touchedFields['description'] && !description) ||
+                  (description && (description.trim().length < 10 || description.trim().length > 500))
                 "
                 [(ngModel)]="description"
+                (blur)="touchedFields['description'] = true"
                 placeholder="Descripción de la fundación"
                 [disabled]="isReadOnly"
                 required
               ></textarea>
+              @if (touchedFields['description'] && !description) {
+                <div class="text-danger fs-8 mt-1" style="font-size: 0.75rem; color: #ef5350">
+                  La descripción es requerida.
+                </div>
+              }
               @if (
                 description && (description.trim().length < 10 || description.trim().length > 500)
               ) {
@@ -91,12 +104,13 @@
                 <label class="form-label text-theme-secondary text-uppercase fs-7 mb-2"
                   >Correo Electronico</label
                 >
-                <div class="input-group" [class.is-invalid]="email && !isEmailValid(email)">
+                <div class="input-group" [class.is-invalid]="(touchedFields['email'] && !email) || (email && !isEmailValid(email))">
                   <input
                     type="email"
                     class="form-control custom-dark-input border-end-0 py-2"
-                    [class.is-invalid]="email && !isEmailValid(email)"
+                    [class.is-invalid]="(touchedFields['email'] && !email) || (email && !isEmailValid(email))"
                     [(ngModel)]="email"
+                    (blur)="touchedFields['email'] = true"
                     placeholder="example@gmail.com"
                     [disabled]="isReadOnly"
                     required
@@ -107,6 +121,11 @@
                     <i class="bi bi-envelope"></i>
                   </span>
                 </div>
+                @if (touchedFields['email'] && !email) {
+                  <div class="text-danger fs-8 mt-1" style="font-size: 0.75rem; color: #ef5350">
+                    El correo electrónico es requerido.
+                  </div>
+                }
                 @if (email && !isEmailValid(email)) {
                   <div class="text-danger fs-8 mt-1" style="font-size: 0.75rem; color: #ef5350">
                     Por favor, introduce un correo electrónico válido.
@@ -121,18 +140,21 @@
                 <div
                   class="input-group"
                   [class.is-invalid]="
-                    phone &&
-                    (phone.trim().length < 10 || phone.trim().length > 15 || !esNumero(phone))
+                    (touchedFields['phone'] && !phone) ||
+                    (phone &&
+                      (phone.trim().length < 10 || phone.trim().length > 15 || !esNumero(phone)))
                   "
                 >
                   <input
                     type="text"
                     class="form-control custom-dark-input border-end-0 py-2"
                     [class.is-invalid]="
-                      phone &&
-                      (phone.trim().length < 10 || phone.trim().length > 15 || !esNumero(phone))
+                      (touchedFields['phone'] && !phone) ||
+                      (phone &&
+                        (phone.trim().length < 10 || phone.trim().length > 15 || !esNumero(phone)))
                     "
                     [(ngModel)]="phone"
+                    (blur)="touchedFields['phone'] = true"
                     (keypress)="soloNumeros($event)"
                     inputmode="numeric"
                     pattern="[0-9]*"
@@ -146,6 +168,11 @@
                     <i class="bi bi-telephone"></i>
                   </span>
                 </div>
+                @if (touchedFields['phone'] && !phone) {
+                  <div class="text-danger fs-8 mt-1" style="font-size: 0.75rem; color: #ef5350">
+                    El número de teléfono es requerido.
+                  </div>
+                }
                 @if (phone && (phone.trim().length < 10 || phone.trim().length > 15)) {
                   <div class="text-danger fs-8 mt-1" style="font-size: 0.75rem; color: #ef5350">
                     El teléfono debe tener entre 10 y 15 dígitos (actual:
@@ -161,9 +188,9 @@
             </div>
           </div>
 
-          <div class="col-lg-6 d-flex flex-column pt-lg-4 align-items-center">
+          <div class="col-lg-6 d-flex flex-column align-items-center">
             <label class="form-label text-theme-secondary text-uppercase fs-7 mb-2 text-center"
-              >Imagen</label
+              >Imagen Fundacion</label
             >
             <app-image-cropper
               [(photo)]="photo"

@@ -7,7 +7,14 @@
   aria-hidden="true"
 >
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content border-0 shadow-lg">
+    <div class="modal-content border-0 shadow-lg position-relative">
+      <button
+        type="button"
+        class="btn-close btn-close-white position-absolute top-0 end-0 m-3"
+        data-bs-dismiss="modal"
+        aria-label="Close"
+        style="z-index: 1055"
+      ></button>
       <div class="modal-body text-center p-5 pb-4">
         <h4 class="modal-title mb-3 text-white fw-bold" id="modal-{{ id }}">¿Eliminar registro?</h4>
         <p class="text-white mb-4">Esta acción no se puede deshacer.</p>

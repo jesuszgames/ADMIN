@@ -2,7 +2,8 @@ import { TableColumn } from '../../interfaces/api/table-column.interface';
 import { FilterOption } from '../../interfaces/api/filter-option.interface';
 import { DropdownAction } from '../../interfaces/api/dropdown-action.interface';
 
-export const USERS_PRINCIPAL_HEADER = 'Lista Staff / Administradores';
+export const USERS_PRINCIPAL_HEADER = 'LIsta Administradores';
+export const PLAYERS_PRINCIPAL_HEADER = 'Lista Jugadores';
 
 export const USERS_COLUMNS: TableColumn[] = [
   { field: 'name', header: 'NOMBRE COMPLETO' },
@@ -46,4 +47,3 @@ export const USER_ROW_ACTIONS: DropdownAction[] = [
   { id: USER_ACTION_TOGGLE_STATUS, icon: 'bi-arrow-repeat', label: 'Cambiar Estado' },
   { id: USER_ACTION_DELETE, icon: 'bi-trash', label: 'Eliminar' },
 ];
-

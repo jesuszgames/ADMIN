@@ -19,7 +19,13 @@
         [data]="tableData"
         [rowActions]="categoriesActions"
         [loading]="loading"
-        [placeholderSearch]="'Buscar por nombre de categoría...'"
+        [placeholderSearch]="'Buscar nombre categoría'"
+        [serverSide]="true"
+        [totalItems]="totalCount"
+        [pageSize]="pageSize"
+        [currentPage]="currentPage"
+        (pageChanged)="onPageChanged($event)"
+        (searchChanged)="onSearchChanged($event)"
         (actionClicked)="manejarAccion($event)"
       >
       </app-tables>

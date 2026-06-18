@@ -20,6 +20,7 @@ import {
   USER_FILTER_INACTIVE,
   USER_FILTER_DELETE,
   STATE_DELETED,
+  USERS_PRINCIPAL_HEADER,
 } from '../../../../core/helpers/global/user.constants';
 import {
   ROLE_ADMIN,
@@ -46,6 +47,7 @@ export class StaffComponent implements OnInit {
   private readonly userService = inject(UserService);
   private readonly cdr = inject(ChangeDetectorRef);
 
+  principalHeader = USERS_PRINCIPAL_HEADER;
   columns = USERS_COLUMNS;
   filters = USERS_FILTERS;
   rowActions = USER_ROW_ACTIONS;
