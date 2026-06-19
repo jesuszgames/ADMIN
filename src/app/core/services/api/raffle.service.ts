@@ -19,6 +19,8 @@ export class RaffleService {
     drawMethod?: string,
     filter?: string,
     sort?: string,
+    category?: string,
+    foundation?: string,
   ): Observable<{ data: Raffle[]; totalCount: number }> {
     let params = new HttpParams();
     if (page) params = params.set('page', page.toString());
@@ -28,6 +30,8 @@ export class RaffleService {
     if (drawMethod) params = params.set('drawMethod', drawMethod);
     if (filter) params = params.set('filter', filter);
     if (sort) params = params.set('sort', sort);
+    if (category) params = params.set('category', category);
+    if (foundation) params = params.set('foundation', foundation);
 
     interface GetRafflesResponse {
       data?: {

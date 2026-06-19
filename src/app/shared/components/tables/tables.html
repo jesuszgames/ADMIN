@@ -19,170 +19,173 @@
       </button>
     </div>
   </div>
-  <table class="table table-sm custom-table dark-table ta-hover align-middle m-0 d-none d-md-table">
-    <thead>
-      <tr>
-        @for (col of columns; track col.field) {
-          <th
-            scope="col"
-            class="text-white-50 text-uppercase py-2 border-secondary"
-            [class.text-center]="isCenteredColumn(col.field, col.type)"
-          >
-            {{ col.header }}
-          </th>
-        }
-      </tr>
-    </thead>
 
-    <tbody>
-      @if (loading) {
-        @for (item of [1, 2, 3, 4, 5]; track item) {
-          <tr class="border-secondary">
-            @for (col of columns; track col.field) {
-              <td class="py-3" [class.text-center]="isCenteredColumn(col.field, col.type)">
-                @if (col.type === 'actions') {
-                  <div class="skeleton-cell" style="width: 30px"></div>
-                } @else if (col.type === 'badge') {
-                  <div
-                    class="skeleton-cell"
-                    style="width: 70px; height: 24px; border-radius: 6px"
-                  ></div>
-                } @else {
-                  <div class="skeleton-cell"></div>
-                }
+  @if (!isMobile) {
+    <table class="table table-sm custom-table dark-table ta-hover align-middle m-0">
+      <thead>
+        <tr>
+          @for (col of columns; track col.field) {
+            <th
+              scope="col"
+              class="text-white-50 text-uppercase py-2 border-secondary"
+              [class.text-center]="isCenteredColumn(col.field, col.type)"
+            >
+              {{ col.header }}
+            </th>
+          }
+        </tr>
+      </thead>
+
+      <tbody>
+        @if (loading) {
+          @for (item of [1, 2, 3, 4, 5]; track item) {
+            <tr class="border-secondary">
+              @for (col of columns; track col.field) {
+                <td class="py-3" [class.text-center]="isCenteredColumn(col.field, col.type)">
+                  @if (col.type === 'actions') {
+                    <div class="skeleton-cell" style="width: 30px"></div>
+                  } @else if (col.type === 'badge') {
+                    <div
+                      class="skeleton-cell"
+                      style="width: 70px; height: 24px; border-radius: 6px"
+                    ></div>
+                  } @else {
+                    <div class="skeleton-cell"></div>
+                  }
+                </td>
+              }
+            </tr>
+          }
+        } @else {
+          @for (row of pagedData; track row['_id'] || row['id'] || $index) {
+            <tr class="border-secondary">
+              @for (col of columns; track col.field) {
+                <td
+                  class="py-2 text-white"
+                  [class.text-center]="isCenteredColumn(col.field, col.type)"
+                >
+                  @if (col.type === 'badge') {
+                    <span [attr.class]="getBadgeClasses(row[col.field]) + ' badge-text'">
+                      {{ translateStatus(row[col.field]) }}
+                    </span>
+                  } @else if (col.type === 'actions') {
+                    <app-dropdown
+                      [valueLabel]="'•••'"
+                      [listActions]="getRowActions(row)"
+                      (actionSelected)="onActionSelect($event, row)"
+                    >
+                    </app-dropdown>
+                  } @else if (col.type === 'icon-text') {
+                    <div class="d-flex align-items-center gap-2">
+                      @if (row[col.iconField || 'icon']) {
+                        <i [class]="row[col.iconField || 'icon'] + ' text-secondary'"></i>
+                      }
+                      <span class="text-truncate-cell" [title]="translateStatus(row[col.field])">{{ translateStatus(row[col.field]) }}</span>
+                    </div>
+                  } @else {
+                    <span class="text-truncate-cell" [title]="translateStatus(row[col.field])">
+                      {{ translateStatus(row[col.field]) }}
+                    </span>
+                  }
+                </td>
+              }
+            </tr>
+          } @empty {
+            <tr>
+              <td [attr.colspan]="columns.length" class="text-center py-4 text-white-50">
+                No se encontraron registros.
               </td>
-            }
-          </tr>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  } @else {
+    <!-- Card view for mobile screens -->
+    <div class="table-cards-container">
+      @if (loading) {
+        @for (item of [1, 2, 3]; track item) {
+          <div class="card-mobile p-3 mb-3 rounded-3 border border-secondary skeleton-card">
+            <div class="skeleton-cell mb-2" style="width: 40%; height: 20px;"></div>
+            <div class="skeleton-cell mb-1" style="width: 80%;"></div>
+            <div class="skeleton-cell mb-1" style="width: 60%;"></div>
+            <div class="skeleton-cell" style="width: 50%;"></div>
+          </div>
         }
       } @else {
         @for (row of pagedData; track row['_id'] || row['id'] || $index) {
-          <tr class="border-secondary">
-            @for (col of columns; track col.field) {
-              <td
-                class="py-2 text-white"
-                [class.text-center]="isCenteredColumn(col.field, col.type)"
-              >
-                @if (col.type === 'badge') {
-                  <span [attr.class]="getBadgeClasses(row[col.field]) + ' badge-text'">
-                    {{ translateStatus(row[col.field]) }}
-                  </span>
-                } @else if (col.type === 'actions') {
+          <div class="card-mobile p-3 mb-3 rounded-3 border border-secondary bg-dark-card text-white">
+            <!-- Card Header (Action column + First column) -->
+            <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom border-secondary">
+              <div class="fw-bold text-info fs-6 card-mobile-header-title">
+                @if (columns.length > 0 && columns[0].field !== 'actions') {
+                  @if (columns[0].type === 'badge') {
+                    <span [attr.class]="getBadgeClasses(row[columns[0].field]) + ' badge-text badge'">
+                      {{ translateStatus(row[columns[0].field]) }}
+                    </span>
+                  } @else if (columns[0].type === 'icon-text') {
+                    <span class="d-inline-flex align-items-center gap-2">
+                      @if (row[columns[0].iconField || 'icon']) {
+                        <i [class]="row[columns[0].iconField || 'icon'] + ' text-secondary'"></i>
+                      }
+                      <span>{{ translateStatus(row[columns[0].field]) }}</span>
+                    </span>
+                  } @else {
+                    {{ translateStatus(row[columns[0].field]) }}
+                  }
+                } @else {
+                  Registro #{{ $index + 1 }}
+                }
+              </div>
+              
+              <!-- Actions Dropdown -->
+              @for (col of columns; track col.field) {
+                @if (col.type === 'actions') {
                   <app-dropdown
                     [valueLabel]="'•••'"
                     [listActions]="getRowActions(row)"
                     (actionSelected)="onActionSelect($event, row)"
                   >
                   </app-dropdown>
-                } @else if (col.type === 'icon-text') {
-                  <div class="d-flex align-items-center gap-2">
-                    @if (row[col.iconField || 'icon']) {
-                      <i [class]="row[col.iconField || 'icon'] + ' text-secondary'"></i>
-                    }
-                    <span class="text-truncate-cell" [title]="translateStatus(row[col.field])">{{ translateStatus(row[col.field]) }}</span>
-                  </div>
-                } @else {
-                  <span class="text-truncate-cell" [title]="translateStatus(row[col.field])">
-                    {{ translateStatus(row[col.field]) }}
-                  </span>
                 }
-              </td>
-            }
-          </tr>
-        } @empty {
-          <tr>
-            <td [attr.colspan]="columns.length" class="text-center py-4 text-white-50">
-              No se encontraron registros.
-            </td>
-          </tr>
-        }
-      }
-    </tbody>
-  </table>
-
-  <!-- Card view for mobile screens -->
-  <div class="d-md-none table-cards-container">
-    @if (loading) {
-      @for (item of [1, 2, 3]; track item) {
-        <div class="card-mobile p-3 mb-3 rounded-3 border border-secondary skeleton-card">
-          <div class="skeleton-cell mb-2" style="width: 40%; height: 20px;"></div>
-          <div class="skeleton-cell mb-1" style="width: 80%;"></div>
-          <div class="skeleton-cell mb-1" style="width: 60%;"></div>
-          <div class="skeleton-cell" style="width: 50%;"></div>
-        </div>
-      }
-    } @else {
-      @for (row of pagedData; track row['_id'] || row['id'] || $index) {
-        <div class="card-mobile p-3 mb-3 rounded-3 border border-secondary bg-dark-card text-white">
-          <!-- Card Header (Action column + First column) -->
-          <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom border-secondary">
-            <div class="fw-bold text-info fs-6">
-              @if (columns.length > 0 && columns[0].field !== 'actions') {
-                @if (columns[0].type === 'badge') {
-                  <span [attr.class]="getBadgeClasses(row[columns[0].field]) + ' badge-text badge'">
-                    {{ translateStatus(row[columns[0].field]) }}
-                  </span>
-                } @else if (columns[0].type === 'icon-text') {
-                  <span class="d-inline-flex align-items-center gap-2">
-                    @if (row[columns[0].iconField || 'icon']) {
-                      <i [class]="row[columns[0].iconField || 'icon'] + ' text-secondary'"></i>
-                    }
-                    <span>{{ translateStatus(row[columns[0].field]) }}</span>
-                  </span>
-                } @else {
-                  {{ translateStatus(row[columns[0].field]) }}
-                }
-              } @else {
-                Registro #{{ $index + 1 }}
               }
             </div>
             
-            <!-- Actions Dropdown -->
-            @for (col of columns; track col.field) {
-              @if (col.type === 'actions') {
-                <app-dropdown
-                  [valueLabel]="'•••'"
-                  [listActions]="getRowActions(row)"
-                  (actionSelected)="onActionSelect($event, row)"
-                >
-                </app-dropdown>
-              }
-            }
-          </div>
-          
-          <!-- Card Fields -->
-          <div class="card-mobile-body d-flex flex-column gap-2">
-            @for (col of columns; track col.field; let first = $first) {
-              @if (col.type !== 'actions' && !(first && col.field !== 'actions')) {
-                <div class="d-flex justify-content-between align-items-center py-1 border-bottom border-dashed">
-                  <span class="text-white-50 small text-uppercase me-2">{{ col.header }}</span>
-                  <span class="text-white fw-medium text-end">
-                    @if (col.type === 'badge') {
-                      <span [attr.class]="getBadgeClasses(row[col.field]) + ' badge-text badge'">
+            <!-- Card Fields -->
+            <div class="card-mobile-body d-flex flex-column gap-2">
+              @for (col of columns; track col.field; let first = $first) {
+                @if (col.type !== 'actions' && !(first && col.field !== 'actions')) {
+                  <div class="d-flex justify-content-between align-items-center py-1 border-bottom border-dashed">
+                    <span class="text-white-50 small text-uppercase me-2">{{ col.header }}</span>
+                    <span class="text-white fw-medium text-end">
+                      @if (col.type === 'badge') {
+                        <span [attr.class]="getBadgeClasses(row[col.field]) + ' badge-text badge'">
+                          {{ translateStatus(row[col.field]) }}
+                        </span>
+                      } @else if (col.type === 'icon-text') {
+                        <span class="d-inline-flex align-items-center gap-2">
+                          @if (row[col.iconField || 'icon']) {
+                            <i [class]="row[col.iconField || 'icon'] + ' text-secondary'"></i>
+                          }
+                          <span>{{ translateStatus(row[col.field]) }}</span>
+                        </span>
+                      } @else {
                         {{ translateStatus(row[col.field]) }}
-                      </span>
-                    } @else if (col.type === 'icon-text') {
-                      <span class="d-inline-flex align-items-center gap-2">
-                        @if (row[col.iconField || 'icon']) {
-                          <i [class]="row[col.iconField || 'icon'] + ' text-secondary'"></i>
-                        }
-                        <span>{{ translateStatus(row[col.field]) }}</span>
-                      </span>
-                    } @else {
-                      {{ translateStatus(row[col.field]) }}
-                    }
-                  </span>
-                </div>
+                      }
+                    </span>
+                  </div>
+                }
               }
-            }
+            </div>
           </div>
-        </div>
-      } @empty {
-        <div class="text-center py-4 text-white-50">
-          No se encontraron registros.
-        </div>
+        } @empty {
+          <div class="text-center py-4 text-white-50">
+            No se encontraron registros.
+          </div>
+        }
       }
-    }
-  </div>
+    </div>
+  }
 
   <app-pagination
     [currentPage]="currentPage"

@@ -3,11 +3,11 @@ import { Component, OnInit, inject, ChangeDetectorRef, OnDestroy } from '@angula
 import { RaffleService } from '../../../../core/services/api/raffle.service';
 import { Subscription } from 'rxjs';
 import { TicketService, BackendUnlinkLog } from '../../../../core/services/api/ticket.service';
-import { Filter } from '../../../../shared/components/filter/filter';
 import { Tables } from '../../../../shared/components/tables/tables';
 import { DeleteModal } from '../../../../shared/components/delete-modal/delete-modal';
 import { HistoryRafflesModal } from '../../../../shared/components/history-raffles-modal/history-raffles-modal';
 import { HistoryTicketModel } from '../../../../shared/components/history-ticket-model/history-ticket-model';
+import { AdvancedFiltersModal } from '../../../../shared/components/advanced-filters-modal/advanced-filters-modal';
 import { RaffleDetail } from '../../../../core/interfaces/api/raffle-detail.interface';
 import { TicketHistoryData } from '../../../../core/interfaces/api/ticket-history-data.interface';
 import { mapRaffleDetails, mapTicketDetails } from '../../../../core/helpers/ui/utils';
@@ -39,26 +39,29 @@ import {
   standalone: true,
   imports: [
     CommonModule,
-    Filter,
     Tables,
     DeleteModal,
     HistoryRafflesModal,
     HistoryTicketModel,
     UnlinkLogs,
+    AdvancedFiltersModal,
   ],
   templateUrl: './history.html',
   styleUrl: './history.scss',
 })
 export class History implements OnInit, OnDestroy {
   private readonly raffleService = inject(RaffleService);
-  private activeSub?: Subscription;
   private readonly ticketService = inject(TicketService);
   private readonly cdr = inject(ChangeDetectorRef);
+  private activeSub?: Subscription;
 
   principalHeader = HISTORY_PRINCIPAL_HEADER;
   historyColumns = HISTORY_COLUMNS;
   historyFilters = HISTORY_FILTERS;
   historyActions = HISTORY_ROW_ACTIONS;
+
+  selectedCategory = '';
+  selectedFoundation = '';
 
   currentPage = 1;
   pageSize = 10;
@@ -107,7 +110,17 @@ export class History implements OnInit, OnDestroy {
     }
 
     this.activeSub = this.raffleService
-      .getAll(this.currentPage, this.pageSize, this.searchText, statuses, undefined, backendFilter, '{"endDate":-1}')
+      .getAll(
+        this.currentPage,
+        this.pageSize,
+        this.searchText,
+        statuses,
+        undefined,
+        backendFilter,
+        '{"endDate":-1}',
+        this.selectedCategory || undefined,
+        this.selectedFoundation || undefined
+      )
       .subscribe({
         next: (res) => {
           if (res && res.data) {
@@ -137,8 +150,10 @@ export class History implements OnInit, OnDestroy {
     }
   }
 
-  filtrarPorCategoria(id: string): void {
-    this.filtroActual = id;
+  onFiltersApplied(filters: { category: string; foundation: string; status: string }) {
+    this.selectedCategory = filters.category;
+    this.selectedFoundation = filters.foundation;
+    this.filtroActual = filters.status || 'all';
     this.currentPage = 1;
     this.cargarRifas();
   }

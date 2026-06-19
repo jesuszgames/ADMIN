@@ -62,70 +62,73 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit {
   private readonly categoryService = inject(CategoryService);
   private readonly foundationService = inject(FoundationService);
 
-  // Categories Pagination & Search State
   categories: Category[] = [];
-  categoriesPage = 1;
-  categoriesLimit = 20;
-  categoriesTotal = 0;
   categoriesLoading = false;
-  categoriesSearchTerm = '';
-  categoryInput$ = new Subject<string>();
-
-  // Foundations Pagination & Search State
   foundations: Foundation[] = [];
-  foundationsPage = 1;
-  foundationsLimit = 20;
-  foundationsTotal = 0;
   foundationsLoading = false;
-  foundationsSearchTerm = '';
-  foundationInput$ = new Subject<string>();
 
-  ngOnInit() {
-    this.initSearchSubjects();
-    this.triggerInitialDropdownLoad();
-  }
+  @ViewChild('startDateInput') startDateInput!: ElementRef;
+  @ViewChild('endDateInput') endDateInput!: ElementRef;
 
-  initSearchSubjects() {
-    this.categoryInput$
-      .pipe(
-        debounceTime(300),
-        distinctUntilChanged(),
-        tap((term) => {
-          this.categoriesSearchTerm = term || '';
-        }),
-        switchMap((term) => this.loadCategories(term || '')),
-      )
-      .subscribe();
+  startDatePicker?: flatpickr.Instance;
+  endDatePicker?: flatpickr.Instance;
 
-    this.foundationInput$
-      .pipe(
-        debounceTime(300),
-        distinctUntilChanged(),
-        tap((term) => {
-          this.foundationsSearchTerm = term || '';
-        }),
-        switchMap((term) => this.loadFoundations(term || '')),
-      )
-      .subscribe();
-  }
+  ngOnInit() {}
 
-  triggerInitialDropdownLoad() {
-    this.categoriesSearchTerm = '';
-    this.foundationsSearchTerm = '';
-    this.loadCategories().subscribe();
-    this.loadFoundations().subscribe();
-  }
-
-  loadCategories(search = '', append = false) {
-    this.categoriesLoading = true;
-    if (!append) {
-      this.categoriesPage = 1;
+  ensureCurrentRaffleValuesInDropdowns() {
+    if (this.raffle && this.raffle.category) {
+      const hasCurrent = this.categories.some((c) => c.name === this.raffle!.category);
+      if (!hasCurrent) {
+        this.categories = [
+          {
+            _id: 'temp_cat',
+            name: this.raffle.category,
+            status: 'ACTIVE',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          } as Category,
+          ...this.categories,
+        ];
+      }
     }
-    return this.categoryService.getAll(this.categoriesPage, this.categoriesLimit, search).pipe(
+    if (this.raffle && this.raffle.foundation) {
+      const hasCurrent = this.foundations.some((f) => f.name === this.raffle!.foundation);
+      if (!hasCurrent) {
+        this.foundations = [
+          {
+            _id: 'temp_found',
+            name: this.raffle.foundation,
+            status: 'ACTIVE',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          } as Foundation,
+          ...this.foundations,
+        ];
+      }
+    }
+  }
+
+  loadCategoriesIfNeeded() {
+    const hasOnlyTemp = this.categories.length === 1 && this.categories[0]._id === 'temp_cat';
+    if (this.categories.length === 0 || hasOnlyTemp) {
+      this.loadCategories().subscribe();
+    }
+  }
+
+  loadFoundationsIfNeeded() {
+    const hasOnlyTemp = this.foundations.length === 1 && this.foundations[0]._id === 'temp_found';
+    if (this.foundations.length === 0 || hasOnlyTemp) {
+      this.loadFoundations().subscribe();
+    }
+  }
+
+  loadCategories() {
+    this.categoriesLoading = true;
+    return this.categoryService.getAll(1, 100).pipe(
       tap((res) => {
         this.categoriesLoading = false;
         if (res && res.data) {
-          const filtered = res.data.filter((c) => {
+          this.categories = res.data.filter((c) => {
             if (c.status === STATE_DELETED) return false;
             if (!this.raffle) {
               return c.status === 'ACTIVE';
@@ -133,18 +136,9 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit {
             return c.status === 'ACTIVE' || c.name === this.raffle.category;
           });
 
-          if (append) {
-            const existingNames = new Set(this.categories.map((c) => c.name));
-            const uniqueNew = filtered.filter((c) => !existingNames.has(c.name));
-            this.categories = [...this.categories, ...uniqueNew];
-          } else {
-            this.categories = filtered;
-          }
-          this.categoriesTotal = res.totalCount || 0;
-
           if (this.raffle && this.raffle.category) {
             const hasCurrent = this.categories.some((c) => c.name === this.raffle!.category);
-            if (!hasCurrent && !search) {
+            if (!hasCurrent) {
               this.categories.push({
                 _id: 'temp_cat',
                 name: this.raffle.category,
@@ -159,24 +153,13 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit {
     );
   }
 
-  loadNextCategories() {
-    if (this.categoriesLoading || this.categories.length >= this.categoriesTotal) {
-      return;
-    }
-    this.categoriesPage++;
-    this.loadCategories(this.categoriesSearchTerm, true).subscribe();
-  }
-
-  loadFoundations(search = '', append = false) {
+  loadFoundations() {
     this.foundationsLoading = true;
-    if (!append) {
-      this.foundationsPage = 1;
-    }
-    return this.foundationService.getAll(this.foundationsPage, this.foundationsLimit, search).pipe(
+    return this.foundationService.getAll(1, 100).pipe(
       tap((res) => {
         this.foundationsLoading = false;
         if (res && res.data) {
-          const filtered = res.data.filter((f) => {
+          this.foundations = res.data.filter((f) => {
             if (f.status === STATE_DELETED) return false;
             if (!this.raffle) {
               return f.status === 'ACTIVE';
@@ -184,18 +167,9 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit {
             return f.status === 'ACTIVE' || f.name === this.raffle.foundation;
           });
 
-          if (append) {
-            const existingNames = new Set(this.foundations.map((f) => f.name));
-            const uniqueNew = filtered.filter((f) => !existingNames.has(f.name));
-            this.foundations = [...this.foundations, ...uniqueNew];
-          } else {
-            this.foundations = filtered;
-          }
-          this.foundationsTotal = res.totalCount || 0;
-
           if (this.raffle && this.raffle.foundation) {
             const hasCurrent = this.foundations.some((f) => f.name === this.raffle!.foundation);
-            if (!hasCurrent && !search) {
+            if (!hasCurrent) {
               this.foundations.push({
                 _id: 'temp_found',
                 name: this.raffle.foundation,
@@ -209,20 +183,6 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit {
       }),
     );
   }
-
-  loadNextFoundations() {
-    if (this.foundationsLoading || this.foundations.length >= this.foundationsTotal) {
-      return;
-    }
-    this.foundationsPage++;
-    this.loadFoundations(this.foundationsSearchTerm, true).subscribe();
-  }
-
-  @ViewChild('startDateInput') startDateInput!: ElementRef;
-  @ViewChild('endDateInput') endDateInput!: ElementRef;
-
-  startDatePicker?: flatpickr.Instance;
-  endDatePicker?: flatpickr.Instance;
 
   title = '';
   foundation: string | null = null;
@@ -274,7 +234,10 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit {
     if (this.endDateInput && this.endDateInput.nativeElement) {
       this.endDatePicker = flatpickr(this.endDateInput.nativeElement, {
         locale: Spanish,
-        dateFormat: 'Y-m-d',
+        dateFormat: 'Y-m-d h:i K',
+        enableTime: true,
+        time_24hr: false,
+        minuteIncrement: 1,
         disableMobile: true,
         allowInput: false,
         clickOpens: !this.isReadOnly,
@@ -284,7 +247,6 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit {
           this.endDate = dateStr;
           this.touchedFields['endDate'] = true;
           if (this.startDatePicker) {
-            // No strict rule for start date max unless needed
           }
         },
         onClose: () => {
@@ -294,10 +256,18 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit {
     }
   }
 
-  formatDateToYYYYMMDD(dateVal: Date | string | number | null | undefined): string {
+  formatDateToYYYYMMDD(
+    dateVal: Date | string | number | null | undefined,
+    includeTime = false,
+  ): string {
     if (!dateVal) return '';
-    if (typeof dateVal === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateVal)) {
-      return dateVal;
+    if (typeof dateVal === 'string') {
+      if (!includeTime && /^\d{4}-\d{2}-\d{2}$/.test(dateVal)) {
+        return dateVal;
+      }
+      if (includeTime && /^\d{4}-\d{2}-\d{2} \d{2}:\d{2} (AM|PM)$/.test(dateVal)) {
+        return dateVal;
+      }
     }
     try {
       const date = new Date(dateVal);
@@ -306,6 +276,15 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit {
       const year = offsetDate.getUTCFullYear();
       const month = String(offsetDate.getUTCMonth() + 1).padStart(2, '0');
       const day = String(offsetDate.getUTCDate()).padStart(2, '0');
+      if (includeTime) {
+        let hoursNum = offsetDate.getUTCHours();
+        const ampm = hoursNum >= 12 ? 'PM' : 'AM';
+        hoursNum = hoursNum % 12;
+        hoursNum = hoursNum ? hoursNum : 12;
+        const hours = String(hoursNum).padStart(2, '0');
+        const minutes = String(offsetDate.getUTCMinutes()).padStart(2, '0');
+        return `${year}-${month}-${day} ${hours}:${minutes} ${ampm}`;
+      }
       return `${year}-${month}-${day}`;
     } catch {
       return '';
@@ -329,7 +308,7 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit {
       this.foundation = this.raffle.foundation || null;
       this.category = this.raffle.category || null;
       this.startDate = this.formatDateToYYYYMMDD(this.raffle.startDate);
-      this.endDate = this.formatDateToYYYYMMDD(this.raffle.endDate);
+      this.endDate = this.formatDateToYYYYMMDD(this.raffle.endDate, true);
       this.goal =
         this.raffle.goal !== undefined && this.raffle.goal !== null
           ? this.raffle.goal
@@ -379,7 +358,7 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit {
       this.endDatePicker.set('minDate', this.startDate || this.getTodayDate());
     }
 
-    this.triggerInitialDropdownLoad();
+    this.ensureCurrentRaffleValuesInDropdowns();
   }
 
   onBeneficiaryPercentageChange() {
@@ -524,8 +503,8 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit {
       this.winnerPercentage !== null &&
       this.winnerPercentage >= 0 &&
       this.winnerPercentage <= 100 &&
-      this.photo !== '' &&
-      this.banner !== '' &&
+      !!this.photo &&
+      !!this.banner &&
       this.blogCardText.trim() !== '' &&
       this.blogDetailText.trim() !== ''
     );
@@ -542,9 +521,12 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit {
       let normAnterior = anterior === null || anterior === undefined ? '' : String(anterior).trim();
       let normNuevo = nuevo === null || nuevo === undefined ? '' : String(nuevo).trim();
 
-      if (campo === 'Fecha Inicio' || campo === 'Fecha Fin') {
-        normAnterior = this.formatDateToYYYYMMDD(normAnterior);
-        normNuevo = this.formatDateToYYYYMMDD(normNuevo);
+      if (campo === 'Fecha Inicio') {
+        normAnterior = this.formatDateToYYYYMMDD(normAnterior, false);
+        normNuevo = this.formatDateToYYYYMMDD(normNuevo, false);
+      } else if (campo === 'Fecha Fin') {
+        normAnterior = this.formatDateToYYYYMMDD(normAnterior, true);
+        normNuevo = this.formatDateToYYYYMMDD(normNuevo, true);
       }
 
       const translateVal = (val: string) => {
@@ -603,7 +585,6 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit {
         nuevo: this.banner ? 'Nueva Imagen' : '(Sin Imagen)',
       });
     }
-
     return this.cambios.length > 0;
   }
 

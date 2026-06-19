@@ -4,7 +4,6 @@ import { RaffleService } from '../../../../core/services/api/raffle.service';
 import { TicketService, BackendUnlinkLog } from '../../../../core/services/api/ticket.service';
 import { Subscription } from 'rxjs';
 import { RouterModule } from '@angular/router';
-import { Filter } from '../../../../shared/components/filter/filter';
 import { Tables } from '../../../../shared/components/tables/tables';
 import { DeleteModal } from '../../../../shared/components/delete-modal/delete-modal';
 import { MainButton } from '../../../../shared/components/main-button/main-button';
@@ -12,6 +11,7 @@ import { CreateRaffleModal } from '../../components/create-raffle-modal/create-r
 import { EditTicketsModal } from '../../../../shared/components/edit-tickets-modal/edit-tickets-modal';
 import { UnlinkLogs } from '../../../../shared/components/unlink-logs/unlink-logs';
 import { ConfirmChangesModal } from '../../../../shared/components/confirm-changes-modal/confirm-changes-modal';
+import { AdvancedFiltersModal } from '../../../../shared/components/advanced-filters-modal/advanced-filters-modal';
 import { ModelChange } from '../../../../core/interfaces/api/model-change.interface';
 import {
   TABLE_ACTION_CHANGE_STATE,
@@ -29,6 +29,7 @@ import {
   RAFFLE_FILTER_NO_TICKETS,
   RAFFLE_FILTER_PROX_EXPIRED,
   RAFFLE_FILTER_META_COMPLETED,
+  RAFFLE_FILTER_PENDING_DRAW,
   RAFFLE_STATUS_ACTIVE,
   RAFFLE_STATUS_INACTIVE,
   RAFFLE_STATUS_NO_TICKETS,
@@ -41,7 +42,11 @@ import {
   METHOD_AUTOMATIC,
 } from '../../../../core/helpers/global/raffle.constants';
 import { Raffle } from '../../../../core/interfaces/api/raffle.interface';
-import { calculateRemainingTime, isDeletedStatus, isActiveStatus } from '../../../../core/helpers/ui/utils';
+import {
+  calculateRemainingTime,
+  isDeletedStatus,
+  isActiveStatus,
+} from '../../../../core/helpers/ui/utils';
 
 @Component({
   selector: 'app-raffles',
@@ -49,7 +54,6 @@ import { calculateRemainingTime, isDeletedStatus, isActiveStatus } from '../../.
   imports: [
     CommonModule,
     RouterModule,
-    Filter,
     Tables,
     DeleteModal,
     MainButton,
@@ -57,6 +61,7 @@ import { calculateRemainingTime, isDeletedStatus, isActiveStatus } from '../../.
     EditTicketsModal,
     UnlinkLogs,
     ConfirmChangesModal,
+    AdvancedFiltersModal,
   ],
   templateUrl: './my-raffles.html',
 })
@@ -69,6 +74,9 @@ export class Raffles implements OnInit, OnDestroy {
   principalHeader = MY_RAFFLES_PRINCIPAL_HEADER;
   dashboardColumns = MY_RAFFLES_COLUMNS;
   misFiltrosRifas = MY_RAFFLES_FILTERS;
+
+  selectedCategory = '';
+  selectedFoundation = '';
 
   filtroActual = RAFFLE_FILTER_ALL;
   rifaSeleccionadaParaBorrar: Raffle | null = null;
@@ -97,10 +105,19 @@ export class Raffles implements OnInit, OnDestroy {
   totalItems = 0;
   searchText = '';
 
+  private countdownInterval?: any;
+
   ngOnInit(): void {
     setTimeout(() => {
       this.cargarRifas();
     });
+
+    this.countdownInterval = setInterval(() => {
+      if (this.rifasData.length > 0) {
+        this.tableData = this.getFilteredData();
+        this.cdr.detectChanges();
+      }
+    }, 30000);
   }
 
   cargarRifas(isSilent = false): void {
@@ -111,13 +128,15 @@ export class Raffles implements OnInit, OnDestroy {
       this.loading = true;
       this.cdr.detectChanges();
     }
-    let statuses = 'ACTIVE,INACTIVE,NO-TICKETS,SOON-TO-EXPIRED,GOAL';
+    let statuses = 'ACTIVE,INACTIVE,NO-TICKETS,SOON-TO-EXPIRED,GOAL,PENDING-DRAW';
 
     let backendFilter = '';
     let drawMethod = undefined;
 
     if (this.filtroActual === RAFFLE_FILTER_INACTIVE) {
       statuses = 'INACTIVE';
+    } else if (this.filtroActual === RAFFLE_FILTER_PENDING_DRAW) {
+      statuses = 'PENDING-DRAW';
     } else if (this.filtroActual === RAFFLE_FILTER_NO_TICKETS) {
       statuses = 'ACTIVE,INACTIVE';
       backendFilter = RAFFLE_FILTER_VALUES.NO_TICKETS;
@@ -134,7 +153,17 @@ export class Raffles implements OnInit, OnDestroy {
     }
 
     this.activeSub = this.raffleService
-      .getAll(this.currentPage, this.pageSize, this.searchText, statuses, drawMethod, backendFilter, '{"endDate":1}')
+      .getAll(
+        this.currentPage,
+        this.pageSize,
+        this.searchText,
+        statuses,
+        drawMethod,
+        backendFilter,
+        '{"endDate":1}',
+        this.selectedCategory || undefined,
+        this.selectedFoundation || undefined,
+      )
       .subscribe({
         next: (res) => {
           if (res && res.data) {
@@ -157,10 +186,15 @@ export class Raffles implements OnInit, OnDestroy {
     if (this.activeSub) {
       this.activeSub.unsubscribe();
     }
+    if (this.countdownInterval) {
+      clearInterval(this.countdownInterval);
+    }
   }
 
-  filtrarPorCategoria(id: string) {
-    this.filtroActual = id;
+  onFiltersApplied(filters: { category: string; foundation: string; status: string }) {
+    this.selectedCategory = filters.category;
+    this.selectedFoundation = filters.foundation;
+    this.filtroActual = filters.status || 'all';
     this.currentPage = 1;
     this.cargarRifas();
   }
@@ -192,13 +226,13 @@ export class Raffles implements OnInit, OnDestroy {
             if (index === -1) throw new Error();
             const current = this.rifasData[index].status;
             const currentUpper = current.toUpperCase();
- 
+
             let nextState = RAFFLE_STATUS_ACTIVE;
             try {
               if (currentUpper.includes('INACT')) throw new Error();
               nextState = RAFFLE_STATUS_INACTIVE;
             } catch {}
- 
+
             this.pendingRowToToggle = row;
             this.changesToConfirm = [
               {
@@ -216,7 +250,13 @@ export class Raffles implements OnInit, OnDestroy {
         },
         [TABLE_ACTION_EDIT_DETAIL]: () => {
           this.selectedRaffleForEdit = row;
-          this.isReadOnlyView = isDeletedStatus(row.status);
+          const hasExpired = row.endDate ? new Date(row.endDate) <= new Date() : false;
+          const statusUpper = (row.status || '').toUpperCase();
+          this.isReadOnlyView =
+            isDeletedStatus(row.status) ||
+            statusUpper === 'FINISHED' ||
+            statusUpper === 'PENDING-DRAW' ||
+            hasExpired;
           document.getElementById(this.BTN_CREATE_RAFFLE_ID)?.click();
         },
         [TABLE_ACTION_EDIT_TICKETS]: () => {
@@ -227,20 +267,30 @@ export class Raffles implements OnInit, OnDestroy {
           this.selectedRaffleForLogs = { ...row, unlinks: [] };
           this.ticketService.getUnlinkedLogs(row._id, 1, 1000).subscribe({
             next: (res) => {
-              const logs = res?.data && !Array.isArray(res.data) && res.data.result ? res.data.result : (Array.isArray(res?.data) ? res.data : []);
+              const logs =
+                res?.data && !Array.isArray(res.data) && res.data.result
+                  ? res.data.result
+                  : Array.isArray(res?.data)
+                    ? res.data
+                    : [];
               if (this.selectedRaffleForLogs) {
                 this.selectedRaffleForLogs.unlinks = logs.map((log: BackendUnlinkLog) => {
                   const userVal = log.userId
-                    ? (typeof log.userId === 'object' ? log.userId.name || log.userId.username : log.userId)
+                    ? typeof log.userId === 'object'
+                      ? log.userId.name || log.userId.username
+                      : log.userId
                     : 'User';
                   return {
                     number: log.number,
-                    user: typeof userVal === 'object'
-                      ? (userVal as { name?: string; username?: string }).name || (userVal as { name?: string; username?: string }).username || 'User'
-                      : String(userVal),
+                    user:
+                      typeof userVal === 'object'
+                        ? (userVal as { name?: string; username?: string }).name ||
+                          (userVal as { name?: string; username?: string }).username ||
+                          'User'
+                        : String(userVal),
                     purchaseId: log.purchaseId,
                     reason: log.reason,
-                    date: log.date
+                    date: log.date,
                   };
                 });
                 this.cdr.detectChanges();
@@ -248,22 +298,22 @@ export class Raffles implements OnInit, OnDestroy {
             },
             error: (err) => {
               console.error('API Error: No se pudieron cargar logs de desvinculados', err);
-            }
+            },
           });
           document.getElementById('btn-abrir-modal-unlink-logs')?.click();
         },
       };
- 
+
       const action = actions[evento.actionId];
       if (!action) throw new Error();
       action();
     } catch {}
   }
- 
+
   confirmarEliminar(razon: string) {
     const targetRaffle = this.rifaSeleccionadaParaBorrar;
     if (!targetRaffle || this.isRaffleDeleting) return;
- 
+
     this.isRaffleDeleting = true;
     this.raffleService.deleteRaffle(targetRaffle._id, razon).subscribe({
       next: () => {
@@ -277,7 +327,7 @@ export class Raffles implements OnInit, OnDestroy {
     });
     this.rifaSeleccionadaParaBorrar = null;
   }
- 
+
   confirmarCambioEstado() {
     if (this.pendingRowToToggle && this.changesToConfirm.length > 0 && !this.isRaffleUpdating) {
       const nextStatus = this.changesToConfirm[0].nuevo as string;
@@ -295,7 +345,7 @@ export class Raffles implements OnInit, OnDestroy {
     }
     this.cancelarCambioEstado();
   }
- 
+
   cancelarCambioEstado() {
     this.showConfirmModal = false;
     this.changesToConfirm = [];

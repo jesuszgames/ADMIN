@@ -104,7 +104,6 @@ export class EditUserModal implements OnChanges {
     const trimmedPhone = (this.phone || '').trim();
     const trimmedPassword = (this.password || '').trim();
 
-    // Password is required only for new users
     const isPasswordValid = this.user
       ? trimmedPassword.length === 0 || trimmedPassword.length >= 6
       : trimmedPassword.length >= 6;
@@ -196,7 +195,10 @@ export class EditUserModal implements OnChanges {
       name: this.name.trim(),
       email: this.email.trim(),
       phone: this.phone.trim(),
-      role: [this.role === 'ADMIN' ? 'admin' : 'sort'] as unknown as ('ADMIN' | 'SORTEADOR' | 'USUARIO'),
+      role: [this.role === 'ADMIN' ? 'admin' : 'sort'] as unknown as
+        | 'ADMIN'
+        | 'SORTEADOR'
+        | 'USUARIO',
       status: this.user?.status ?? 'ACTIVE',
       actions: this.user?.actions ?? '',
     };

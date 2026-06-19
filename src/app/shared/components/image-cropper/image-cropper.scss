@@ -3,13 +3,17 @@
 .image-cropper-container {
   overflow: hidden;
   background-color: var.$container-bg;
-  background-image: 
-    linear-gradient(45deg, var.$background 25%, transparent 25%), 
-    linear-gradient(-45deg, var.$background 25%, transparent 25%), 
-    linear-gradient(45deg, transparent 75%, var.$background 75%), 
+  background-image:
+    linear-gradient(45deg, var.$background 25%, transparent 25%),
+    linear-gradient(-45deg, var.$background 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, var.$background 75%),
     linear-gradient(-45deg, transparent 75%, var.$background 75%);
   background-size: 16px 16px;
-  background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+  background-position:
+    0 0,
+    0 8px,
+    8px -8px,
+    -8px 0px;
   border: 1px solid var.$option-border;
   transition: all 0.3s ease;
 
@@ -20,13 +24,17 @@
 
 .cropper-edit-area {
   background-color: var.$container-bg;
-  background-image: 
-    linear-gradient(45deg, var.$background 25%, transparent 25%), 
-    linear-gradient(-45deg, var.$background 25%, transparent 25%), 
-    linear-gradient(45deg, transparent 75%, var.$background 75%), 
+  background-image:
+    linear-gradient(45deg, var.$background 25%, transparent 25%),
+    linear-gradient(-45deg, var.$background 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, var.$background 75%),
     linear-gradient(-45deg, transparent 75%, var.$background 75%);
   background-size: 16px 16px;
-  background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+  background-position:
+    0 0,
+    0 8px,
+    8px -8px,
+    -8px 0px;
   min-height: 150px;
   cursor: move;
   user-select: none;
@@ -41,7 +49,6 @@
   will-change: left, top, width, height;
 }
 
-// 3x3 Grid lines overlay
 .cropper-grid-overlay {
   top: 0;
   left: 0;
@@ -88,7 +95,6 @@
   z-index: 10;
 }
 
-// Custom Styled Zoom Slider
 .custom-zoom-slider {
   background: rgba(255, 255, 255, 0.1) !important;
   height: 6px;
@@ -107,7 +113,9 @@
     cursor: pointer;
     border: 2px solid var.$primary-text;
     box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
-    transition: transform 0.1s ease, background-color 0.1s ease;
+    transition:
+      transform 0.1s ease,
+      background-color 0.1s ease;
   }
 
   &::-webkit-slider-thumb:hover {
@@ -123,7 +131,9 @@
     cursor: pointer;
     border: 2px solid var.$primary-text;
     box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
-    transition: transform 0.1s ease, background-color 0.1s ease;
+    transition:
+      transform 0.1s ease,
+      background-color 0.1s ease;
   }
 
   &::-moz-range-thumb:hover {
@@ -132,7 +142,6 @@
   }
 }
 
-// Preview Area
 .cropper-preview-area {
   cursor: default;
 
@@ -163,14 +172,13 @@
     align-items: center;
     justify-content: center;
     font-weight: 500;
-    
+
     &:hover {
       transform: translateY(-2px);
     }
   }
 }
 
-// Empty Upload State Area
 .cropper-empty-area {
   border: 2px dashed var.$option-border;
   background: var.$option-bg;
@@ -196,8 +204,12 @@
 }
 
 @keyframes bounce {
-  0% { transform: translateY(0); }
-  100% { transform: translateY(-8px); }
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-8px);
+  }
 }
 
 .pointer-events-none {

@@ -2,7 +2,7 @@
 
 /* Confirmation Modal Overlay */
 .confirm-modal-overlay {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   right: 0;
@@ -12,8 +12,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 10;
-  border-radius: 8px;
+  z-index: 9999;
   animation: fadeIn 0.2s ease-out;
 }
 
@@ -34,7 +33,6 @@
   border-radius: 6px;
   padding: 0.75rem 1rem;
 
-  // Custom scrollbar
   &::-webkit-scrollbar {
     width: 6px;
   }
@@ -78,7 +76,9 @@
   padding: 0.65rem 0.85rem;
   display: flex;
   flex-direction: column;
-  transition: background-color 0.15s ease, border-color 0.15s ease;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
 
   &:hover {
     background-color: var.$option-hover-bg;

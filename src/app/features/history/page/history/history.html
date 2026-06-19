@@ -2,8 +2,38 @@
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h3 class="m-0">Historial de rifas</h3>
   </div>
-  <div class="mb-3">
-    <app-filter [options]="historyFilters" (onFilter)="filtrarPorCategoria($event)"></app-filter>
+  <!-- Advanced Filters Group (Desktop) -->
+  <div class="advanced-filters-group mb-3 d-none d-md-block">
+    <!-- Trigger Button for Desktop (Collapse) -->
+    <button
+      class="btn advanced-filters-btn d-inline-flex align-items-center justify-content-between w-100"
+      [class.active]="selectedCategory || selectedFoundation || (filtroActual && filtroActual !== 'all')"
+      data-bs-toggle="collapse"
+      data-bs-target="#collapseFiltrosAvanzados"
+      aria-expanded="false"
+      aria-controls="collapseFiltrosAvanzados"
+    >
+      <div class="d-flex align-items-center gap-2">
+        <i class="bi bi-funnel"></i>
+        <span>Filtros Avanzados</span>
+        @if (selectedCategory || selectedFoundation || (filtroActual && filtroActual !== 'all')) {
+          <span class="badge bg-white text-primary ms-1" style="font-size: 0.75rem;">Activo</span>
+        }
+      </div>
+      <i class="bi bi-chevron-down filter-chevron"></i>
+    </button>
+
+    <!-- Collapsible Advanced Filters (Desktop) -->
+    <div class="collapse" id="collapseFiltrosAvanzados">
+      <app-advanced-filters-modal
+        [isModal]="false"
+        [selectedCategory]="selectedCategory"
+        [selectedFoundation]="selectedFoundation"
+        [statusOptions]="historyFilters"
+        [selectedStatus]="filtroActual"
+        (filterApplied)="onFiltersApplied($event)"
+      ></app-advanced-filters-modal>
+    </div>
   </div>
 
   <div class="row">
@@ -27,6 +57,32 @@
       </app-tables>
     </div>
   </div>
+</div>
+
+<!-- Trigger Button for Mobile (Offcanvas) -->
+<button
+  class="btn advanced-filters-btn floating-mobile-filter-btn d-inline-flex d-md-none align-items-center gap-2"
+  [class.active]="selectedCategory || selectedFoundation || (filtroActual && filtroActual !== 'all')"
+  data-bs-toggle="offcanvas"
+  data-bs-target="#offcanvasFiltrosAvanzados"
+>
+  <i class="bi bi-funnel"></i>
+  <span>Filtros Avanzados</span>
+  @if (selectedCategory || selectedFoundation || (filtroActual && filtroActual !== 'all')) {
+    <span class="badge bg-white text-primary ms-1" style="font-size: 0.75rem;">Activo</span>
+  }
+</button>
+
+<!-- Mobile Offcanvas -->
+<div class="d-md-none">
+  <app-advanced-filters-modal
+    [isModal]="true"
+    [selectedCategory]="selectedCategory"
+    [selectedFoundation]="selectedFoundation"
+    [statusOptions]="historyFilters"
+    [selectedStatus]="filtroActual"
+    (filterApplied)="onFiltersApplied($event)"
+  ></app-advanced-filters-modal>
 </div>
 
 <app-delete-modal
@@ -94,3 +150,4 @@
     </div>
   </div>
 </div>
+

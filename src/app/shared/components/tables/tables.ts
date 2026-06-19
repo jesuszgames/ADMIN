@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, SimpleChanges } from '@angular/core';
+import { Component, Input, Output, EventEmitter, SimpleChanges, HostListener, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Pagination } from '../pagination/pagination';
 import { Dropdown } from '../dropdown/dropdown';
@@ -21,7 +21,23 @@ import { TableColumn } from '../../../core/interfaces/api/table-column.interface
   templateUrl: './tables.html',
   styleUrl: './tables.scss',
 })
-export class Tables<T extends Record<string, unknown> = Record<string, unknown>> {
+export class Tables<T extends Record<string, unknown> = Record<string, unknown>> implements OnInit {
+  isMobile = false;
+
+  ngOnInit(): void {
+    this.checkScreenSize();
+  }
+
+  @HostListener('window:resize', [])
+  onResize(): void {
+    this.checkScreenSize();
+  }
+
+  private checkScreenSize(): void {
+    if (typeof window !== 'undefined') {
+      this.isMobile = window.innerWidth < 768;
+    }
+  }
   @Input() principalheader: string = '';
   @Input() columns: TableColumn[] = [];
   @Input() data: T[] = [];
@@ -77,6 +93,13 @@ export class Tables<T extends Record<string, unknown> = Record<string, unknown>>
       SUCCESS: 'Éxito',
       AUTOMATIC: 'Automático',
       MANUAL: 'Manual',
+      'PENDING-DRAW': 'Pendiente Sorteo',
+      'NO TICKETS': 'Sin Boletos',
+      'NO-TICKETS': 'Sin Boletos',
+      'SOON TO EXPIRE': 'Próximo a Vencer',
+      'SOON-TO-EXPIRED': 'Próximo a Vencer',
+      'GOAL COMPLETED': 'Meta Alcanzada',
+      GOAL: 'Meta Alcanzada',
     };
     return translations[valStr] || String(value);
   }

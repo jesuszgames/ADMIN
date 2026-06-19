@@ -11,7 +11,6 @@ export class ThemeService {
   readonly currentTheme = this.themeSignal.asReadonly();
 
   constructor() {
-    // Sync theme to document element
     effect(() => {
       const theme = this.themeSignal();
       document.documentElement.setAttribute('data-theme', theme);
@@ -32,7 +31,6 @@ export class ThemeService {
     if (saved === 'light' || saved === 'dark') {
       return saved;
     }
-    // Default to dark mode since it's the premium default design
     return 'dark';
   }
 }

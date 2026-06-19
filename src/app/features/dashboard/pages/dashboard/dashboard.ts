@@ -9,7 +9,12 @@ import { RaffleDetail } from '../../../../core/interfaces/api/raffle-detail.inte
 import { TicketHistoryData } from '../../../../core/interfaces/api/ticket-history-data.interface';
 import { RaffleService } from '../../../../core/services/api/raffle.service';
 import { TicketService } from '../../../../core/services/api/ticket.service';
-import { mapRaffleDetails, mapTicketDetails, isDeletedStatus } from '../../../../core/helpers/ui/utils';
+import { AuthService } from '../../../../core/services/api/auth.service';
+import {
+  mapRaffleDetails,
+  mapTicketDetails,
+  isDeletedStatus,
+} from '../../../../core/helpers/ui/utils';
 import {
   DEFAULT_USER_NAME,
   DASHBOARD_PRINCIPAL_HEADER,
@@ -24,10 +29,7 @@ import {
   TABLE_ACTION_DASHBOARD_DELETE,
   TABLE_ACTION_VIEW_UNLINK_LOGS,
 } from '../../../../core/helpers/ui/constants';
-import {
-  STATE_DELETED,
-  METHOD_AUTOMATIC,
-} from '../../../../core/helpers/global/raffle.constants';
+import { STATE_DELETED, METHOD_AUTOMATIC } from '../../../../core/helpers/global/raffle.constants';
 import { Raffle } from '../../../../core/interfaces/api/raffle.interface';
 
 export interface DashboardCard {
@@ -55,6 +57,7 @@ export interface DashboardCard {
 export class Dashboard implements OnInit {
   private readonly raffleService = inject(RaffleService);
   private readonly ticketService = inject(TicketService);
+  private readonly authService = inject(AuthService);
   private readonly cdr = inject(ChangeDetectorRef);
 
   userName = DEFAULT_USER_NAME;
@@ -77,6 +80,7 @@ export class Dashboard implements OnInit {
   loading = false;
 
   ngOnInit(): void {
+    this.userName = this.authService.getUserName();
     this.initWelcomeMessage();
     setTimeout(() => {
       this.cargarRifas();
@@ -86,8 +90,6 @@ export class Dashboard implements OnInit {
   cargarRifas(): void {
     this.loading = true;
     this.cdr.detectChanges();
-
-    // 1. Fetch dashboard metrics
     this.raffleService.getDashboardMetrics().subscribe({
       next: (res) => {
         if (res && res.data) {
@@ -135,36 +137,37 @@ export class Dashboard implements OnInit {
       },
       error: (err) => {
         console.error('API Error: No se pudieron cargar las métricas para el dashboard.', err);
-      }
+      },
     });
 
-    // 2. Fetch paginated recent raffles (finished or pending-draw, ended within the last 24h)
-    this.raffleService.getAll(1, 10, '', 'FINISHED,PENDING-DRAW', undefined, 'recent', '{"endDate":-1}').subscribe({
-      next: (res) => {
-        if (res && res.data) {
-          this.recentRaffles = res.data;
-          this.tableData = this.recentRaffles.map((raffle) => {
-            let recStr = `${raffle.collected}$`;
-            try {
-              if (!raffle.goal) throw new Error();
-              recStr = `${raffle.collected}/${raffle.goal} $`;
-            } catch { }
-            return {
-              ...raffle,
-              drawMethod: raffle.drawMethod || (METHOD_AUTOMATIC as 'AUTOMATIC' | 'MANUAL'),
-              collectedStr: recStr,
-            };
-          });
-        }
-        this.loading = false;
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        console.error('API Error: No se pudieron cargar las rifas para el dashboard.', err);
-        this.loading = false;
-        this.cdr.detectChanges();
-      }
-    });
+    this.raffleService
+      .getAll(1, 10, '', 'FINISHED,PENDING-DRAW', undefined, 'recent', '{"endDate":-1}')
+      .subscribe({
+        next: (res) => {
+          if (res && res.data) {
+            this.recentRaffles = res.data;
+            this.tableData = this.recentRaffles.map((raffle) => {
+              let recStr = `${raffle.collected}$`;
+              try {
+                if (!raffle.goal) throw new Error();
+                recStr = `${raffle.collected}/${raffle.goal} $`;
+              } catch {}
+              return {
+                ...raffle,
+                drawMethod: raffle.drawMethod || (METHOD_AUTOMATIC as 'AUTOMATIC' | 'MANUAL'),
+                collectedStr: recStr,
+              };
+            });
+          }
+          this.loading = false;
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('API Error: No se pudieron cargar las rifas para el dashboard.', err);
+          this.loading = false;
+          this.cdr.detectChanges();
+        },
+      });
   }
 
   private initWelcomeMessage() {
@@ -222,7 +225,7 @@ export class Dashboard implements OnInit {
       const action = actions[evento.actionId];
       if (!action) throw new Error();
       action();
-    } catch { }
+    } catch {}
   }
 
   confirmarEliminar(razon: string) {

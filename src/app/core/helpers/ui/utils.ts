@@ -71,6 +71,11 @@ export function calculateRemainingTime(endDateStr: string, status?: string): str
 
     const diffHours = diffMs / (1000 * 60 * 60);
 
+    if (diffHours < 1) {
+      const minutes = Math.ceil(diffMs / (1000 * 60));
+      return `${minutes} ${minutes === 1 ? 'minuto' : 'minutos'}`;
+    }
+
     if (diffHours < 24) {
       const hours = Math.ceil(diffHours);
       return `${hours} ${hours === 1 ? 'hora' : 'horas'}`;

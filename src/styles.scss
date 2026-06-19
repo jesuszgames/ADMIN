@@ -93,7 +93,6 @@
   }
 }
 
-// Uniform styles for flatpickr calendar dropdown to match theme
 .flatpickr-calendar {
   background: var.$container-bg !important;
   border: 1px solid var.$input-border !important;
@@ -106,6 +105,15 @@
     background: transparent !important;
     .flatpickr-month {
       color: var.$primary-text !important;
+    }
+    .flatpickr-monthDropdown-months {
+      background-color: var.$container-bg !important;
+      color: var.$primary-text !important;
+
+      option {
+        background-color: var.$container-bg !important;
+        color: var.$primary-text !important;
+      }
     }
     .flatpickr-prev-month,
     .flatpickr-next-month {
@@ -157,5 +165,157 @@
         background: transparent !important;
       }
     }
+  }
+
+  .flatpickr-time {
+    border-top: 1px solid var.$input-border !important;
+    background: var.$container-bg !important;
+    border-radius: 0 0 12px 12px !important;
+
+    .numInput,
+    .flatpickr-am-pm {
+      color: var.$primary-text !important;
+      background: transparent !important;
+
+      &:hover,
+      &:focus {
+        background: var.$hover-cancel-button !important;
+      }
+    }
+
+    .flatpickr-time-separator {
+      color: var.$primary-text !important;
+    }
+  }
+}
+
+.advanced-filters-group {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+
+  .advanced-filters-btn {
+    width: 100%;
+    position: relative;
+    z-index: 2;
+    margin-bottom: 0 !important;
+
+    &[aria-expanded='true'] {
+      border-bottom-left-radius: 0 !important;
+      border-bottom-right-radius: 0 !important;
+      border-bottom-color: transparent !important;
+    }
+  }
+
+  .collapse,
+  .collapsing {
+    width: 100%;
+    margin-top: -1px;
+    position: relative;
+    z-index: 1;
+
+    .card {
+      border-top-left-radius: 0 !important;
+      border-top-right-radius: 0 !important;
+    }
+  }
+}
+
+.advanced-filters-btn {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  height: 42px;
+  padding: 8px 16px;
+  background-color: var(--container-bg) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 10px !important;
+  color: var(--primary-text) !important;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+
+  i {
+    font-size: 1rem;
+  }
+
+  .filter-chevron {
+    transition: transform 0.2s ease;
+  }
+
+  &[aria-expanded='true'] {
+    .filter-chevron {
+      transform: rotate(180deg);
+    }
+  }
+
+  &:hover {
+    background-color: var(--button-secondary-hover) !important;
+    color: var(--primary-text) !important;
+  }
+
+  &:focus,
+  &:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+  }
+
+  &.active {
+    background-color: var(--button-primary) !important;
+    border-color: var(--button-primary) !important;
+    color: #ffffff !important;
+
+    &:hover {
+      background-color: var(--button-primary-hover) !important;
+      color: #ffffff !important;
+    }
+  }
+}
+
+@media (max-width: 767.98px) {
+  .floating-mobile-filter-btn {
+    position: fixed !important;
+    bottom: 80px !important;
+    right: 24px !important;
+    z-index: 1030 !important;
+    border-radius: 50px !important;
+    padding: 12px 20px !important;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4) !important;
+    background-color: var(--button-primary) !important;
+    color: #ffffff !important;
+    border: none !important;
+    height: auto !important;
+
+    i {
+      font-size: 1.1rem;
+    }
+
+    &.active {
+      background-color: var(--button-primary) !important;
+    }
+
+    &:hover,
+    &:focus,
+    &:active {
+      background-color: var(--button-primary-hover) !important;
+      color: #ffffff !important;
+    }
+  }
+}
+
+.offcanvas-backdrop {
+  z-index: 1080 !important;
+}
+
+.offcanvas {
+  z-index: 1090 !important;
+}
+
+.modal-body {
+  h3.fw-bold,
+  h4.fw-bold,
+  .modal-title {
+    margin-bottom: 1rem !important;
   }
 }

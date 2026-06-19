@@ -31,7 +31,8 @@ const ERROR_TRANSLATIONS: { [key: string]: string } = {
   'Logged out successfully': 'Sesión cerrada correctamente',
   'jwt expired': 'Tu sesión ha expirado. Por favor, vuelve a iniciar sesión',
   'Invalid token': 'Sesión inválida o expirada',
-  'Cannot delete a raffle with sold tickets': 'No se puede eliminar una rifa que ya tiene boletos vendidos',
+  'Cannot delete a raffle with sold tickets':
+    'No se puede eliminar una rifa que ya tiene boletos vendidos',
   'Cannot select an inactive category': 'No se puede seleccionar una categoría inactiva',
   'Cannot select an inactive foundation': 'No se puede seleccionar una fundación inactiva',
   'Cannot select a deleted category': 'No se puede seleccionar una categoría eliminada',
@@ -42,7 +43,6 @@ function translateError(msg: string): string {
   if (!msg) return msg;
   let trimmed = msg.trim();
 
-  // Strip URLs and IP addresses to avoid exposing backend network details
   trimmed = trimmed.replace(/https?:\/\/[^\s]+/gi, 'servidor');
   trimmed = trimmed.replace(/\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(:\d+)?\b/g, 'servidor');
 
@@ -63,12 +63,10 @@ function translateError(msg: string): string {
     return 'Ha ocurrido un error inesperado en el servidor. Por favor, inténtalo de nuevo más tarde.';
   }
 
-  // Hide token or unauthorized technical errors
   if (lowerMsg.includes('token missing') || lowerMsg.includes('unauthorized')) {
     return 'Acceso no autorizado o sesión expirada. Por favor, vuelve a iniciar sesión.';
   }
 
-  // Common phrase translations for Joi validator
   let translated = msg;
   translated = translated.replace(/must be a string/gi, 'debe ser un texto válido');
   translated = translated.replace(/must not be empty/gi, 'no puede estar vacío');
@@ -96,7 +94,6 @@ function translateError(msg: string): string {
   translated = translated.replace(/is required/gi, 'es requerido');
   translated = translated.replace(/Unexpected field/gi, 'Campo inesperado');
 
-  // Field name translation helpers
   translated = translated.replace(/\bname\b/gi, 'El nombre');
   translated = translated.replace(/\bdescription\b/gi, 'La descripción');
   translated = translated.replace(/\bicon\b/gi, 'El icono');

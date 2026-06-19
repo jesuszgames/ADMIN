@@ -1,7 +1,7 @@
 export interface BuyerInfo {
-  id: string; // purchaseId in frontend
-  purchaseId?: string; // matches backend
-  userId?: string; // Ref to User (if registered)
+  id: string;
+  purchaseId?: string;
+  userId?: string;
   name: string;
   email: string;
   phone: string;
@@ -15,4 +15,3 @@ export interface Ticket {
   status: 'available' | 'selected' | 'winner';
   buyer?: BuyerInfo;
 }
-

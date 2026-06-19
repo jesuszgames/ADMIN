@@ -22,8 +22,7 @@
   --eliminated-bg-opaco: rgba(91, 35, 40, 0.5);
   --no-tickets-bg-opaco: rgba(56, 35, 10, 0.5);
   --desactive-bg-opaco: rgba(125, 133, 144, 0.5);
- 
-  // New standardized theme color properties
+
   --select-arrow: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
   --input-border: rgba(255, 255, 255, 0.05);
   --input-focus-shadow: rgba(37, 99, 235, 0.25);
@@ -71,18 +70,17 @@
   --color-secondary-accent-bg: rgba(148, 163, 184, 0.12);
   --color-secondary-accent-shadow: rgba(148, 163, 184, 0.2);
   --color-secondary-accent-border: rgba(148, 163, 184, 0.3);
-  
+
   --color-pink: #ec4899;
   --color-pink-bg: rgba(236, 72, 153, 0.12);
   --color-pink-border: rgba(236, 72, 153, 0.3);
-  
-  // Premium transitions & visual polish
+
   --transition-premium: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   --transition-fast: all 0.15s ease-in-out;
   --border-glow-blue: rgba(59, 130, 246, 0.15);
 }
 
-[data-theme="light"] {
+[data-theme='light'] {
   --background: #f3f4f6;
   --container-bg: #ffffff;
   --container-info-bg: rgba(37, 99, 235, 0.12);
@@ -106,8 +104,7 @@
   --eliminated-bg-opaco: rgba(254, 226, 226, 0.8);
   --no-tickets-bg-opaco: rgba(254, 243, 199, 0.8);
   --desactive-bg-opaco: rgba(243, 244, 246, 0.8);
- 
-  // Standardized light theme colors
+
   --select-arrow: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%231f2937' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
   --input-border: #d1d5db;
   --input-focus-shadow: rgba(37, 99, 235, 0.15);
@@ -155,14 +152,13 @@
   --color-secondary-accent-bg: rgba(71, 85, 105, 0.08);
   --color-secondary-accent-shadow: rgba(71, 85, 105, 0.1);
   --color-secondary-accent-border: rgba(71, 85, 105, 0.15);
-  
+
   --color-pink: #ec4899;
   --color-pink-bg: rgba(236, 72, 153, 0.08);
   --color-pink-border: rgba(236, 72, 153, 0.15);
-  
+
   --border-glow-blue: rgba(59, 130, 246, 0.08);
 
-  // Global Bootstrap overrides for light mode readability
   .text-white:not(.btn):not(.badge):not(.status-dot) {
     color: var(--primary-text) !important;
   }

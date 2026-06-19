@@ -42,6 +42,7 @@ export const RAFFLE_FILTER_INACTIVE = 'inactiva';
 export const RAFFLE_FILTER_NO_TICKETS = 'sin-boletos';
 export const RAFFLE_FILTER_PROX_EXPIRED = 'proximo-vencer';
 export const RAFFLE_FILTER_META_COMPLETED = 'meta-completada';
+export const RAFFLE_FILTER_PENDING_DRAW = 'pendiente-sorteo';
 export const RAFFLE_FILTER_DELETE = 'eliminadas';
 export const RAFFLE_FILTER_MANUAL = 'manual';
 export const RAFFLE_FILTER_AUTOMATIC = 'automatico';
@@ -51,6 +52,7 @@ export const RAFFLE_FILTER_VALUES = {
   INACTIVE: 'INACTIVE',
   GOAL: 'GOAL',
   SOON_TO_EXPIRED: 'SOON-TO-EXPIRED',
+  PENDING_DRAW: 'PENDING-DRAW',
   TICKETS: 'tickets',
   DELETED: 'deleted',
 } as const;
@@ -58,6 +60,7 @@ export const RAFFLE_FILTER_VALUES = {
 export const MY_RAFFLES_FILTERS: FilterOption[] = [
   { id: RAFFLE_FILTER_ALL, icon: 'bi-list-ul', label: 'Todo' },
   { id: RAFFLE_FILTER_INACTIVE, icon: 'bi-ban', label: 'Inactiva' },
+  { id: RAFFLE_FILTER_PENDING_DRAW, icon: 'bi-clock-history', label: 'Pendiente Sorteo' },
   { id: RAFFLE_FILTER_MANUAL, icon: 'bi-ticket-perforated', label: 'Manual' },
   { id: RAFFLE_FILTER_AUTOMATIC, icon: 'bi-ticket-perforated', label: 'Automatico' },
   { id: RAFFLE_FILTER_NO_TICKETS, icon: 'bi-ticket-perforated', label: 'Sin Boletos' },
