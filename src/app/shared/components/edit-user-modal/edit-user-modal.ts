@@ -60,10 +60,10 @@ export class EditUserModal implements OnChanges {
           this.role = 'ADMIN';
         }
       } else {
-        const r = String(rawRole || '').toLowerCase();
-        if (r.includes('admin')) {
+        const roleLower = String(rawRole || '').toLowerCase();
+        if (roleLower.includes('admin')) {
           this.role = 'ADMIN';
-        } else if (r.includes('sort')) {
+        } else if (roleLower.includes('sort')) {
           this.role = 'SORTEADOR';
         } else {
           this.role = 'ADMIN';

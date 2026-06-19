@@ -34,20 +34,26 @@ export class Tables<T extends Record<string, unknown> = Record<string, unknown>>
 
   @Output() actionClicked = new EventEmitter<{ actionId: number; row: T }>();
   @Output() pageChanged = new EventEmitter<number>();
+  @Output() refreshData = new EventEmitter<void>();
 
   @Input() rowActions: DropdownAction[] = DEFAULT_ROW_ACTIONS;
 
   @Input() placeholderSearch: string = 'Buscar...';
+  @Input() showSearch: boolean = true;
   @Output() searchChanged = new EventEmitter<string>();
   searchText: string = '';
+
+  onRefreshClick(): void {
+    this.refreshData.emit();
+  }
 
   getBadgeClasses(value: unknown): string {
     try {
       if (value === null || value === undefined) {
         throw new Error('Value is empty');
       }
-      const v = String(value).toUpperCase();
-      const matchedKey = Object.keys(BADGE_MAP).find((key) => v.includes(key));
+      const valueUpper = String(value).toUpperCase();
+      const matchedKey = Object.keys(BADGE_MAP).find((key) => valueUpper.includes(key));
       if (!matchedKey) {
         throw new Error('No matching status class');
       }

@@ -15,4 +15,14 @@ export class App {
   protected readonly title = signal('ADMIN');
   protected readonly authService = inject(AuthService);
   protected readonly errorService = inject(ErrorNotificationService);
+  
+  protected readonly isSidebarOpen = signal(false);
+
+  toggleSidebar(state?: boolean): void {
+    if (state !== undefined) {
+      this.isSidebarOpen.set(state);
+    } else {
+      this.isSidebarOpen.update(isOpen => !isOpen);
+    }
+  }
 }

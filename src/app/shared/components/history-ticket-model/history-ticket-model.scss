@@ -16,6 +16,21 @@
     opacity: 0.4;
     pointer-events: none;
   }
+
+  @media (max-width: 480px) {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+  }
+
+  @media (min-width: 481px) and (max-width: 767.98px) {
+    grid-template-columns: repeat(6, 1fr);
+    gap: 6px;
+  }
+
+  @media (min-width: 768px) and (max-width: 991.98px) {
+    grid-template-columns: repeat(8, 1fr);
+    gap: 6px;
+  }
 }
 
 .ticket-btn {
@@ -34,6 +49,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
+
+  @media (max-width: 575.98px) {
+    font-size: 0.75rem;
+    padding: 4px 0;
+  }
 
   &.ticket-seleccionado {
     background-color: var.$button-primary;

@@ -99,11 +99,11 @@ export function mapRaffleDetails(raffle: Raffle): RaffleDetail {
   const formatDate = (dateVal: Date | string | number | null | undefined) => {
     if (!dateVal) return '';
     try {
-      const d = new Date(dateVal);
-      if (isNaN(d.getTime())) return String(dateVal);
-      const day = String(d.getDate()).padStart(2, '0');
-      const month = String(d.getMonth() + 1).padStart(2, '0');
-      const year = d.getFullYear();
+      const dateObj = new Date(dateVal);
+      if (isNaN(dateObj.getTime())) return String(dateVal);
+      const day = String(dateObj.getDate()).padStart(2, '0');
+      const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+      const year = dateObj.getFullYear();
       return `${day}/${month}/${year}`;
     } catch {
       return String(dateVal);

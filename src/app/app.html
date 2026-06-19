@@ -1,9 +1,10 @@
 @if (authService.isAuthenticated()) {
-  <div class="app-layout">
-    <app-sidebar></app-sidebar>
+  <div class="app-layout" [class.sidebar-open]="isSidebarOpen()">
+    <app-sidebar (click)="toggleSidebar(false)"></app-sidebar>
+    <div class="sidebar-backdrop" (click)="toggleSidebar(false)"></div>
 
     <div class="app-content">
-      <app-navbar></app-navbar>
+      <app-navbar (toggleSidebar)="toggleSidebar()"></app-navbar>
 
       <div class="app-main">
         <router-outlet></router-outlet>

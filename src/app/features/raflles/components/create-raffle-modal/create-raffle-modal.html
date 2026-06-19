@@ -106,6 +106,7 @@
                   <input
                     #startDateInput
                     type="text"
+                    readonly
                     class="form-control custom-dark-input py-2 w-100"
                     [class.is-invalid]="
                       (touchedFields['startDate'] && !startDate) ||
@@ -134,6 +135,7 @@
                   <input
                     #endDateInput
                     type="text"
+                    readonly
                     class="form-control custom-dark-input py-2 w-100"
                     [class.is-invalid]="
                       (touchedFields['endDate'] && !endDate) ||

@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, Output, EventEmitter } from '@angular/core';
 import { AuthService } from '../../../core/services/api/auth.service';
 import { ErrorNotificationService } from '../../../core/services/ui/error-notification.service';
 import { ThemeService } from '../../../core/services/ui/theme.service';
@@ -10,6 +10,8 @@ import { CONNECTION_STATUS } from '../../../core/helpers/ui/constants';
   templateUrl: './navbar.html',
 })
 export class Navbar {
+  @Output() toggleSidebar = new EventEmitter<void>();
+  
   private readonly authService = inject(AuthService);
   protected readonly errorService = inject(ErrorNotificationService);
   protected readonly themeService = inject(ThemeService);

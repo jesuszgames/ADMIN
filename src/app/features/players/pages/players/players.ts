@@ -96,25 +96,25 @@ export class PlayersComponent implements OnInit {
               | typeof USER_STATUS_ACTIVE
               | typeof USER_STATUS_INACTIVE
               | typeof STATE_DELETED = USER_STATUS_ACTIVE;
-            const s = String(u.status || '').toUpperCase();
-            if (s === BACKEND_STATUS_ACTIVE || s === USER_STATUS_ACTIVE) {
+            const statusUpper = String(u.status || '').toUpperCase();
+            if (statusUpper === BACKEND_STATUS_ACTIVE || statusUpper === USER_STATUS_ACTIVE) {
               statusMapped = USER_STATUS_ACTIVE;
-            } else if (s === BACKEND_STATUS_INACTIVE || s === USER_STATUS_INACTIVE) {
+            } else if (statusUpper === BACKEND_STATUS_INACTIVE || statusUpper === USER_STATUS_INACTIVE) {
               statusMapped = USER_STATUS_INACTIVE;
-            } else if (s === BACKEND_STATUS_DELETED || s === STATE_DELETED) {
+            } else if (statusUpper === BACKEND_STATUS_DELETED || statusUpper === STATE_DELETED) {
               statusMapped = STATE_DELETED;
             }
 
             const formatDate = (dateVal: Date | string | number | null | undefined) => {
               if (!dateVal) return '';
               try {
-                const d = new Date(dateVal);
-                if (isNaN(d.getTime())) return String(dateVal);
-                const day = String(d.getDate()).padStart(2, '0');
-                const month = String(d.getMonth() + 1).padStart(2, '0');
-                const year = d.getFullYear();
-                const hours = String(d.getHours()).padStart(2, '0');
-                const minutes = String(d.getMinutes()).padStart(2, '0');
+                const dateObj = new Date(dateVal);
+                if (isNaN(dateObj.getTime())) return String(dateVal);
+                const day = String(dateObj.getDate()).padStart(2, '0');
+                const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+                const year = dateObj.getFullYear();
+                const hours = String(dateObj.getHours()).padStart(2, '0');
+                const minutes = String(dateObj.getMinutes()).padStart(2, '0');
                 return `${day}/${month}/${year} ${hours}:${minutes}`;
               } catch {
                 return String(dateVal);

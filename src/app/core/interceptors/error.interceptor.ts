@@ -40,7 +40,11 @@ const ERROR_TRANSLATIONS: { [key: string]: string } = {
 
 function translateError(msg: string): string {
   if (!msg) return msg;
-  const trimmed = msg.trim();
+  let trimmed = msg.trim();
+
+  // Strip URLs and IP addresses to avoid exposing backend network details
+  trimmed = trimmed.replace(/https?:\/\/[^\s]+/gi, 'servidor');
+  trimmed = trimmed.replace(/\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(:\d+)?\b/g, 'servidor');
 
   if (ERROR_TRANSLATIONS[trimmed]) {
     return ERROR_TRANSLATIONS[trimmed];

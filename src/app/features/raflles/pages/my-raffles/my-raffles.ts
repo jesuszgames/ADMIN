@@ -97,25 +97,10 @@ export class Raffles implements OnInit, OnDestroy {
   totalItems = 0;
   searchText = '';
 
-  private pollingIntervalId?: ReturnType<typeof setInterval> | number;
-
   ngOnInit(): void {
     setTimeout(() => {
       this.cargarRifas();
-      this.startPolling();
     });
-  }
-
-  startPolling() {
-    this.pollingIntervalId = setInterval(() => {
-      this.cargarRifas(true);
-    }, 10000); // Polling cada 10 segundos
-  }
-
-  stopPolling() {
-    if (this.pollingIntervalId) {
-      clearInterval(this.pollingIntervalId);
-    }
   }
 
   cargarRifas(isSilent = false): void {
@@ -172,7 +157,6 @@ export class Raffles implements OnInit, OnDestroy {
     if (this.activeSub) {
       this.activeSub.unsubscribe();
     }
-    this.stopPolling();
   }
 
   filtrarPorCategoria(id: string) {

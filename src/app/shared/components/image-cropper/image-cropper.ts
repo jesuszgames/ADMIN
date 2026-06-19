@@ -397,14 +397,14 @@ export class ImageCropperComponent implements OnChanges {
     const oldZoom = this.zoom;
     this.zoom = newZoom;
 
-    const x = this.viewportWidth / 2;
-    const y = this.viewportHeight / 2;
+    const centerX = this.viewportWidth / 2;
+    const centerY = this.viewportHeight / 2;
 
-    const imageX = (x - this.imgLeft) / oldZoom;
-    const imageY = (y - this.imgTop) / oldZoom;
+    const imageX = (centerX - this.imgLeft) / oldZoom;
+    const imageY = (centerY - this.imgTop) / oldZoom;
 
-    this.imgLeft = x - imageX * newZoom;
-    this.imgTop = y - imageY * newZoom;
+    this.imgLeft = centerX - imageX * newZoom;
+    this.imgTop = centerY - imageY * newZoom;
 
     this.constrainBounds();
   }

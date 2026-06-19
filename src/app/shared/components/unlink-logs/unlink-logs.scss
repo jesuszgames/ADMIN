@@ -176,3 +176,31 @@
   background-color: var.$background !important;
   border: 1px solid var.$border-color !important;
 }
+
+.unlink-cards-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.card-mobile {
+  background-color: var.$container-bg;
+  border: 1px solid var.$option-border !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+  }
+
+  .border-dashed {
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.1) !important;
+    
+    &:last-child {
+      border-bottom: none !important;
+    }
+  }
+}
+

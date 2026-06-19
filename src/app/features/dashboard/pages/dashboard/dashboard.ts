@@ -86,12 +86,75 @@ export class Dashboard implements OnInit {
   cargarRifas(): void {
     this.loading = true;
     this.cdr.detectChanges();
-    this.raffleService.getAll().subscribe({
+
+    // 1. Fetch dashboard metrics
+    this.raffleService.getDashboardMetrics().subscribe({
+      next: (res) => {
+        if (res && res.data) {
+          const metrics = res.data;
+          this.cards = [
+            {
+              label: 'Recaudado',
+              value: `${(metrics.totalCollected || 0).toLocaleString('es-MX')} $`,
+              icon: 'bi-cash-coin',
+              color: 'success',
+            },
+            {
+              label: 'Beneficiarios',
+              value: String(metrics.totalBeneficiaries || 0),
+              icon: 'bi-heart-fill',
+              color: 'danger',
+            },
+            {
+              label: 'Premiados',
+              value: String(metrics.totalWinners || 0),
+              icon: 'bi-trophy-fill',
+              color: 'warning',
+            },
+            {
+              label: 'Activas',
+              value: String(metrics.totalActive || 0),
+              icon: 'bi-play-circle-fill',
+              color: 'info',
+            },
+            {
+              label: 'Sin boletos',
+              value: String(metrics.totalNoTickets || 0),
+              icon: 'bi-ticket-detailed-fill',
+              color: 'secondary',
+            },
+            {
+              label: 'Finalizados',
+              value: String(metrics.totalFinished || 0),
+              icon: 'bi-check-circle-fill',
+              color: 'primary',
+            },
+          ];
+        }
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('API Error: No se pudieron cargar las métricas para el dashboard.', err);
+      }
+    });
+
+    // 2. Fetch paginated recent raffles (finished or pending-draw, ended within the last 24h)
+    this.raffleService.getAll(1, 10, '', 'FINISHED,PENDING-DRAW', undefined, 'recent', '{"endDate":-1}').subscribe({
       next: (res) => {
         if (res && res.data) {
           this.recentRaffles = res.data;
-          this.updateTableData();
-          this.updateCardMetrics();
+          this.tableData = this.recentRaffles.map((raffle) => {
+            let recStr = `${raffle.collected}$`;
+            try {
+              if (!raffle.goal) throw new Error();
+              recStr = `${raffle.collected}/${raffle.goal} $`;
+            } catch { }
+            return {
+              ...raffle,
+              drawMethod: raffle.drawMethod || (METHOD_AUTOMATIC as 'AUTOMATIC' | 'MANUAL'),
+              collectedStr: recStr,
+            };
+          });
         }
         this.loading = false;
         this.cdr.detectChanges();
@@ -102,43 +165,6 @@ export class Dashboard implements OnInit {
         this.cdr.detectChanges();
       }
     });
-  }
-
-  updateTableData(): void {
-    const nowTime = Date.now();
-    this.tableData = this.recentRaffles
-      .filter((r) => {
-        const statusUpper = (r.status || '').toUpperCase();
-        const isEnded =
-          statusUpper === 'FINISHED' ||
-          statusUpper === 'PENDING-DRAW' ||
-          statusUpper === 'PENDING_DRAW';
-
-        if (!isEnded) return false;
-
-        if (isDeletedStatus(r.status)) {
-          return false;
-        }
-
-        const completionDate = r.endDate ? new Date(r.endDate) : null;
-        if (completionDate) {
-          const diffMs = Math.abs(nowTime - completionDate.getTime());
-          return diffMs <= 24 * 60 * 60 * 1000;
-        }
-        return false;
-      })
-      .map((raffle) => {
-        let recStr = `${raffle.collected}$`;
-        try {
-          if (!raffle.goal) throw new Error();
-          recStr = `${raffle.collected}/${raffle.goal} $`;
-        } catch { }
-        return {
-          ...raffle,
-          drawMethod: raffle.drawMethod || (METHOD_AUTOMATIC as 'AUTOMATIC' | 'MANUAL'),
-          collectedStr: recStr,
-        };
-      });
   }
 
   private initWelcomeMessage() {
@@ -167,83 +193,6 @@ export class Dashboard implements OnInit {
       this.currentDate = '';
     }
   }
-
-  updateCardMetrics() {
-    try {
-      const activeRaffles = this.recentRaffles.filter((r) => r.status !== STATE_DELETED);
-
-      // Calculate total collected
-      const totalCollected = activeRaffles.reduce((sum, r) => sum + (r.collected || 0), 0);
-
-      // Calculate beneficiaries (unique foundation names)
-      const uniqueFoundations = new Set(activeRaffles.map((r) => r.foundation).filter(Boolean));
-      const totalBeneficiaries = uniqueFoundations.size;
-
-      // Calculate winners (count of raffles that have a winning ticket designated)
-      const totalWinners = activeRaffles.filter((r) => r.winner && r.winner !== '').length;
-
-      // Calculate active raffles
-      const totalActive = activeRaffles.filter((r) => {
-        const est = String(r.status).toUpperCase();
-        const isFinished = est === 'FINISHED';
-        return !isFinished && !isDeletedStatus(r.status);
-      }).length;
-
-      // Calculate raffles without tickets (sold out)
-      const totalNoTickets = activeRaffles.filter((r) => {
-        const est = String(r.status).toUpperCase();
-        return est === 'NO-TICKETS' || est === 'NO TICKETS';
-      }).length;
-
-      // Calculate finished raffles
-      const totalFinished = activeRaffles.filter((r) => {
-        const est = String(r.status).toUpperCase();
-        return est === 'FINISHED';
-      }).length;
-
-      this.cards = [
-        {
-          label: 'Recaudado',
-          value: `${totalCollected.toLocaleString('es-MX')} $`,
-          icon: 'bi-cash-coin',
-          color: 'success',
-        },
-        {
-          label: 'Beneficiarios',
-          value: String(totalBeneficiaries),
-          icon: 'bi-heart-fill',
-          color: 'danger',
-        },
-        {
-          label: 'Premiados',
-          value: String(totalWinners),
-          icon: 'bi-trophy-fill',
-          color: 'warning',
-        },
-        {
-          label: 'Activas',
-          value: String(totalActive),
-          icon: 'bi-play-circle-fill',
-          color: 'info',
-        },
-        {
-          label: 'Sin boletos',
-          value: String(totalNoTickets),
-          icon: 'bi-ticket-detailed-fill',
-          color: 'secondary',
-        },
-        {
-          label: 'Finalizados',
-          value: String(totalFinished),
-          icon: 'bi-check-circle-fill',
-          color: 'primary',
-        },
-      ];
-    } catch {
-      this.cards = [];
-    }
-  }
-
   private readonly BTN_HISTORY_MODAL_ID = 'btn-abrir-modal-history';
   private readonly BTN_TICKETS_MODAL_ID = 'btn-abrir-modal-tickets';
   private readonly BTN_DELETE_MODAL_ID = 'btn-abrir-modal-delete';

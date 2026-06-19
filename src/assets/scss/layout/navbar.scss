@@ -21,6 +21,12 @@
       background-color: var.$hover-sidebar !important;
     }
   }
+
+  @media (max-width: 991.98px) {
+    left: 0;
+    height: 70px;
+    padding: 0 16px;
+  }
 }
 .header-profile {
   display: flex;

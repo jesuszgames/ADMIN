@@ -41,7 +41,7 @@
   </div>
 
   @if (filteredLogs.length) {
-    <div class="table-responsive rounded-3" style="max-height: 500px; overflow-y: auto">
+    <div class="table-responsive rounded-3 d-none d-md-block" style="max-height: 500px; overflow-y: auto">
       <table class="table table-hover align-middle mb-0 custom-table">
         <thead>
           <tr>
@@ -81,6 +81,38 @@
           }
         </tbody>
       </table>
+    </div>
+
+    <!-- Mobile view cards for unlink logs -->
+    <div class="d-md-none unlink-cards-container">
+      @for (log of filteredLogs; track log.number + log.date) {
+        <div class="card-mobile p-3 mb-3 rounded-3 border border-secondary bg-dark-card text-white">
+          <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom border-secondary">
+            <span class="ticket-badge">
+              <i class="bi bi-ticket-perforated"></i> Boleto {{ log.number }}
+            </span>
+            <span class="timestamp d-inline-flex align-items-center gap-1.5 small text-white-50">
+              <i class="bi bi-clock"></i> {{ log.date }}
+            </span>
+          </div>
+          <div class="card-mobile-body d-flex flex-column gap-2">
+            <div class="d-flex justify-content-between align-items-center py-1 border-bottom border-dashed">
+              <span class="text-white-50 small text-uppercase">Usuario</span>
+              <span class="fw-semibold text-white">{{ log.user }}</span>
+            </div>
+            <div class="d-flex justify-content-between align-items-center py-1 border-bottom border-dashed">
+              <span class="text-white-50 small text-uppercase">ID Compra</span>
+              <span class="text-white-50 small">{{ log.purchaseId }}</span>
+            </div>
+            <div class="d-flex flex-column py-1">
+              <span class="text-white-50 small text-uppercase mb-1">Motivo de Desvinculación</span>
+              <div class="reason-section">
+                <span>{{ log.reason }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
     </div>
   } @else {
     <div

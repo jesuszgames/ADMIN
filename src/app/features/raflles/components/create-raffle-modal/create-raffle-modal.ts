@@ -254,7 +254,7 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit {
         locale: Spanish,
         dateFormat: 'Y-m-d',
         disableMobile: true,
-        allowInput: true,
+        allowInput: false,
         clickOpens: !this.isReadOnly,
         defaultDate: this.startDate,
         minDate: this.getMinStartDate(),
@@ -276,13 +276,16 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit {
         locale: Spanish,
         dateFormat: 'Y-m-d',
         disableMobile: true,
-        allowInput: true,
+        allowInput: false,
         clickOpens: !this.isReadOnly,
         defaultDate: this.endDate,
         minDate: this.startDate || this.getTodayDate(),
         onChange: (selectedDates, dateStr) => {
           this.endDate = dateStr;
           this.touchedFields['endDate'] = true;
+          if (this.startDatePicker) {
+            // No strict rule for start date max unless needed
+          }
         },
         onClose: () => {
           this.touchedFields['endDate'] = true;
@@ -396,10 +399,10 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit {
   }
 
   getTodayDate(): string {
-    const d = new Date();
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
+    const todayDate = new Date();
+    const year = todayDate.getFullYear();
+    const month = String(todayDate.getMonth() + 1).padStart(2, '0');
+    const day = String(todayDate.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
   }
 

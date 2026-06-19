@@ -1,4 +1,14 @@
 <div class="header-container">
+  <button 
+    type="button" 
+    class="btn border-0 d-lg-none d-flex align-items-center justify-content-center me-auto mobile-menu-btn"
+    (click)="toggleSidebar.emit()"
+    style="background: transparent; color: var(--primary-text); padding: 0; margin-right: 12px;"
+    title="Menú"
+  >
+    <i class="bi bi-list fs-2"></i>
+  </button>
+
   <div class="header-status" [title]="getConnectionTooltip()">
     <span class="status-dot" [class]="getConnectionClass()"></span>
   </div>

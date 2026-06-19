@@ -66,10 +66,10 @@ export class UserService {
     const mapped: BackendUserPayload = { ...rest };
 
     if (role) {
-      const r = String(role).toUpperCase();
-      if (r.includes(ROLE_ADMIN)) {
+      const roleUpper = String(role).toUpperCase();
+      if (roleUpper.includes(ROLE_ADMIN)) {
         mapped.role = [BACKEND_ROLE_ADMIN];
-      } else if (r.includes(ROLE_SORTEADOR) || r.includes('SORT')) {
+      } else if (roleUpper.includes(ROLE_SORTEADOR) || roleUpper.includes('SORT')) {
         mapped.role = [BACKEND_ROLE_SORT];
       } else {
         mapped.role = [BACKEND_ROLE_PLAYER];
@@ -77,12 +77,12 @@ export class UserService {
     }
 
     if (status) {
-      const s = String(status).toUpperCase();
-      if (s === USER_STATUS_ACTIVE || s === BACKEND_STATUS_ACTIVE) {
+      const statusUpper = String(status).toUpperCase();
+      if (statusUpper === USER_STATUS_ACTIVE || statusUpper === BACKEND_STATUS_ACTIVE) {
         mapped.status = BACKEND_STATUS_ACTIVE;
-      } else if (s === USER_STATUS_INACTIVE || s === BACKEND_STATUS_INACTIVE) {
+      } else if (statusUpper === USER_STATUS_INACTIVE || statusUpper === BACKEND_STATUS_INACTIVE) {
         mapped.status = BACKEND_STATUS_INACTIVE;
-      } else if (s === STATE_DELETED || s === BACKEND_STATUS_DELETED) {
+      } else if (statusUpper === STATE_DELETED || statusUpper === BACKEND_STATUS_DELETED) {
         mapped.status = BACKEND_STATUS_DELETED;
       }
     }

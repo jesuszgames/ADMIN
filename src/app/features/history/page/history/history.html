@@ -2,7 +2,7 @@
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h3 class="m-0">Historial de rifas</h3>
   </div>
-  <div class="d-flex justify-content-between align-items-center">
+  <div class="mb-3">
     <app-filter [options]="historyFilters" (onFilter)="filtrarPorCategoria($event)"></app-filter>
   </div>
 
@@ -22,6 +22,7 @@
         (actionClicked)="manejarAccion($event)"
         (pageChanged)="onPageChange($event)"
         (searchChanged)="onSearchChange($event)"
+        (refreshData)="cargarRifas()"
       >
       </app-tables>
     </div>

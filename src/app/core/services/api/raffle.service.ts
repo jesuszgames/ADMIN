@@ -45,6 +45,28 @@ export class RaffleService {
     );
   }
 
+  getDashboardMetrics(): Observable<{
+    data: {
+      totalCollected: number;
+      totalBeneficiaries: number;
+      totalWinners: number;
+      totalActive: number;
+      totalNoTickets: number;
+      totalFinished: number;
+    }
+  }> {
+    return this.http.get<{
+      data: {
+        totalCollected: number;
+        totalBeneficiaries: number;
+        totalWinners: number;
+        totalActive: number;
+        totalNoTickets: number;
+        totalFinished: number;
+      }
+    }>(`${this.apiUrl}/dashboard-metrics`);
+  }
+
   getOne(id: string): Observable<{ data: Raffle }> {
     return this.http.get<{ data: Raffle }>(`${this.apiUrl}/get-one/${id}`);
   }

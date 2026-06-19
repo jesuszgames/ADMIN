@@ -44,9 +44,10 @@
         [data]="tableData"
         [rowActions]="dashboardActions"
         [loading]="loading"
-        [placeholderSearch]="'Buscar nombre rifa'"
+        [showSearch]="false"
         (actionClicked)="manejarAccion($event)"
         [pageSize]="pageSize"
+        (refreshData)="cargarRifas()"
       >
       </app-tables>
     </div>
