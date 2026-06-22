@@ -1,13 +1,13 @@
-import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { calculateRemainingTime } from '../../../../core/helpers/ui/utils';
+import { mapRaffleForTable } from '../../../../core/helpers/ui/utils';
 import { Tables } from '../../../../shared/components/tables/tables';
 import { EditTicketsModal } from '../../../../shared/components/edit-tickets-modal/edit-tickets-modal';
 import { Raffle } from '../../../../core/interfaces/api/raffle.interface';
 import { TableColumn } from '../../../../core/interfaces/api/table-column.interface';
 import { DrawService } from '../../../../core/services/api/draw.service';
-import { METHOD_AUTOMATIC } from '../../../../core/helpers/global/raffle.constants';
 
 @Component({
   selector: 'app-draws',
@@ -19,6 +19,7 @@ import { METHOD_AUTOMATIC } from '../../../../core/helpers/global/raffle.constan
 export class Draws implements OnInit {
   private readonly drawService = inject(DrawService);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly destroyRef = inject(DestroyRef);
 
   principalHeader = 'Sorteos de Rifas';
 
@@ -43,6 +44,8 @@ export class Draws implements OnInit {
   rowActions = [{ id: 1, icon: 'bi-trophy', label: 'Realizar Sorteo' }];
 
   ngOnInit(): void {
+    // Defer to next tick so the initial ChangeDetection cycle has settled
+    // before we call detectChanges() inside cargarDatos().
     setTimeout(() => {
       this.cargarDatos();
     });
@@ -51,7 +54,9 @@ export class Draws implements OnInit {
   cargarDatos() {
     this.loading = true;
     this.cdr.detectChanges();
-    this.drawService.getPendingDraws().subscribe({
+    this.drawService.getPendingDraws()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: (res) => {
         if (res && res.data) {
           this.rifasData = res.data;
@@ -69,27 +74,7 @@ export class Draws implements OnInit {
   }
 
   updateTableData() {
-    this.tableData = this.rifasData.map((raffle) => {
-      const recStr = raffle.goal 
-        ? `${raffle.collected}/${raffle.goal} $` 
-        : `${raffle.collected}$`;
-
-      let fechaSorteo = 'Sin Fecha';
-      if (raffle.endDate) {
-        fechaSorteo = calculateRemainingTime(raffle.endDate, raffle.status);
-      }
-
-      return {
-        ...raffle,
-        drawMethod: raffle.drawMethod || (METHOD_AUTOMATIC as 'AUTOMATIC' | 'MANUAL'),
-        soldTicketsStr: `${raffle.soldTickets}/${raffle.totalTickets}`,
-        collectedStr: recStr,
-        fechaSorteo,
-        ganadorText: raffle.winner
-          ? `Boleto ${raffle.winner} (${raffle.winnerName || 'Sin Nombre'})`
-          : 'Pendiente Sorteo',
-      };
-    });
+    this.tableData = this.rifasData.map((raffle) => mapRaffleForTable(raffle));
   }
 
   manejarAccion(evento: { actionId: number; row: Record<string, unknown> }) {

@@ -1,24 +1,26 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
-import { Filter } from '../../../../shared/components/filter/filter';
+import { Component, inject, OnInit, ChangeDetectorRef, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormsModule } from '@angular/forms';
 import { Tables } from '../../../../shared/components/tables/tables';
 import { DeleteModal } from '../../../../shared/components/delete-modal/delete-modal';
 import { MainButton } from '../../../../shared/components/main-button/main-button';
 import { CreateCategoryModal } from '../../components/create-category-modal/create-category-modal';
 import { ConfirmChangesModal } from '../../../../shared/components/confirm-changes-modal/confirm-changes-modal';
+import { StatusFilterComponent } from '../../../../shared/components/status-filter/status-filter.component';
 import { ModelChange } from '../../../../core/interfaces/api/model-change.interface';
 import {
   CATEGORIES_COLUMNS,
   CATEGORIES_PRINCIPAL_HEADER,
-  MY_CATEGORIES_FILTERS,
-  CATEGORY_FILTER_ALL,
-  CATEGORY_FILTER_INACTIVE,
-  CATEGORY_FILTER_DELETE,
   CATEGORY_ROW_ACTIONS,
   STATE_ACTIVE,
   STATE_INACTIVE,
   STATE_DELETED,
 } from '../../../../core/helpers/global/category.constants';
+import {
+  STATUS_FILTER_OPTIONS,
+  statusFilterToBackend,
+} from '../../../../core/helpers/global/status-filter.constants';
 import { Category } from '../../../../core/interfaces/api/category.interface';
 import {
   TABLE_ACTION_CHANGE_STATE,
@@ -26,19 +28,19 @@ import {
   TABLE_ACTION_EDIT_DETAIL,
 } from '../../../../core/helpers/ui/constants';
 import { CategoryService } from '../../../../core/services/api/category.service';
-import { isDeletedStatus, isInactiveStatus } from '../../../../core/helpers/ui/utils';
 
 @Component({
   selector: 'app-categories',
   standalone: true,
   imports: [
     CommonModule,
-    Filter,
+    FormsModule,
     Tables,
     DeleteModal,
     MainButton,
     CreateCategoryModal,
     ConfirmChangesModal,
+    StatusFilterComponent,
   ],
   templateUrl: './categories.html',
   styleUrl: './categories.scss',
@@ -46,13 +48,17 @@ import { isDeletedStatus, isInactiveStatus } from '../../../../core/helpers/ui/u
 export class Categories implements OnInit {
   private readonly categoryService = inject(CategoryService);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly destroyRef = inject(DestroyRef);
 
   principalHeader = CATEGORIES_PRINCIPAL_HEADER;
   categoriesColumns = CATEGORIES_COLUMNS;
-  categoriesFilters = MY_CATEGORIES_FILTERS;
   categoriesActions = CATEGORY_ROW_ACTIONS;
 
-  filtroActual = CATEGORY_FILTER_ALL;
+  selectedStatus: 'all' | 'ACTIVE' | 'INACTIVE' | 'DELETED' = 'all';
+  tempStatus: 'all' | 'ACTIVE' | 'INACTIVE' | 'DELETED' = 'all';
+
+  readonly statusOptions = STATUS_FILTER_OPTIONS;
+
   categoriaSeleccionadaParaBorrar: Category | null = null;
   selectedCategoryForEdit: Category | null = null;
   isReadOnlyView = false;
@@ -82,18 +88,13 @@ export class Categories implements OnInit {
     });
   }
 
-  getBackendStatus(filterId: string): string {
-    if (filterId === CATEGORY_FILTER_ALL) return 'ALL_ACTIVE_INACTIVE';
-    if (filterId === CATEGORY_FILTER_INACTIVE) return 'INACTIVE';
-    if (filterId === CATEGORY_FILTER_DELETE) return 'DELETED';
-    return '';
-  }
-
   loadCategories(): void {
     this.loading = true;
     this.cdr.detectChanges();
-    const statusParam = this.getBackendStatus(this.filtroActual);
-    this.categoryService.getAll(this.currentPage, this.pageSize, this.searchTerm, statusParam).subscribe({
+    const statusParam = statusFilterToBackend(this.selectedStatus);
+    this.categoryService.getAll(this.currentPage, this.pageSize, this.searchTerm, statusParam)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: (res) => {
         if (res) {
           this.categoriesData = res.data || [];
@@ -111,8 +112,13 @@ export class Categories implements OnInit {
     });
   }
 
-  filtrarPorCategoria(id: string): void {
-    this.filtroActual = id;
+  clearFilters(): void {
+    this.selectedStatus = 'all';
+    this.applyFilters('all');
+  }
+
+  applyFilters(value: 'all' | 'ACTIVE' | 'INACTIVE' | 'DELETED'): void {
+    this.selectedStatus = value;
     this.currentPage = 1;
     this.loadCategories();
   }
@@ -179,7 +185,9 @@ export class Categories implements OnInit {
 
     const editCategory = this.selectedCategoryForEdit;
     if (editCategory) {
-      this.categoryService.update(editCategory._id, catData).subscribe({
+      this.categoryService.update(editCategory._id, catData)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
         next: () => {
           this.isCategorySaving = false;
           this.loadCategories();
@@ -191,7 +199,9 @@ export class Categories implements OnInit {
         },
       });
     } else {
-      this.categoryService.create(catData).subscribe({
+      this.categoryService.create(catData)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
         next: () => {
           this.isCategorySaving = false;
           this.loadCategories();
@@ -210,7 +220,9 @@ export class Categories implements OnInit {
     if (!targetCat || this.isCategoryDeleting) return;
     this.isCategoryDeleting = true;
 
-    this.categoryService.deleteCategory(targetCat._id, razon).subscribe({
+    this.categoryService.deleteCategory(targetCat._id, razon)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: () => {
         this.loadCategories();
         this.isCategoryDeleting = false;
@@ -227,7 +239,9 @@ export class Categories implements OnInit {
     if (this.pendingRowToToggle && this.changesToConfirm.length > 0 && !this.isCategoryUpdatingState) {
       const nextStatus = this.changesToConfirm[0].nuevo as 'ACTIVE' | 'INACTIVE' | 'DELETED';
       this.isCategoryUpdatingState = true;
-      this.categoryService.update(this.pendingRowToToggle._id, { status: nextStatus }).subscribe({
+      this.categoryService.update(this.pendingRowToToggle._id, { status: nextStatus })
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
         next: () => {
           this.loadCategories();
           this.isCategoryUpdatingState = false;

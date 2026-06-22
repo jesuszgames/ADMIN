@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject, ChangeDetectorRef, OnDestroy } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef, OnDestroy, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RaffleService } from '../../../../core/services/api/raffle.service';
 import { Subscription } from 'rxjs';
 import { TicketService, BackendUnlinkLog } from '../../../../core/services/api/ticket.service';
@@ -10,7 +11,7 @@ import { HistoryTicketModel } from '../../../../shared/components/history-ticket
 import { AdvancedFiltersModal } from '../../../../shared/components/advanced-filters-modal/advanced-filters-modal';
 import { RaffleDetail } from '../../../../core/interfaces/api/raffle-detail.interface';
 import { TicketHistoryData } from '../../../../core/interfaces/api/ticket-history-data.interface';
-import { mapRaffleDetails, mapTicketDetails } from '../../../../core/helpers/ui/utils';
+import { mapRaffleDetails, mapTicketDetails, mapRaffleForTable } from '../../../../core/helpers/ui/utils';
 import {
   HISTORY_COLUMNS,
   HISTORY_FILTERS,
@@ -22,7 +23,6 @@ import {
   HISTORY_FILTER_DELETE,
   HISTORY_FILTER_VALUES,
   HISTORY_STATUS_VALUES,
-  METHOD_AUTOMATIC,
 } from '../../../../core/helpers/global/history.constants';
 import { HistoryRaffle } from '../../../../core/interfaces/api/history-raffle.interface';
 import { UnlinkLogs } from '../../../../shared/components/unlink-logs/unlink-logs';
@@ -53,6 +53,7 @@ export class History implements OnInit, OnDestroy {
   private readonly raffleService = inject(RaffleService);
   private readonly ticketService = inject(TicketService);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly destroyRef = inject(DestroyRef);
   private activeSub?: Subscription;
 
   principalHeader = HISTORY_PRINCIPAL_HEADER;
@@ -81,6 +82,8 @@ export class History implements OnInit, OnDestroy {
   loading = false;
 
   ngOnInit(): void {
+    // Defer to next tick so the initial ChangeDetection cycle has settled
+    // before we call detectChanges() inside cargarRifas().
     setTimeout(() => {
       this.cargarRifas();
     });
@@ -125,13 +128,12 @@ export class History implements OnInit, OnDestroy {
         next: (res) => {
           if (res && res.data) {
             this.totalItems = res.totalCount || 0;
-            this.tableData = res.data.map((r: Raffle) => ({
-              ...r,
-              goal: r.goal || 0,
-              drawMethod: r.drawMethod || (METHOD_AUTOMATIC as 'AUTOMATIC' | 'MANUAL'),
-              soldTicketsStr: `${r.soldTickets}/${r.totalTickets}`,
-              collectedStr: `${r.collected}/${r.goal || 0} $`,
-            }));
+            this.tableData = res.data.map((r: Raffle) =>
+              mapRaffleForTable({
+                ...r,
+                goal: r.goal || 0,
+              }),
+            ) as unknown as HistoryRaffle[];
           }
           this.loading = false;
           this.cdr.detectChanges();
@@ -158,12 +160,12 @@ export class History implements OnInit, OnDestroy {
     this.cargarRifas();
   }
 
-  onPageChange(page: number): void {
+  onPageChanged(page: number): void {
     this.currentPage = page;
     this.cargarRifas();
   }
 
-  onSearchChange(search: string): void {
+  onSearchChanged(search: string): void {
     this.searchText = search;
     this.currentPage = 1;
     this.cargarRifas();
@@ -186,7 +188,9 @@ export class History implements OnInit, OnDestroy {
         },
         [TABLE_ACTION_VIEW_UNLINK_LOGS]: () => {
           this.selectedRaffleForLogs = { ...(evento.row as unknown as Raffle), unlinks: [] };
-          this.ticketService.getUnlinkedLogs(evento.row._id, 1, 1000).subscribe({
+          this.ticketService.getUnlinkedLogs(evento.row._id, 1, 1000)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
             next: (res) => {
               const logs = res?.data && !Array.isArray(res.data) && res.data.result ? res.data.result : (Array.isArray(res?.data) ? res.data : []);
               if (this.selectedRaffleForLogs) {
@@ -225,7 +229,9 @@ export class History implements OnInit, OnDestroy {
     const targetRaffle = this.rifaSeleccionadaParaBorrar;
     if (!targetRaffle) return;
 
-    this.raffleService.deleteRaffle(targetRaffle._id, razon).subscribe({
+    this.raffleService.deleteRaffle(targetRaffle._id, razon)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: () => {
         this.cargarRifas();
       },
@@ -238,7 +244,9 @@ export class History implements OnInit, OnDestroy {
 
   onViewTicketDetails(raffle: HistoryRaffle): void {
     this.selectedTicketData = null;
-    this.ticketService.getTicketsByRaffle(raffle._id).subscribe({
+    this.ticketService.getTicketsByRaffle(raffle._id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: (res) => {
         if (res && res.data) {
           this.selectedTicketData = mapTicketDetails(res.data, raffle);

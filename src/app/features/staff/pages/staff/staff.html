@@ -8,9 +8,80 @@
     ></app-main-button>
   </div>
 
-  <div class="mb-3">
-    <app-filter [options]="filters" (onFilter)="filtrarPorEstado($event)"></app-filter>
+  <!-- Staff has two filters (role + status), so it keeps its own custom
+       advanced-filters block instead of using <app-status-filter>. -->
+  <!-- Advanced Filters Group (Desktop) -->
+  <div class="advanced-filters-group mb-3 d-none d-md-block">
+    <button
+      class="btn advanced-filters-btn d-inline-flex align-items-center justify-content-between w-100"
+      [class.active]="selectedRole || (selectedStatus && selectedStatus !== 'all')"
+      data-bs-toggle="collapse"
+      data-bs-target="#collapseFiltrosAvanzados"
+      aria-expanded="false"
+      aria-controls="collapseFiltrosAvanzados"
+    >
+      <div class="d-flex align-items-center gap-2">
+        <i class="bi bi-funnel"></i>
+        <span>Filtros Avanzados</span>
+        @if (selectedRole || (selectedStatus && selectedStatus !== 'all')) {
+          <span class="badge bg-white text-primary ms-1" style="font-size: 0.75rem;">Activo</span>
+        }
+      </div>
+      <i class="bi bi-chevron-down filter-chevron"></i>
+    </button>
+
+    <div class="collapse" id="collapseFiltrosAvanzados">
+      <div class="card custom-modal-bg border-secondary border-opacity-25 rounded-3 shadow-lg p-4 position-relative">
+        <div class="row align-items-end pe-4">
+          <div class="col-md col-12 mb-3 mb-md-0">
+            <label class="form-label text-white-50 text-uppercase fs-7 mb-2">Rol</label>
+            <ng-select
+              class="custom-ng-select"
+              [items]="roleOptions"
+              bindLabel="label"
+              bindValue="id"
+              [(ngModel)]="tempRole"
+              placeholder="Seleccionar..."
+              [clearable]="true"
+            >
+            </ng-select>
+          </div>
+
+          <div class="col-md col-12 mb-3 mb-md-0">
+            <label class="form-label text-white-50 text-uppercase fs-7 mb-2">Estado</label>
+            <ng-select
+              class="custom-ng-select"
+              [items]="statusOptions"
+              bindLabel="label"
+              bindValue="id"
+              [(ngModel)]="tempStatus"
+              placeholder="Seleccionar..."
+              [clearable]="false"
+            >
+            </ng-select>
+          </div>
+
+          <div class="col-md-auto col-12 d-flex gap-2 justify-content-end mt-4 mt-md-0" style="min-width: 200px; transform: translateY(3px);">
+            <button
+              type="button"
+              class="btn px-3 py-2 rounded-3 text-uppercase fs-7 custom-btn-secondary flex-grow-1"
+              (click)="clearFilters()"
+            >
+              Restablecer
+            </button>
+            <button
+              type="button"
+              class="btn px-3 py-2 rounded-3 text-uppercase fs-7 custom-btn-primary flex-grow-1"
+              (click)="applyFilters()"
+            >
+              Aplicar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
+
   <div class="row">
     <div class="col-12">
       <app-tables
@@ -25,11 +96,96 @@
         [currentPage]="currentPage"
         [placeholderSearch]="'Buscar nombre, usuario o correo...'"
         (actionClicked)="manejarAccion($event)"
-        (pageChanged)="onPageChange($event)"
-        (searchChanged)="onSearchChange($event)"
+        (pageChanged)="onPageChanged($event)"
+        (searchChanged)="onSearchChanged($event)"
         (refreshData)="loadUsers()"
       >
       </app-tables>
+    </div>
+  </div>
+</div>
+
+<!-- Trigger Button for Mobile (Offcanvas) -->
+<button
+  class="btn advanced-filters-btn floating-mobile-filter-btn d-inline-flex d-md-none align-items-center gap-2"
+  [class.active]="selectedRole || (selectedStatus && selectedStatus !== 'all')"
+  data-bs-toggle="offcanvas"
+  data-bs-target="#offcanvasFiltrosAvanzados"
+>
+  <i class="bi bi-funnel"></i>
+  <span>Filtros Avanzados</span>
+  @if (selectedRole || (selectedStatus && selectedStatus !== 'all')) {
+    <span class="badge bg-white text-primary ms-1" style="font-size: 0.75rem;">Activo</span>
+  }
+</button>
+
+<!-- Mobile Offcanvas -->
+<div class="d-md-none">
+  <div
+    class="offcanvas offcanvas-end custom-modal-bg border-start border-secondary border-opacity-25 shadow-lg text-white"
+    tabindex="-1"
+    id="offcanvasFiltrosAvanzados"
+    aria-labelledby="offcanvasFiltrosLabel"
+    style="max-width: 85vw; width: 340px;"
+  >
+    <div class="offcanvas-header border-0 pb-0 pt-4 px-4 d-flex justify-content-between align-items-center">
+      <h5 class="offcanvas-title fw-bold" id="offcanvasFiltrosLabel">Filtros Avanzados</h5>
+      <button
+        type="button"
+        class="btn-close btn-close-white"
+        data-bs-dismiss="offcanvas"
+        aria-label="Close"
+      ></button>
+    </div>
+    <div class="offcanvas-body p-4 pt-3 d-flex flex-column">
+      <div class="flex-grow-1">
+        <div class="mb-4">
+          <label class="form-label text-white-50 text-uppercase fs-7 mb-2">Rol</label>
+          <ng-select
+            class="custom-ng-select"
+            [items]="roleOptions"
+            bindLabel="label"
+            bindValue="id"
+            [(ngModel)]="tempRole"
+            placeholder="Seleccionar..."
+            [clearable]="true"
+          >
+          </ng-select>
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label text-white-50 text-uppercase fs-7 mb-2">Estado</label>
+          <ng-select
+            class="custom-ng-select"
+            [items]="statusOptions"
+            bindLabel="label"
+            bindValue="id"
+            [(ngModel)]="tempStatus"
+            placeholder="Seleccionar..."
+            [clearable]="false"
+          >
+          </ng-select>
+        </div>
+      </div>
+
+      <div class="d-flex gap-2 pt-4 border-top border-secondary border-opacity-25">
+        <button
+          type="button"
+          class="btn px-4 py-2 rounded-3 text-uppercase fs-7 custom-btn-secondary flex-grow-1"
+          (click)="clearFilters()"
+          data-bs-dismiss="offcanvas"
+        >
+          Restablecer
+        </button>
+        <button
+          type="button"
+          class="btn px-4 py-2 rounded-3 text-uppercase fs-7 custom-btn-primary flex-grow-1"
+          (click)="applyFilters()"
+          data-bs-dismiss="offcanvas"
+        >
+          Aplicar
+        </button>
+      </div>
     </div>
   </div>
 </div>

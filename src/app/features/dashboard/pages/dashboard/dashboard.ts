@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SimpleCard } from '../../components/simple-card/simple-card';
 import { Tables } from '../../../../shared/components/tables/tables';
 import { DeleteModal } from '../../../../shared/components/delete-modal/delete-modal';
@@ -13,6 +14,7 @@ import { AuthService } from '../../../../core/services/api/auth.service';
 import {
   mapRaffleDetails,
   mapTicketDetails,
+  mapRaffleForTable,
   isDeletedStatus,
 } from '../../../../core/helpers/ui/utils';
 import {
@@ -29,7 +31,7 @@ import {
   TABLE_ACTION_DASHBOARD_DELETE,
   TABLE_ACTION_VIEW_UNLINK_LOGS,
 } from '../../../../core/helpers/ui/constants';
-import { STATE_DELETED, METHOD_AUTOMATIC } from '../../../../core/helpers/global/raffle.constants';
+import { STATE_DELETED } from '../../../../core/helpers/global/raffle.constants';
 import { Raffle } from '../../../../core/interfaces/api/raffle.interface';
 
 export interface DashboardCard {
@@ -59,6 +61,7 @@ export class Dashboard implements OnInit {
   private readonly ticketService = inject(TicketService);
   private readonly authService = inject(AuthService);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly destroyRef = inject(DestroyRef);
 
   userName = DEFAULT_USER_NAME;
   principalHeader = DASHBOARD_PRINCIPAL_HEADER;
@@ -82,6 +85,8 @@ export class Dashboard implements OnInit {
   ngOnInit(): void {
     this.userName = this.authService.getUserName();
     this.initWelcomeMessage();
+    // Defer to next tick so the initial ChangeDetection cycle has settled
+    // before we call detectChanges() inside cargarRifas().
     setTimeout(() => {
       this.cargarRifas();
     });
@@ -90,7 +95,9 @@ export class Dashboard implements OnInit {
   cargarRifas(): void {
     this.loading = true;
     this.cdr.detectChanges();
-    this.raffleService.getDashboardMetrics().subscribe({
+    this.raffleService.getDashboardMetrics()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: (res) => {
         if (res && res.data) {
           const metrics = res.data;
@@ -142,23 +149,13 @@ export class Dashboard implements OnInit {
 
     this.raffleService
       .getAll(1, 10, '', 'FINISHED,PENDING-DRAW', undefined, 'recent', '{"endDate":-1}')
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res) => {
           if (res && res.data) {
-            this.recentRaffles = res.data;
-            this.tableData = this.recentRaffles.map((raffle) => {
-              let recStr = `${raffle.collected}$`;
-              try {
-                if (!raffle.goal) throw new Error();
-                recStr = `${raffle.collected}/${raffle.goal} $`;
-              } catch {}
-              return {
-                ...raffle,
-                drawMethod: raffle.drawMethod || (METHOD_AUTOMATIC as 'AUTOMATIC' | 'MANUAL'),
-                collectedStr: recStr,
-              };
-            });
-          }
+                    this.recentRaffles = res.data;
+                    this.tableData = res.data.map((raffle) => mapRaffleForTable(raffle));
+                  }
           this.loading = false;
           this.cdr.detectChanges();
         },
@@ -232,7 +229,9 @@ export class Dashboard implements OnInit {
     const targetRaffle = this.rifaSeleccionadaParaBorrar;
     if (!targetRaffle) return;
 
-    this.raffleService.deleteRaffle(targetRaffle._id, razon).subscribe({
+    this.raffleService.deleteRaffle(targetRaffle._id, razon)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: () => {
         this.cargarRifas();
       },
@@ -245,7 +244,9 @@ export class Dashboard implements OnInit {
 
   onViewTicketDetails(raffle: Raffle) {
     this.selectedTicketData = null;
-    this.ticketService.getTicketsByRaffle(raffle._id).subscribe({
+    this.ticketService.getTicketsByRaffle(raffle._id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: (res) => {
         if (res && res.data) {
           this.selectedTicketData = mapTicketDetails(res.data, raffle);

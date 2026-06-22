@@ -7,7 +7,7 @@ import {
   BENEFICIARY_PERCENTAGE,
   WINNER_PERCENTAGE,
   DEFAULT_RAFFLE_PHOTO,
-} from '../global/dashboard.constants';
+} from '../global/raffle.constants';
 
 export function generateObjectId(): string {
   const timestamp = Math.floor(new Date().getTime() / 1000)
@@ -217,4 +217,54 @@ export function isInactiveStatus(status: string): boolean {
 
 export function isDeletedStatus(status: string): boolean {
   return (status || '').toUpperCase() === 'DELETED';
+}
+
+/**
+ * Decorates a Raffle with the derived columns used by the generic tables:
+ * `soldTicketsStr`, `collectedStr`, `remainingTime`, optional `fechaSorteo`,
+ * `ganadorText` and a default `drawMethod` if missing. Centralizing this
+ * removes four copies of the same mapping across history/my-raffles/draws/dashboard.
+ *
+ * @param raffle           Source raffle as returned by the backend.
+ * @param defaultDrawMethod Fallback when raffle.drawMethod is undefined.
+ *                         Defaults to 'AUTOMATIC'.
+ */
+export function mapRaffleForTable(
+  raffle: Raffle,
+  defaultDrawMethod: 'AUTOMATIC' | 'MANUAL' = 'AUTOMATIC',
+): Raffle & {
+  soldTicketsStr: string;
+  collectedStr: string;
+  remainingTime?: string;
+  fechaSorteo?: string;
+  ganadorText?: string;
+} {
+  const collectedStr = raffle.goal
+    ? `${raffle.collected}/${raffle.goal} $`
+    : `${raffle.collected}$`;
+
+  const soldTicketsStr = `${raffle.soldTickets}/${raffle.totalTickets}`;
+  const remainingTime =
+    raffle.endDate !== undefined
+      ? calculateRemainingTime(raffle.endDate, raffle.status)
+      : raffle.remainingTime;
+
+  const fechaSorteo =
+    raffle.endDate !== undefined
+      ? calculateRemainingTime(raffle.endDate, raffle.status)
+      : 'Sin Fecha';
+
+  const ganadorText = raffle.winner
+    ? `Boleto ${raffle.winner} (${raffle.winnerName || 'Sin Nombre'})`
+    : 'Pendiente Sorteo';
+
+  return {
+    ...raffle,
+    drawMethod: raffle.drawMethod || defaultDrawMethod,
+    soldTicketsStr,
+    collectedStr,
+    remainingTime,
+    fechaSorteo,
+    ganadorText,
+  };
 }

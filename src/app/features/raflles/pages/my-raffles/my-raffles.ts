@@ -1,4 +1,5 @@
-import { Component, OnInit, inject, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, inject, OnDestroy, ChangeDetectorRef, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { RaffleService } from '../../../../core/services/api/raffle.service';
 import { TicketService, BackendUnlinkLog } from '../../../../core/services/api/ticket.service';
@@ -39,13 +40,13 @@ import {
   RAFFLE_FILTER_AUTOMATIC,
   RAFFLE_FILTER_VALUES,
   STATE_DELETED,
-  METHOD_AUTOMATIC,
 } from '../../../../core/helpers/global/raffle.constants';
 import { Raffle } from '../../../../core/interfaces/api/raffle.interface';
 import {
   calculateRemainingTime,
   isDeletedStatus,
   isActiveStatus,
+  mapRaffleForTable,
 } from '../../../../core/helpers/ui/utils';
 
 @Component({
@@ -69,6 +70,7 @@ export class Raffles implements OnInit, OnDestroy {
   private readonly raffleService = inject(RaffleService);
   private readonly ticketService = inject(TicketService);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly destroyRef = inject(DestroyRef);
   private activeSub?: Subscription;
 
   principalHeader = MY_RAFFLES_PRINCIPAL_HEADER;
@@ -108,6 +110,8 @@ export class Raffles implements OnInit, OnDestroy {
   private countdownInterval?: any;
 
   ngOnInit(): void {
+    // Defer to next tick so the initial ChangeDetection cycle has settled
+    // before we call detectChanges() inside cargarRifas().
     setTimeout(() => {
       this.cargarRifas();
     });
@@ -199,12 +203,12 @@ export class Raffles implements OnInit, OnDestroy {
     this.cargarRifas();
   }
 
-  onPageChange(page: number): void {
+  onPageChanged(page: number): void {
     this.currentPage = page;
     this.cargarRifas();
   }
 
-  onSearchChange(search: string): void {
+  onSearchChanged(search: string): void {
     this.searchText = search;
     this.currentPage = 1;
     this.cargarRifas();
@@ -265,7 +269,9 @@ export class Raffles implements OnInit, OnDestroy {
         },
         [TABLE_ACTION_VIEW_UNLINK_LOGS]: () => {
           this.selectedRaffleForLogs = { ...row, unlinks: [] };
-          this.ticketService.getUnlinkedLogs(row._id, 1, 1000).subscribe({
+          this.ticketService.getUnlinkedLogs(row._id, 1, 1000)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
             next: (res) => {
               const logs =
                 res?.data && !Array.isArray(res.data) && res.data.result
@@ -315,7 +321,9 @@ export class Raffles implements OnInit, OnDestroy {
     if (!targetRaffle || this.isRaffleDeleting) return;
 
     this.isRaffleDeleting = true;
-    this.raffleService.deleteRaffle(targetRaffle._id, razon).subscribe({
+    this.raffleService.deleteRaffle(targetRaffle._id, razon)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: () => {
         this.cargarRifas();
         this.isRaffleDeleting = false;
@@ -332,7 +340,9 @@ export class Raffles implements OnInit, OnDestroy {
     if (this.pendingRowToToggle && this.changesToConfirm.length > 0 && !this.isRaffleUpdating) {
       const nextStatus = this.changesToConfirm[0].nuevo as string;
       this.isRaffleUpdating = true;
-      this.raffleService.update(this.pendingRowToToggle._id, { status: nextStatus }).subscribe({
+      this.raffleService.update(this.pendingRowToToggle._id, { status: nextStatus })
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
         next: () => {
           this.cargarRifas();
           this.isRaffleUpdating = false;
@@ -356,7 +366,9 @@ export class Raffles implements OnInit, OnDestroy {
     const editRaffle = this.selectedRaffleForEdit;
     this.isRaffleSaving = true;
     if (editRaffle) {
-      this.raffleService.update(editRaffle._id, raffleData).subscribe({
+      this.raffleService.update(editRaffle._id, raffleData)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
         next: () => {
           this.cargarRifas();
           document.getElementById('btn-cerrar-modal-crear-rifa')?.click();
@@ -368,7 +380,9 @@ export class Raffles implements OnInit, OnDestroy {
         },
       });
     } else {
-      this.raffleService.create(raffleData).subscribe({
+      this.raffleService.create(raffleData)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
         next: () => {
           this.cargarRifas();
           document.getElementById('btn-cerrar-modal-crear-rifa')?.click();
@@ -389,18 +403,11 @@ export class Raffles implements OnInit, OnDestroy {
 
   private getFilteredData(): Raffle[] {
     return this.rifasData.map((raffle) => {
-      let recStr = `${raffle.collected}$`;
-      try {
-        if (!raffle.goal) throw new Error();
-        recStr = `${raffle.collected}/${raffle.goal} $`;
-      } catch {}
+      // Compute a derived display status (NO_TICKETS / GOAL / PROX_EXPIRED)
+      // before delegating the rest of the mapping to the shared helper.
+      const baseMapped = mapRaffleForTable(raffle);
 
-      let tiempoRestanteCalculado = raffle.remainingTime;
-      if (raffle.endDate) {
-        tiempoRestanteCalculado = calculateRemainingTime(raffle.endDate, raffle.status);
-      }
-
-      let statusDisplay = raffle.status;
+      let statusDisplay = baseMapped.status;
       if (isActiveStatus(raffle.status)) {
         if (raffle.soldTickets === raffle.totalTickets) {
           statusDisplay = RAFFLE_STATUS_NO_TICKETS;
@@ -408,9 +415,9 @@ export class Raffles implements OnInit, OnDestroy {
           statusDisplay = RAFFLE_STATUS_META_COMPLETED;
         } else {
           try {
-            const timeStr = tiempoRestanteCalculado || '';
+            const timeStr = baseMapped.remainingTime || '';
             if (timeStr.includes('días') || timeStr.includes('día')) {
-              const days = parseInt(timeStr);
+              const days = parseInt(timeStr, 10);
               if (!isNaN(days) && days <= 2) {
                 statusDisplay = RAFFLE_STATUS_PROX_EXPIRED;
               }
@@ -422,11 +429,7 @@ export class Raffles implements OnInit, OnDestroy {
       }
 
       return {
-        ...raffle,
-        drawMethod: raffle.drawMethod || (METHOD_AUTOMATIC as 'AUTOMATIC' | 'MANUAL'),
-        soldTicketsStr: `${raffle.soldTickets}/${raffle.totalTickets}`,
-        collectedStr: recStr,
-        remainingTime: tiempoRestanteCalculado,
+        ...baseMapped,
         statusDisplay: statusDisplay,
       };
     });

@@ -1,8 +1,10 @@
-import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectorRef, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
-import { Filter } from '../../../../shared/components/filter/filter';
+import { FormsModule } from '@angular/forms';
 import { Tables } from '../../../../shared/components/tables/tables';
 import { ConfirmChangesModal } from '../../../../shared/components/confirm-changes-modal/confirm-changes-modal';
+import { StatusFilterComponent } from '../../../../shared/components/status-filter/status-filter.component';
 import { ModelChange } from '../../../../core/interfaces/api/model-change.interface';
 import {
   PLAYERS_COLUMNS,
@@ -25,29 +27,37 @@ import {
 } from '../../../../core/helpers/global/auth.constants';
 import { User } from '../../../../core/interfaces/api/user.interface';
 import { UserService } from '../../../../core/services/api/user.service';
+import {
+  STATUS_FILTER_OPTIONS,
+  statusFilterToBackend,
+} from '../../../../core/helpers/global/status-filter.constants';
 
 const DEFAULT_USER_NAME_LABEL = 'Sin Nombre';
 
 @Component({
   selector: 'app-players',
   standalone: true,
-  imports: [CommonModule, Filter, Tables, ConfirmChangesModal],
+  imports: [CommonModule, FormsModule, Tables, ConfirmChangesModal, StatusFilterComponent],
   templateUrl: './players.html',
 })
 export class PlayersComponent implements OnInit {
   private readonly userService = inject(UserService);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly destroyRef = inject(DestroyRef);
 
   principalHeader = PLAYERS_PRINCIPAL_HEADER;
   columns = PLAYERS_COLUMNS;
-  filters = USERS_FILTERS;
   rowActions = USER_ROW_ACTIONS.filter((action) => action.id === USER_ACTION_TOGGLE_STATUS);
 
   usersData: User[] = [];
   tableData: User[] = [];
   loading: boolean = false;
   isUserUpdatingState = false;
-  filtroActual: string = USER_FILTER_ALL;
+
+  selectedStatus: 'all' | 'ACTIVE' | 'INACTIVE' | 'DELETED' = 'all';
+  tempStatus: 'all' | 'ACTIVE' | 'INACTIVE' | 'DELETED' = 'all';
+
+  readonly statusOptions = STATUS_FILTER_OPTIONS;
 
   currentPage = 1;
   pageSize = 10;
@@ -68,17 +78,11 @@ export class PlayersComponent implements OnInit {
     this.loading = true;
     this.cdr.detectChanges();
 
-    let backendStatus: string | undefined = undefined;
-    if (this.filtroActual === USER_FILTER_INACTIVE) {
-      backendStatus = 'INACTIVE';
-    } else if (this.filtroActual === USER_FILTER_DELETE) {
-      backendStatus = 'DELETED';
-    } else {
-      backendStatus = 'ACTIVE,INACTIVE';
-    }
+    const backendStatus = statusFilterToBackend(this.selectedStatus);
 
     this.userService
       .getAll(this.currentPage, this.pageSize, this.searchText, backendStatus, 'player')
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res) => {
           if (!res || !res.data) {
@@ -148,18 +152,23 @@ export class PlayersComponent implements OnInit {
       });
   }
 
-  filtrarPorEstado(estadoId: string) {
-    this.filtroActual = estadoId;
+  clearFilters() {
+    this.selectedStatus = 'all';
+    this.applyFilters('all');
+  }
+
+  applyFilters(value: 'all' | 'ACTIVE' | 'INACTIVE' | 'DELETED') {
+    this.selectedStatus = value;
     this.currentPage = 1;
     this.loadUsers();
   }
 
-  onPageChange(page: number): void {
+  onPageChanged(page: number): void {
     this.currentPage = page;
     this.loadUsers();
   }
 
-  onSearchChange(search: string): void {
+  onSearchChanged(search: string): void {
     this.searchText = search;
     this.currentPage = 1;
     this.loadUsers();
@@ -199,7 +208,9 @@ export class PlayersComponent implements OnInit {
         | typeof USER_STATUS_ACTIVE
         | typeof USER_STATUS_INACTIVE;
       this.isUserUpdatingState = true;
-      this.userService.update(targetUser._id, { status: nextStatus }).subscribe({
+      this.userService.update(targetUser._id, { status: nextStatus })
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
         next: () => {
           this.cancelarCambioEstado();
           this.loadUsers();

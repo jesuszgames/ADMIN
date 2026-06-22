@@ -20,8 +20,16 @@ export const DEFAULT_RAFFLE_BENEFICIARY_PERCENT = 80;
 export const DEFAULT_RAFFLE_WINNER_PERCENT = 20;
 export const DEFAULT_RAFFLE_BLOG_CARD = 'Ayuda a personas necesitadas.';
 export const DEFAULT_RAFFLE_BLOG_DETAIL = 'Esta rifa apoya la causa social.';
+export const DEFAULT_RAFFLE_PHOTO = '';
 export const DEFAULT_RAFFLE_TIME_LEFT = '15 dias';
 export const DEFAULT_RAFFLE_METODO_SORTEO: 'AUTOMATIC' | 'MANUAL' = 'AUTOMATIC';
+
+// Fallback values used by the raffle detail mapper when the API does not
+// return the corresponding field. Defined here (not in dashboard.constants.ts)
+// because they belong to the raffle domain, not the dashboard UI.
+export const DEFAULT_MONEY_GOAL = 3000;
+export const BENEFICIARY_PERCENTAGE = 80;
+export const WINNER_PERCENTAGE = 20;
 
 export const MY_RAFFLES_PRINCIPAL_HEADER = 'Rifas Activas';
 

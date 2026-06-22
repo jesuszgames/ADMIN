@@ -1,4 +1,5 @@
-import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, inject } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, inject, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgSelectComponent } from '@ng-select/ng-select';
@@ -17,6 +18,7 @@ import { Foundation } from '../../../core/interfaces/api/foundation.interface';
 export class AdvancedFiltersModal implements OnChanges {
   private readonly categoryService = inject(CategoryService);
   private readonly foundationService = inject(FoundationService);
+  private readonly destroyRef = inject(DestroyRef);
 
   @Input() selectedCategory: string = '';
   @Input() selectedFoundation: string = '';
@@ -42,25 +44,35 @@ export class AdvancedFiltersModal implements OnChanges {
 
   loadCategoriesIfNeeded(): void {
     if (this.categories.length === 0) {
-      this.categoryService.getAll(1, 100).subscribe({
-        next: (res) => {
-          if (res && res.data) {
-            this.categories = res.data.filter((c: Category) => c.status === 'ACTIVE');
-          }
-        },
-      });
+      this.categoryService.getAll(1, 100)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (res) => {
+            if (res && res.data) {
+              this.categories = res.data.filter((c: Category) => c.status === 'ACTIVE');
+            }
+          },
+          error: (err) => {
+            console.error('AdvancedFiltersModal: error al cargar categorías', err);
+          },
+        });
     }
   }
 
   loadFoundationsIfNeeded(): void {
     if (this.foundations.length === 0) {
-      this.foundationService.getAll(1, 100).subscribe({
-        next: (res) => {
-          if (res && res.data) {
-            this.foundations = res.data.filter((f: Foundation) => f.status === 'ACTIVE');
-          }
-        },
-      });
+      this.foundationService.getAll(1, 100)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (res) => {
+            if (res && res.data) {
+              this.foundations = res.data.filter((f: Foundation) => f.status === 'ACTIVE');
+            }
+          },
+          error: (err) => {
+            console.error('AdvancedFiltersModal: error al cargar fundaciones', err);
+          },
+        });
     }
   }
 
@@ -73,24 +85,29 @@ export class AdvancedFiltersModal implements OnChanges {
 
   closeCollapse(): void {
     const element = document.getElementById('collapseFiltrosAvanzados');
-    if (element) {
-      const bootstrap = (window as any).bootstrap;
-      if (bootstrap) {
-        try {
-          const bsCollapse = bootstrap.Collapse.getInstance(element) || new bootstrap.Collapse(element);
-          bsCollapse.hide();
-          return;
-        } catch (e) {
-          console.error('Error invoking Bootstrap Collapse JS API', e);
-        }
+    if (!element) return;
+
+    const bootstrapApi = window.bootstrap;
+    if (bootstrapApi) {
+      try {
+        const bsCollapse =
+          bootstrapApi.Collapse.getInstance(element) ??
+          new bootstrapApi.Collapse(element);
+        bsCollapse.hide();
+        return;
+      } catch (e) {
+        console.error('Error invoking Bootstrap Collapse JS API', e);
       }
-      element.classList.remove('show');
-      const triggers = document.querySelectorAll('[data-bs-target="#collapseFiltrosAvanzados"]');
-      triggers.forEach((t) => {
-        t.setAttribute('aria-expanded', 'false');
-        t.classList.add('collapsed');
-      });
     }
+
+    // Fallback when the Bootstrap JS bundle is not loaded: toggle the
+    // aria + class state manually so the collapse still hides.
+    element.classList.remove('show');
+    const triggers = document.querySelectorAll('[data-bs-target="#collapseFiltrosAvanzados"]');
+    triggers.forEach((trigger) => {
+      trigger.setAttribute('aria-expanded', 'false');
+      trigger.classList.add('collapsed');
+    });
   }
 
   apply(): void {

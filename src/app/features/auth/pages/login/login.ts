@@ -1,4 +1,5 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../../../core/services/api/auth.service';
@@ -12,6 +13,7 @@ import { AuthService } from '../../../../core/services/api/auth.service';
 })
 export class LoginComponent {
   private readonly authService = inject(AuthService);
+  private readonly destroyRef = inject(DestroyRef);
 
   username = '';
   password = '';
@@ -28,7 +30,9 @@ export class LoginComponent {
       return;
     }
 
-    this.authService.login(this.username, this.password).subscribe({
+    this.authService.login(this.username, this.password)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: () => {
         this.errorMessage.set(null);
       },

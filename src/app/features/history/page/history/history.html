@@ -50,8 +50,8 @@
         [loading]="loading"
         [placeholderSearch]="'Buscar nombre rifa'"
         (actionClicked)="manejarAccion($event)"
-        (pageChanged)="onPageChange($event)"
-        (searchChanged)="onSearchChange($event)"
+        (pageChanged)="onPageChanged($event)"
+        (searchChanged)="onSearchChanged($event)"
         (refreshData)="cargarRifas()"
       >
       </app-tables>

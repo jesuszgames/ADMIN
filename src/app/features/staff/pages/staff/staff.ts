@@ -1,6 +1,8 @@
-import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectorRef, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
-import { Filter } from '../../../../shared/components/filter/filter';
+import { FormsModule } from '@angular/forms';
+import { NgSelectComponent } from '@ng-select/ng-select';
 import { Tables } from '../../../../shared/components/tables/tables';
 import { DeleteModal } from '../../../../shared/components/delete-modal/delete-modal';
 import { EditUserModal } from '../../../../shared/components/edit-user-modal/edit-user-modal';
@@ -34,22 +36,27 @@ import {
 } from '../../../../core/helpers/global/auth.constants';
 import { User } from '../../../../core/interfaces/api/user.interface';
 import { UserService } from '../../../../core/services/api/user.service';
+import {
+  STATUS_FILTER_OPTIONS,
+  statusFilterToBackend,
+  StatusFilterOption,
+} from '../../../../core/helpers/global/status-filter.constants';
 
 const DEFAULT_USER_NAME_LABEL = 'Sin Nombre';
 
 @Component({
   selector: 'app-staff',
   standalone: true,
-  imports: [CommonModule, Filter, Tables, DeleteModal, EditUserModal, ConfirmChangesModal, MainButton],
+  imports: [CommonModule, FormsModule, NgSelectComponent, Tables, DeleteModal, EditUserModal, ConfirmChangesModal, MainButton],
   templateUrl: './staff.html',
 })
 export class StaffComponent implements OnInit {
   private readonly userService = inject(UserService);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly destroyRef = inject(DestroyRef);
 
   principalHeader = USERS_PRINCIPAL_HEADER;
   columns = USERS_COLUMNS;
-  filters = USERS_FILTERS;
   rowActions = USER_ROW_ACTIONS;
 
   usersData: User[] = [];
@@ -58,7 +65,20 @@ export class StaffComponent implements OnInit {
   isUserSaving = false;
   isUserDeleting = false;
   isUserUpdatingState = false;
-  filtroActual: string = USER_FILTER_ALL;
+
+  selectedRole = '';
+  selectedStatus = 'all';
+  tempRole = '';
+  tempStatus = 'all';
+
+  roleOptions = [
+    { id: '', label: 'Todos' },
+    { id: 'admin', label: 'Administrador' },
+    { id: 'sort', label: 'Sorteador' },
+  ];
+
+  statusOptions = STATUS_FILTER_OPTIONS as StatusFilterOption[];
+
   userSeleccionadoParaBorrar: User | null = null;
   selectedUserForEdit: User | null = null;
   isReadOnlyView = false;
@@ -85,16 +105,12 @@ export class StaffComponent implements OnInit {
     this.loading = true;
     this.cdr.detectChanges();
 
-    let backendStatus: string | undefined = undefined;
-    if (this.filtroActual === USER_FILTER_INACTIVE) {
-      backendStatus = 'INACTIVE';
-    } else if (this.filtroActual === USER_FILTER_DELETE) {
-      backendStatus = 'DELETED';
-    } else {
-      backendStatus = 'ACTIVE,INACTIVE';
-    }
+    const backendStatus = statusFilterToBackend(this.selectedStatus);
+    const roleParam = this.selectedRole || 'admin,sort';
 
-    this.userService.getAll(this.currentPage, this.pageSize, this.searchText, backendStatus, 'admin,sort').subscribe({
+    this.userService.getAll(this.currentPage, this.pageSize, this.searchText, backendStatus, roleParam)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: (res) => {
         if (!res || !res.data) {
           this.usersData = [];
@@ -164,18 +180,25 @@ export class StaffComponent implements OnInit {
     });
   }
 
-  filtrarPorEstado(estadoId: string) {
-    this.filtroActual = estadoId;
+  clearFilters() {
+    this.tempRole = '';
+    this.tempStatus = 'all';
+    this.applyFilters();
+  }
+
+  applyFilters() {
+    this.selectedRole = this.tempRole;
+    this.selectedStatus = this.tempStatus;
     this.currentPage = 1;
     this.loadUsers();
   }
 
-  onPageChange(page: number): void {
+  onPageChanged(page: number): void {
     this.currentPage = page;
     this.loadUsers();
   }
 
-  onSearchChange(search: string): void {
+  onSearchChanged(search: string): void {
     this.searchText = search;
     this.currentPage = 1;
     this.loadUsers();
@@ -238,7 +261,9 @@ export class StaffComponent implements OnInit {
       const targetUser = this.userSeleccionadoParaBorrar;
       if (!targetUser || this.isUserDeleting) throw new Error();
       this.isUserDeleting = true;
-      this.userService.deleteUser(targetUser._id, razon).subscribe({
+      this.userService.deleteUser(targetUser._id, razon)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
         next: () => {
           this.loadUsers();
           this.userSeleccionadoParaBorrar = null;
@@ -257,7 +282,9 @@ export class StaffComponent implements OnInit {
       const targetUser = this.pendingRowToToggle;
       const nextStatus = this.changesToConfirm[0].nuevo as typeof USER_STATUS_ACTIVE | typeof USER_STATUS_INACTIVE;
       this.isUserUpdatingState = true;
-      this.userService.update(targetUser._id, { status: nextStatus }).subscribe({
+      this.userService.update(targetUser._id, { status: nextStatus })
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
         next: () => {
           this.cancelarCambioEstado();
           this.loadUsers();
@@ -282,7 +309,9 @@ export class StaffComponent implements OnInit {
     this.isUserSaving = true;
 
     if (userData._id) {
-      this.userService.update(userData._id, userData).subscribe({
+      this.userService.update(userData._id, userData)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
         next: () => {
           this.isUserSaving = false;
           this.loadUsers();
@@ -294,7 +323,9 @@ export class StaffComponent implements OnInit {
         },
       });
     } else {
-      this.userService.create(userData).subscribe({
+      this.userService.create(userData)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
         next: () => {
           this.isUserSaving = false;
           this.loadUsers();

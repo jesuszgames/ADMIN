@@ -7,7 +7,9 @@ import {
   SimpleChanges,
   inject,
   ChangeDetectorRef,
+  DestroyRef,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Observable } from 'rxjs';
@@ -47,6 +49,7 @@ export class EditTicketsModal implements OnChanges {
   private readonly ticketService = inject(TicketService);
   private readonly drawService = inject(DrawService);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly destroyRef = inject(DestroyRef);
   userRole = this.authService.getUserRole();
 
   tickets: Ticket[] = [];
@@ -155,7 +158,9 @@ export class EditTicketsModal implements OnChanges {
       ? this.drawService.getTicketsByRaffle(raffle._id, this.currentPage, this.pageSize)
       : this.ticketService.getTicketsByRaffle(raffle._id, this.currentPage, this.pageSize);
 
-    tickets$.subscribe({
+    tickets$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: (res) => {
         if (res && res.data) {
           this.tickets = res.data;
@@ -184,7 +189,9 @@ export class EditTicketsModal implements OnChanges {
     if (ticket.buyer) {
       this.loadBuyer(ticket.buyer);
       if (ticket.buyer.userId && this.raffle?._id) {
-        this.ticketService.getUserTicketsInRaffle(this.raffle._id, ticket.buyer.userId).subscribe({
+        this.ticketService.getUserTicketsInRaffle(this.raffle._id, ticket.buyer.userId)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe({
           next: (res) => {
             if (res && res.data && this.selectedTicket && this.selectedTicket.buyer && this.selectedTicket.buyer.userId === ticket.buyer!.userId) {
               this.selectedTicket.buyer.tickets = res.data;
@@ -282,61 +289,78 @@ export class EditTicketsModal implements OnChanges {
   }
 
   desvincularSeleccionado() {
-    if (!this.selectedTicket || !this.selectedTicket.buyer) return;
+    this.openUnlinkConfirm('single');
+  }
 
-    const buyer = this.selectedTicket.buyer;
-    const numToUnlink = this.selectedTicket.number;
+  desvincularTodos() {
+    this.openUnlinkConfirm('all');
+  }
 
-    this.unlinkedLogs = [{
-      number: numToUnlink,
-      user: buyer.name,
-      purchaseId: buyer.id,
-    }];
+  /**
+   * Builds the list of tickets that will be unlinked and opens the
+   * confirmation modal.
+   *
+   * @param scope 'single' unlinks only the currently selected ticket;
+   *              'all' unlinks every ticket belonging to the same buyer.
+   */
+  private openUnlinkConfirm(scope: 'single' | 'all'): void {
+    const selected = this.selectedTicket;
+    if (!selected || !selected.buyer) return;
+    const buyer = selected.buyer;
+    const buyerName = buyer.name;
+    const buyerPurchaseId = buyer.id;
+
+    if (scope === 'single') {
+      this.unlinkedLogs = [
+        {
+          number: selected.number,
+          user: buyerName,
+          purchaseId: buyerPurchaseId,
+        },
+      ];
+    } else {
+      const ticketNumbers = this.collectBuyerTicketNumbers(buyer);
+      this.unlinkedLogs = ticketNumbers.map((ticketNumber) => {
+        const ticketDoc = this.tickets.find((t) => t.number === ticketNumber);
+        return {
+          number: ticketNumber,
+          user: buyerName,
+          purchaseId: ticketDoc?.buyer?.id || buyerPurchaseId,
+        };
+      });
+    }
+
     this.winnerTicketNumber = null;
     this.winnerBuyer = null;
     this.showConfirmModal = true;
     this.showOptions = false;
   }
 
-  desvincularTodos() {
-    if (!this.selectedTicket || !this.selectedTicket.buyer) return;
-
-    const buyer = this.selectedTicket.buyer;
-    const buyerName = buyer.name;
-
+  /**
+   * Returns every ticket number associated with the given buyer, deduplicated.
+   * Order of precedence:
+   *   1) buyer.tickets (already aggregated by the backend)
+   *   2) same buyer.userId inside the currently loaded page
+   *   3) same buyer.id (purchase id) inside the currently loaded page
+   */
+  private collectBuyerTicketNumbers(buyer: BuyerInfo): string[] {
     const ticketSet = new Set<string>();
 
     if (buyer.tickets && Array.isArray(buyer.tickets)) {
       buyer.tickets.forEach((num) => ticketSet.add(num));
     }
-
     if (buyer.userId) {
       this.tickets
         .filter((t) => t.buyer && t.buyer.userId === buyer.userId)
         .forEach((t) => ticketSet.add(t.number));
     }
-
     if (buyer.id) {
       this.tickets
         .filter((t) => t.buyer && t.buyer.id === buyer.id)
         .forEach((t) => ticketSet.add(t.number));
     }
 
-    const uniqueTickets = Array.from(ticketSet);
-
-    this.unlinkedLogs = uniqueTickets.map((num) => {
-      const tDoc = this.tickets.find((t) => t.number === num);
-      return {
-        number: num,
-        user: buyerName,
-        purchaseId: tDoc?.buyer?.id || buyer.id,
-      };
-    });
-
-    this.winnerTicketNumber = null;
-    this.winnerBuyer = null;
-    this.showConfirmModal = true;
-    this.showOptions = false;
+    return Array.from(ticketSet);
   }
 
   get isUnlinkReasonValid(): boolean {
@@ -374,7 +398,9 @@ export class EditTicketsModal implements OnChanges {
         )
       : this.drawService.executeDraw(raffle._id, this.winnerTicketNumber!);
 
-    action$.subscribe({
+    action$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: () => {
         this.isSaving = false;
         this.showConfirmModal = false;

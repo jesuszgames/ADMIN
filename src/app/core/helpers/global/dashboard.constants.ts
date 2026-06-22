@@ -7,7 +7,19 @@ import {
   TABLE_ACTION_VIEW_UNLINK_LOGS,
 } from '../ui/constants';
 
-export const DEFAULT_USER_NAME = 'Usuario';
+// Re-exported from auth.constants.ts to keep a single source of truth.
+export { DEFAULT_USER_NAME } from '../global/auth.constants';
+
+// Re-exported from raffle.constants.ts because legacy consumers (utils.ts)
+// imported these constants from this module. Keeping the re-exports avoids
+// a cascade of import-path changes in files we are not touching today.
+export {
+  DEFAULT_MONEY_GOAL,
+  BENEFICIARY_PERCENTAGE,
+  WINNER_PERCENTAGE,
+  DEFAULT_RAFFLE_PHOTO,
+} from '../global/raffle.constants';
+
 export const DASHBOARD_PRINCIPAL_HEADER = 'Rifas Recientes';
 
 export const PERSO_PAGE_SIZE = 5;
@@ -28,10 +40,3 @@ export const HISTORY_ROW_ACTIONS: DropdownAction[] = [
   { id: TABLE_ACTION_VIEW_UNLINK_LOGS, icon: 'bi-journal-text', label: 'Ver Desvinculaciones' },
   { id: TABLE_ACTION_DASHBOARD_DELETE, icon: 'bi-trash', label: 'Eliminar' },
 ];
-
-export const DEFAULT_MONEY_GOAL = 3000;
-export const BENEFICIARY_PERCENTAGE = 80;
-export const WINNER_PERCENTAGE = 20;
-export const TICKETS_TOTAL_COUNT = 100;
-
-export const DEFAULT_RAFFLE_PHOTO = '';

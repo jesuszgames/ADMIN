@@ -1,17 +1,15 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
-import { Filter } from '../../../../shared/components/filter/filter';
+import { Component, inject, OnInit, ChangeDetectorRef, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormsModule } from '@angular/forms';
 import { Tables } from '../../../../shared/components/tables/tables';
 import { DeleteModal } from '../../../../shared/components/delete-modal/delete-modal';
 import { MainButton } from '../../../../shared/components/main-button/main-button';
 import { CreateFoundationModal } from '../../components/create-foundation-modal/create-foundation-modal';
 import { ConfirmChangesModal } from '../../../../shared/components/confirm-changes-modal/confirm-changes-modal';
+import { StatusFilterComponent } from '../../../../shared/components/status-filter/status-filter.component';
 import { ModelChange } from '../../../../core/interfaces/api/model-change.interface';
 import {
-  FOUNDATION_FILTERS,
-  FOUNDATION_FILTER_ALL,
-  FOUNDATION_FILTER_INACTIVE,
-  FOUNDATION_FILTER_DELETE,
   FOUNDATION_ROW_ACTIONS,
   MY_FOUNDATIONS_COLUMNS,
   MY_FOUNDATIONS_PRINCIPAL_HEADER,
@@ -27,23 +25,40 @@ import {
 } from '../../../../core/helpers/ui/constants';
 import { FoundationService } from '../../../../core/services/api/foundation.service';
 import { isDeletedStatus, isInactiveStatus } from '../../../../core/helpers/ui/utils';
+import {
+  STATUS_FILTER_OPTIONS,
+  statusFilterToBackend,
+} from '../../../../core/helpers/global/status-filter.constants';
 
 @Component({
   selector: 'app-foundations',
   standalone: true,
-  imports: [CommonModule, Filter, Tables, DeleteModal, MainButton, CreateFoundationModal, ConfirmChangesModal],
+  imports: [
+    CommonModule,
+    FormsModule,
+    Tables,
+    DeleteModal,
+    MainButton,
+    CreateFoundationModal,
+    ConfirmChangesModal,
+    StatusFilterComponent,
+  ],
   templateUrl: './foundations.html',
 })
 export class Foundations implements OnInit {
   private readonly foundationService = inject(FoundationService);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly destroyRef = inject(DestroyRef);
 
   principalHeader = MY_FOUNDATIONS_PRINCIPAL_HEADER;
   foundationColumns = MY_FOUNDATIONS_COLUMNS;
-  foundationFilters = FOUNDATION_FILTERS;
   foundationActions = FOUNDATION_ROW_ACTIONS;
 
-  filtroActual = FOUNDATION_FILTER_ALL;
+  selectedStatus: 'all' | 'ACTIVE' | 'INACTIVE' | 'DELETED' = 'all';
+  tempStatus: 'all' | 'ACTIVE' | 'INACTIVE' | 'DELETED' = 'all';
+
+  readonly statusOptions = STATUS_FILTER_OPTIONS;
+
   fundacionSeleccionadaParaBorrar: Foundation | null = null;
   selectedFoundationForEdit: Foundation | null = null;
   isReadOnlyView = false;
@@ -72,36 +87,37 @@ export class Foundations implements OnInit {
 
   loading = false;
 
-  getBackendStatus(filterId: string): string {
-    if (filterId === FOUNDATION_FILTER_ALL) return 'ALL_ACTIVE_INACTIVE';
-    if (filterId === FOUNDATION_FILTER_INACTIVE) return 'INACTIVE';
-    if (filterId === FOUNDATION_FILTER_DELETE) return 'DELETED';
-    return '';
-  }
-
   loadFoundations(): void {
     this.loading = true;
-    const statusParam = this.getBackendStatus(this.filtroActual);
-    this.foundationService.getAll(this.currentPage, this.pageSize, this.searchTerm, statusParam).subscribe({
-      next: (res) => {
-        if (res) {
-          this.foundationsData = res.data || [];
-          this.tableData = this.foundationsData;
-          this.totalCount = res.totalCount || 0;
-        }
-        this.loading = false;
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        console.error('API Error: No se pudo cargar fundaciones del backend.', err);
-        this.loading = false;
-        this.cdr.detectChanges();
-      },
-    });
+    const statusParam = statusFilterToBackend(this.selectedStatus);
+    this.foundationService
+      .getAll(this.currentPage, this.pageSize, this.searchTerm, statusParam)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          if (res) {
+            this.foundationsData = res.data || [];
+            this.tableData = this.foundationsData;
+            this.totalCount = res.totalCount || 0;
+          }
+          this.loading = false;
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('API Error: No se pudo cargar fundaciones del backend.', err);
+          this.loading = false;
+          this.cdr.detectChanges();
+        },
+      });
   }
 
-  filtrarPorCategoria(id: string): void {
-    this.filtroActual = id;
+  clearFilters(): void {
+    this.selectedStatus = 'all';
+    this.applyFilters('all');
+  }
+
+  applyFilters(value: 'all' | 'ACTIVE' | 'INACTIVE' | 'DELETED'): void {
+    this.selectedStatus = value;
     this.currentPage = 1;
     this.loadFoundations();
   }
@@ -146,7 +162,7 @@ export class Foundations implements OnInit {
               },
             ];
             this.showConfirmModal = true;
-          } catch { }
+          } catch {}
         },
         [TABLE_ACTION_DELETE]: () => {
           this.fundacionSeleccionadaParaBorrar = row;
@@ -162,7 +178,7 @@ export class Foundations implements OnInit {
       const action = actions[evento.actionId];
       if (!action) throw new Error();
       action();
-    } catch { }
+    } catch {}
   }
 
   onSaveFoundation(foundData: Foundation): void {
@@ -171,29 +187,35 @@ export class Foundations implements OnInit {
 
     const editFoundation = this.selectedFoundationForEdit;
     if (editFoundation) {
-      this.foundationService.update(editFoundation._id, foundData).subscribe({
-        next: () => {
-          this.isFoundationSaving = false;
-          this.loadFoundations();
-          document.getElementById('btn-cerrar-modal-crear-fundacion')?.click();
-        },
-        error: (err) => {
-          console.error('API Error: No se pudo actualizar la fundación.', err);
-          this.isFoundationSaving = false;
-        },
-      });
+      this.foundationService
+        .update(editFoundation._id, foundData)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: () => {
+            this.isFoundationSaving = false;
+            this.loadFoundations();
+            document.getElementById('btn-cerrar-modal-crear-fundacion')?.click();
+          },
+          error: (err) => {
+            console.error('API Error: No se pudo actualizar la fundación.', err);
+            this.isFoundationSaving = false;
+          },
+        });
     } else {
-      this.foundationService.create(foundData).subscribe({
-        next: () => {
-          this.isFoundationSaving = false;
-          this.loadFoundations();
-          document.getElementById('btn-cerrar-modal-crear-fundacion')?.click();
-        },
-        error: (err) => {
-          console.error('API Error: No se pudo crear la fundación.', err);
-          this.isFoundationSaving = false;
-        },
-      });
+      this.foundationService
+        .create(foundData)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: () => {
+            this.isFoundationSaving = false;
+            this.loadFoundations();
+            document.getElementById('btn-cerrar-modal-crear-fundacion')?.click();
+          },
+          error: (err) => {
+            console.error('API Error: No se pudo crear la fundación.', err);
+            this.isFoundationSaving = false;
+          },
+        });
     }
   }
 
@@ -202,33 +224,43 @@ export class Foundations implements OnInit {
     if (!targetFound || this.isFoundationDeleting) return;
     this.isFoundationDeleting = true;
 
-    this.foundationService.deleteFoundation(targetFound._id, razon).subscribe({
-      next: () => {
-        this.loadFoundations();
-        this.isFoundationDeleting = false;
-      },
-      error: (err) => {
-        console.error('API Error: No se pudo eliminar la fundación del backend.', err);
-        this.isFoundationDeleting = false;
-      },
-    });
+    this.foundationService
+      .deleteFoundation(targetFound._id, razon)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.loadFoundations();
+          this.isFoundationDeleting = false;
+        },
+        error: (err) => {
+          console.error('API Error: No se pudo eliminar la fundación del backend.', err);
+          this.isFoundationDeleting = false;
+        },
+      });
     this.fundacionSeleccionadaParaBorrar = null;
   }
 
   confirmarCambioEstado(): void {
-    if (this.pendingRowToToggle && this.changesToConfirm.length > 0 && !this.isFoundationUpdatingState) {
+    if (
+      this.pendingRowToToggle &&
+      this.changesToConfirm.length > 0 &&
+      !this.isFoundationUpdatingState
+    ) {
       const nextStatus = this.changesToConfirm[0].nuevo as 'ACTIVE' | 'INACTIVE' | 'DELETED';
       this.isFoundationUpdatingState = true;
-      this.foundationService.update(this.pendingRowToToggle._id, { status: nextStatus }).subscribe({
-        next: () => {
-          this.loadFoundations();
-          this.isFoundationUpdatingState = false;
-        },
-        error: (err) => {
-          console.error('API Error: No se pudo actualizar el estado de la fundación.', err);
-          this.isFoundationUpdatingState = false;
-        },
-      });
+      this.foundationService
+        .update(this.pendingRowToToggle._id, { status: nextStatus })
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: () => {
+            this.loadFoundations();
+            this.isFoundationUpdatingState = false;
+          },
+          error: (err) => {
+            console.error('API Error: No se pudo actualizar el estado de la fundación.', err);
+            this.isFoundationUpdatingState = false;
+          },
+        });
     }
     this.cancelarCambioEstado();
   }
@@ -239,6 +271,3 @@ export class Foundations implements OnInit {
     this.pendingRowToToggle = null;
   }
 }
-
-
-

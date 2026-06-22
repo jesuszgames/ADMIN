@@ -7,9 +7,12 @@
       (btnClick)="abrirCrearFundacion()"
     ></app-main-button>
   </div>
-  <div class="mb-3">
-    <app-filter [options]="foundationFilters" (onFilter)="filtrarPorCategoria($event)"></app-filter>
-  </div>
+
+  <app-status-filter
+    [selectedStatus]="selectedStatus"
+    (apply)="applyFilters($event)"
+    (reset)="clearFilters()"
+  ></app-status-filter>
 
   <div class="row">
     <div class="col-12">
@@ -33,6 +36,9 @@
     </div>
   </div>
 </div>
+
+<!-- Trigger Button for Mobile (Offcanvas) and Mobile Offcanvas are
+     rendered by <app-status-filter>; nothing else to do here. -->
 
 <app-delete-modal
   [id]="'eliminar-fundacion'"

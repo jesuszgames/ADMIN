@@ -10,7 +10,9 @@ import {
   ViewChild,
   ElementRef,
   AfterViewInit,
+  DestroyRef,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -61,6 +63,7 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit {
 
   private readonly categoryService = inject(CategoryService);
   private readonly foundationService = inject(FoundationService);
+  private readonly destroyRef = inject(DestroyRef);
 
   categories: Category[] = [];
   categoriesLoading = false;
@@ -111,14 +114,18 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit {
   loadCategoriesIfNeeded() {
     const hasOnlyTemp = this.categories.length === 1 && this.categories[0]._id === 'temp_cat';
     if (this.categories.length === 0 || hasOnlyTemp) {
-      this.loadCategories().subscribe();
+      this.loadCategories()
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe();
     }
   }
 
   loadFoundationsIfNeeded() {
     const hasOnlyTemp = this.foundations.length === 1 && this.foundations[0]._id === 'temp_found';
     if (this.foundations.length === 0 || hasOnlyTemp) {
-      this.loadFoundations().subscribe();
+      this.loadFoundations()
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe();
     }
   }
 
