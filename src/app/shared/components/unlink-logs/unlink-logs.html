@@ -9,7 +9,7 @@
         <i class="bi bi-ticket-detailed text-danger"></i>
         <span
           >Total Desvinculados:
-          <strong class="text-white">{{ totalUnlinks }}</strong></span
+          <strong class="text-white">{{ totalCount }}</strong></span
         >
       </div>
       <div class="stat-badge d-flex align-items-center gap-2 px-3 py-2 rounded-3">
@@ -29,10 +29,11 @@
           type="text"
           class="form-control search-input"
           placeholder="Buscar por boleto, comprador, ID o motivo..."
-          [(ngModel)]="searchTerm"
+          [ngModel]="searchTerm"
+          (ngModelChange)="onSearchChange($event)"
         />
         @if (searchTerm) {
-          <button class="btn clear-search-btn" type="button" (click)="searchTerm = ''">
+          <button class="btn clear-search-btn" type="button" (click)="onSearchChange('')">
             <i class="bi bi-x-lg"></i>
           </button>
         }
@@ -40,7 +41,14 @@
     </div>
   </div>
 
-  @if (filteredLogs.length) {
+  @if (isLoading) {
+    <div class="d-flex flex-column justify-content-center align-items-center py-5">
+      <div class="spinner-border text-primary mb-3" role="status">
+        <span class="visually-hidden">Cargando...</span>
+      </div>
+      <p class="text-white-50 fs-7 mb-0">Cargando registros desvinculados...</p>
+    </div>
+  } @else if (logs.length) {
     <div class="table-responsive rounded-3 d-none d-md-block" style="max-height: 500px; overflow-y: auto">
       <table class="table table-hover align-middle mb-0 custom-table">
         <thead>
@@ -52,7 +60,7 @@
           </tr>
         </thead>
         <tbody>
-          @for (log of filteredLogs; track log.number + log.date) {
+          @for (log of logs; track log.number + log.date) {
             <tr>
               <td class="px-4">
                 <span class="ticket-badge">
@@ -61,7 +69,7 @@
               </td>
               <td class="px-3">
                 <span class="timestamp d-inline-flex align-items-center gap-1.5">
-                  <i class="bi bi-clock"></i> {{ log.date }}
+                   <i class="bi bi-clock"></i> {{ log.date }}
                 </span>
               </td>
               <td class="px-3">
@@ -85,7 +93,7 @@
 
     <!-- Mobile view cards for unlink logs -->
     <div class="d-md-none unlink-cards-container">
-      @for (log of filteredLogs; track log.number + log.date) {
+      @for (log of logs; track log.number + log.date) {
         <div class="card-mobile p-3 mb-3 rounded-3 border border-secondary bg-dark-card text-white">
           <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom border-secondary">
             <span class="ticket-badge">
@@ -114,6 +122,14 @@
         </div>
       }
     </div>
+
+    <!-- Pagination Controls -->
+    <app-pagination
+      [currentPage]="currentPage"
+      [totalItems]="totalCount"
+      [pageSize]="limit"
+      (pageChange)="onPageChanged($event)"
+    ></app-pagination>
   } @else {
     <div
       class="no-logs-wrapper text-center py-5 rounded-3 d-flex flex-column justify-content-center align-items-center"
@@ -129,7 +145,7 @@
         <button
           class="btn btn-sm btn-outline-secondary mt-3 px-3"
           type="button"
-          (click)="searchTerm = ''"
+          (click)="onSearchChange('')"
         >
           Limpiar búsqueda
         </button>

@@ -8,11 +8,13 @@ import {
   inject,
   ChangeDetectorRef,
   DestroyRef,
+  OnInit,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { AuthService } from '../../../core/services/api/auth.service';
 import { Raffle } from '../../../core/interfaces/api/raffle.interface';
 import { Ticket, BuyerInfo } from '../../../core/interfaces/api/ticket.interface';
@@ -26,7 +28,7 @@ import { DrawService } from '../../../core/services/api/draw.service';
   templateUrl: './edit-tickets-modal.html',
   styleUrl: './edit-tickets-modal.scss',
 })
-export class EditTicketsModal implements OnChanges {
+export class EditTicketsModal implements OnInit, OnChanges {
   @Input() raffle: Raffle | null = null;
   @Input() mode: 'rifas' | 'sorteos' = 'rifas';
   @Input() isSaving = false;
@@ -55,12 +57,28 @@ export class EditTicketsModal implements OnChanges {
   tickets: Ticket[] = [];
   selectedTicket: Ticket | null = null;
   searchPurchaseId = '';
+  private searchSubject = new Subject<string>();
   isLoadingTickets = false;
   showSkeleton = false;
 
   currentPage = 1;
   pageSize = 100;
   totalItems = 0;
+
+  ngOnInit() {
+    this.searchSubject.pipe(
+      debounceTime(400),
+      distinctUntilChanged(),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(term => {
+      this.currentPage = 1;
+      this.fetchTickets();
+    });
+  }
+
+  onSearchChange(term: string) {
+    this.searchSubject.next(term);
+  }
 
   get totalPages(): number {
     return Math.max(1, Math.ceil(this.totalItems / this.pageSize));
@@ -155,8 +173,8 @@ export class EditTicketsModal implements OnChanges {
     this.cdr.detectChanges();
 
     const tickets$ = this.mode === 'sorteos'
-      ? this.drawService.getTicketsByRaffle(raffle._id, this.currentPage, this.pageSize)
-      : this.ticketService.getTicketsByRaffle(raffle._id, this.currentPage, this.pageSize);
+      ? this.drawService.getTicketsByRaffle(raffle._id, this.currentPage, this.pageSize, this.searchPurchaseId.trim() || undefined)
+      : this.ticketService.getTicketsByRaffle(raffle._id, this.currentPage, this.pageSize, this.searchPurchaseId.trim() || undefined);
 
     tickets$
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -265,27 +283,12 @@ export class EditTicketsModal implements OnChanges {
   }
 
   buscarCompra() {
-    const query = this.searchPurchaseId.toUpperCase().trim();
-    if (!query) {
-      this.selectedTicket = null;
-      this.clearForm();
-      return;
-    }
-
-    const found = this.tickets.find((b) => {
-      if (!b.buyer) return false;
-      const name = (b.buyer.name || '').toUpperCase();
-      const id = (b.buyer.id || '').toUpperCase();
-      return name.includes(query) || id.includes(query);
-    });
-
-    if (found) {
-      this.selectTicket(found);
-    } else {
-      console.warn("Boleto no encontrado en esta página.");
+    this.currentPage = 1;
+    if (!this.searchPurchaseId.trim()) {
       this.selectedTicket = null;
       this.clearForm();
     }
+    this.fetchTickets();
   }
 
   desvincularSeleccionado() {
@@ -412,6 +415,7 @@ export class EditTicketsModal implements OnChanges {
         this.save.emit(raffle);
         if (isDraw) {
           document.getElementById('btn-cerrar-modal-editar-boletos')?.click();
+          this.closeModal();
         }
       },
       error: (err: unknown) => {

@@ -204,3 +204,26 @@
   }
 }
 
+/* Pagination Button Styling */
+.pagination-btn {
+  background-color: var.$option-bg !important;
+  border: 1px solid var.$option-border !important;
+  color: var.$primary-text !important;
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background-color: var.$button-primary !important;
+    border-color: var.$button-primary !important;
+    color: #fff !important;
+  }
+
+  &:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    background-color: transparent !important;
+    border-color: var.$option-border !important;
+    color: var.$secondary-text !important;
+  }
+}
+
+

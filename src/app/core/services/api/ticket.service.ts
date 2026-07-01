@@ -22,10 +22,11 @@ export class TicketService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = `${environment.apiUrl}/tickets`;
 
-  getTicketsByRaffle(raffleId: string, page?: number, limit?: number): Observable<{ data: Ticket[], totalCount?: number, currentPage?: number }> {
+  getTicketsByRaffle(raffleId: string, page?: number, limit?: number, search?: string): Observable<{ data: Ticket[], totalCount?: number, currentPage?: number }> {
     const body: Record<string, unknown> = { raffleId };
     if (page !== undefined) body['page'] = page;
     if (limit !== undefined) body['limit'] = limit;
+    if (search !== undefined) body['search'] = search;
     interface GetTicketsResponse {
       data?: {
         result?: Ticket[];
@@ -67,11 +68,12 @@ export class TicketService {
     });
   }
 
-  getUnlinkedLogs(raffleId?: string, page?: number, limit?: number): Observable<{ data: { result?: BackendUnlinkLog[]; totalCount?: number } | BackendUnlinkLog[] }> {
+  getUnlinkedLogs(raffleId?: string, page?: number, limit?: number, search?: string): Observable<{ data: { result?: BackendUnlinkLog[]; totalCount?: number } | BackendUnlinkLog[] }> {
     let url = `${this.apiUrl}/unlinked?`;
     if (raffleId) url += `raffleId=${raffleId}&`;
     if (page !== undefined) url += `page=${page}&`;
     if (limit !== undefined) url += `limit=${limit}&`;
+    if (search) url += `search=${encodeURIComponent(search)}&`;
     return this.http.get<{ data: { result?: BackendUnlinkLog[]; totalCount?: number } | BackendUnlinkLog[] }>(url);
   }
 }

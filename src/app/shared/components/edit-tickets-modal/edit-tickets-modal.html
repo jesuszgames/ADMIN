@@ -93,8 +93,8 @@
                   type="text"
                   class="form-control custom-dark-input border-start-0 py-2"
                   [(ngModel)]="searchPurchaseId"
+                  (ngModelChange)="onSearchChange($event)"
                   (keyup.enter)="buscarCompra()"
-                  (ngModelChange)="buscarCompra()"
                   placeholder="buscar por nombre comprador"
                 />
               </div>

@@ -2,7 +2,7 @@ import { Component, OnInit, inject, OnDestroy, ChangeDetectorRef, DestroyRef } f
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { RaffleService } from '../../../../core/services/api/raffle.service';
-import { TicketService, BackendUnlinkLog } from '../../../../core/services/api/ticket.service';
+import { TicketService } from '../../../../core/services/api/ticket.service';
 import { Subscription } from 'rxjs';
 import { RouterModule } from '@angular/router';
 import { Tables } from '../../../../shared/components/tables/tables';
@@ -39,11 +39,9 @@ import {
   RAFFLE_FILTER_MANUAL,
   RAFFLE_FILTER_AUTOMATIC,
   RAFFLE_FILTER_VALUES,
-  STATE_DELETED,
 } from '../../../../core/helpers/global/raffle.constants';
 import { Raffle } from '../../../../core/interfaces/api/raffle.interface';
 import {
-  calculateRemainingTime,
   isDeletedStatus,
   isActiveStatus,
   mapRaffleForTable,
@@ -110,8 +108,6 @@ export class Raffles implements OnInit, OnDestroy {
   private countdownInterval?: any;
 
   ngOnInit(): void {
-    // Defer to next tick so the initial ChangeDetection cycle has settled
-    // before we call detectChanges() inside cargarRifas().
     setTimeout(() => {
       this.cargarRifas();
     });
@@ -268,44 +264,8 @@ export class Raffles implements OnInit, OnDestroy {
           document.getElementById(this.BTN_EDIT_TICKETS_ID)?.click();
         },
         [TABLE_ACTION_VIEW_UNLINK_LOGS]: () => {
-          this.selectedRaffleForLogs = { ...row, unlinks: [] };
-          this.ticketService.getUnlinkedLogs(row._id, 1, 1000)
-            .pipe(takeUntilDestroyed(this.destroyRef))
-            .subscribe({
-            next: (res) => {
-              const logs =
-                res?.data && !Array.isArray(res.data) && res.data.result
-                  ? res.data.result
-                  : Array.isArray(res?.data)
-                    ? res.data
-                    : [];
-              if (this.selectedRaffleForLogs) {
-                this.selectedRaffleForLogs.unlinks = logs.map((log: BackendUnlinkLog) => {
-                  const userVal = log.userId
-                    ? typeof log.userId === 'object'
-                      ? log.userId.name || log.userId.username
-                      : log.userId
-                    : 'User';
-                  return {
-                    number: log.number,
-                    user:
-                      typeof userVal === 'object'
-                        ? (userVal as { name?: string; username?: string }).name ||
-                          (userVal as { name?: string; username?: string }).username ||
-                          'User'
-                        : String(userVal),
-                    purchaseId: log.purchaseId,
-                    reason: log.reason,
-                    date: log.date,
-                  };
-                });
-                this.cdr.detectChanges();
-              }
-            },
-            error: (err) => {
-              console.error('API Error: No se pudieron cargar logs de desvinculados', err);
-            },
-          });
+          this.selectedRaffleForLogs = row;
+          this.cdr.detectChanges();
           document.getElementById('btn-abrir-modal-unlink-logs')?.click();
         },
       };
@@ -321,18 +281,19 @@ export class Raffles implements OnInit, OnDestroy {
     if (!targetRaffle || this.isRaffleDeleting) return;
 
     this.isRaffleDeleting = true;
-    this.raffleService.deleteRaffle(targetRaffle._id, razon)
+    this.raffleService
+      .deleteRaffle(targetRaffle._id, razon)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-      next: () => {
-        this.cargarRifas();
-        this.isRaffleDeleting = false;
-      },
-      error: (err) => {
-        console.error('API Error: No se pudo eliminar la rifa.', err);
-        this.isRaffleDeleting = false;
-      },
-    });
+        next: () => {
+          this.cargarRifas();
+          this.isRaffleDeleting = false;
+        },
+        error: (err) => {
+          console.error('API Error: No se pudo eliminar la rifa.', err);
+          this.isRaffleDeleting = false;
+        },
+      });
     this.rifaSeleccionadaParaBorrar = null;
   }
 
@@ -340,18 +301,19 @@ export class Raffles implements OnInit, OnDestroy {
     if (this.pendingRowToToggle && this.changesToConfirm.length > 0 && !this.isRaffleUpdating) {
       const nextStatus = this.changesToConfirm[0].nuevo as string;
       this.isRaffleUpdating = true;
-      this.raffleService.update(this.pendingRowToToggle._id, { status: nextStatus })
+      this.raffleService
+        .update(this.pendingRowToToggle._id, { status: nextStatus })
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
-        next: () => {
-          this.cargarRifas();
-          this.isRaffleUpdating = false;
-        },
-        error: (err) => {
-          console.error('API Error: No se pudo cambiar el estado de la rifa.', err);
-          this.isRaffleUpdating = false;
-        },
-      });
+          next: () => {
+            this.cargarRifas();
+            this.isRaffleUpdating = false;
+          },
+          error: (err) => {
+            console.error('API Error: No se pudo cambiar el estado de la rifa.', err);
+            this.isRaffleUpdating = false;
+          },
+        });
     }
     this.cancelarCambioEstado();
   }
@@ -366,45 +328,44 @@ export class Raffles implements OnInit, OnDestroy {
     const editRaffle = this.selectedRaffleForEdit;
     this.isRaffleSaving = true;
     if (editRaffle) {
-      this.raffleService.update(editRaffle._id, raffleData)
+      this.raffleService
+        .update(editRaffle._id, raffleData)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
-        next: () => {
-          this.cargarRifas();
-          document.getElementById('btn-cerrar-modal-crear-rifa')?.click();
-          this.isRaffleSaving = false;
-        },
-        error: (err) => {
-          console.error('API Error: No se pudo actualizar la rifa.', err);
-          this.isRaffleSaving = false;
-        },
-      });
+          next: () => {
+            this.cargarRifas();
+            document.getElementById('btn-cerrar-modal-crear-rifa')?.click();
+            this.isRaffleSaving = false;
+          },
+          error: (err) => {
+            console.error('API Error: No se pudo actualizar la rifa.', err);
+            this.isRaffleSaving = false;
+          },
+        });
     } else {
-      this.raffleService.create(raffleData)
+      this.raffleService
+        .create(raffleData)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
-        next: () => {
-          this.cargarRifas();
-          document.getElementById('btn-cerrar-modal-crear-rifa')?.click();
-          this.isRaffleSaving = false;
-        },
-        error: (err) => {
-          console.error('API Error: No se pudo crear la rifa.', err);
-          this.isRaffleSaving = false;
-        },
-      });
+          next: () => {
+            this.cargarRifas();
+            document.getElementById('btn-cerrar-modal-crear-rifa')?.click();
+            this.isRaffleSaving = false;
+          },
+          error: (err) => {
+            console.error('API Error: No se pudo crear la rifa.', err);
+            this.isRaffleSaving = false;
+          },
+        });
     }
   }
 
   onSaveTickets(_updatedRaffle: Raffle) {
     this.cargarRifas();
-    this.selectedRaffleForTickets = null;
   }
 
   private getFilteredData(): Raffle[] {
     return this.rifasData.map((raffle) => {
-      // Compute a derived display status (NO_TICKETS / GOAL / PROX_EXPIRED)
-      // before delegating the rest of the mapping to the shared helper.
       const baseMapped = mapRaffleForTable(raffle);
 
       let statusDisplay = baseMapped.status;
