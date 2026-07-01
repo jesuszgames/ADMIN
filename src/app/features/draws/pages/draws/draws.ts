@@ -44,8 +44,6 @@ export class Draws implements OnInit {
   rowActions = [{ id: 1, icon: 'bi-trophy', label: 'Realizar Sorteo' }];
 
   ngOnInit(): void {
-    // Defer to next tick so the initial ChangeDetection cycle has settled
-    // before we call detectChanges() inside cargarDatos().
     setTimeout(() => {
       this.cargarDatos();
     });
@@ -54,23 +52,24 @@ export class Draws implements OnInit {
   cargarDatos() {
     this.loading = true;
     this.cdr.detectChanges();
-    this.drawService.getPendingDraws()
+    this.drawService
+      .getPendingDraws()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-      next: (res) => {
-        if (res && res.data) {
-          this.rifasData = res.data;
-          this.updateTableData();
-        }
-        this.loading = false;
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        console.error('API Error: No se pudieron cargar las rifas para sorteo.', err);
-        this.loading = false;
-        this.cdr.detectChanges();
-      },
-    });
+        next: (res) => {
+          if (res && res.data) {
+            this.rifasData = res.data;
+            this.updateTableData();
+          }
+          this.loading = false;
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('API Error: No se pudieron cargar las rifas para sorteo.', err);
+          this.loading = false;
+          this.cdr.detectChanges();
+        },
+      });
   }
 
   updateTableData() {
@@ -89,6 +88,5 @@ export class Draws implements OnInit {
 
   onSaveTickets(_updatedRaffle: Raffle) {
     this.cargarDatos();
-    this.selectedRaffleForTickets = null;
   }
 }

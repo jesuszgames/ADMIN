@@ -42,10 +42,11 @@ export class DrawService {
     });
   }
 
-  getTicketsByRaffle(raffleId: string, page?: number, limit?: number): Observable<{ data: Ticket[], totalCount?: number, currentPage?: number }> {
+  getTicketsByRaffle(raffleId: string, page?: number, limit?: number, search?: string): Observable<{ data: Ticket[], totalCount?: number, currentPage?: number }> {
     let url = `${this.apiUrl}/${raffleId}/tickets?`;
     if (page !== undefined) url += `page=${page}&`;
     if (limit !== undefined) url += `limit=${limit}&`;
+    if (search !== undefined) url += `search=${encodeURIComponent(search)}&`;
     interface TicketsResponse {
       data?: {
         result?: Ticket[];

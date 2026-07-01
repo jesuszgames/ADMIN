@@ -85,8 +85,6 @@ export class Dashboard implements OnInit {
   ngOnInit(): void {
     this.userName = this.authService.getUserName();
     this.initWelcomeMessage();
-    // Defer to next tick so the initial ChangeDetection cycle has settled
-    // before we call detectChanges() inside cargarRifas().
     setTimeout(() => {
       this.cargarRifas();
     });
@@ -95,57 +93,58 @@ export class Dashboard implements OnInit {
   cargarRifas(): void {
     this.loading = true;
     this.cdr.detectChanges();
-    this.raffleService.getDashboardMetrics()
+    this.raffleService
+      .getDashboardMetrics()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-      next: (res) => {
-        if (res && res.data) {
-          const metrics = res.data;
-          this.cards = [
-            {
-              label: 'Recaudado',
-              value: `${(metrics.totalCollected || 0).toLocaleString('es-MX')} $`,
-              icon: 'bi-cash-coin',
-              color: 'success',
-            },
-            {
-              label: 'Beneficiarios',
-              value: String(metrics.totalBeneficiaries || 0),
-              icon: 'bi-heart-fill',
-              color: 'danger',
-            },
-            {
-              label: 'Premiados',
-              value: String(metrics.totalWinners || 0),
-              icon: 'bi-trophy-fill',
-              color: 'warning',
-            },
-            {
-              label: 'Activas',
-              value: String(metrics.totalActive || 0),
-              icon: 'bi-play-circle-fill',
-              color: 'info',
-            },
-            {
-              label: 'Sin boletos',
-              value: String(metrics.totalNoTickets || 0),
-              icon: 'bi-ticket-detailed-fill',
-              color: 'secondary',
-            },
-            {
-              label: 'Finalizados',
-              value: String(metrics.totalFinished || 0),
-              icon: 'bi-check-circle-fill',
-              color: 'primary',
-            },
-          ];
-        }
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        console.error('API Error: No se pudieron cargar las métricas para el dashboard.', err);
-      },
-    });
+        next: (res) => {
+          if (res && res.data) {
+            const metrics = res.data;
+            this.cards = [
+              {
+                label: 'Recaudado',
+                value: `${(metrics.totalCollected || 0).toLocaleString('es-MX')} $`,
+                icon: 'bi-cash-coin',
+                color: 'success',
+              },
+              {
+                label: 'Beneficiarios',
+                value: String(metrics.totalBeneficiaries || 0),
+                icon: 'bi-heart-fill',
+                color: 'danger',
+              },
+              {
+                label: 'Premiados',
+                value: String(metrics.totalWinners || 0),
+                icon: 'bi-trophy-fill',
+                color: 'warning',
+              },
+              {
+                label: 'Activas',
+                value: String(metrics.totalActive || 0),
+                icon: 'bi-play-circle-fill',
+                color: 'info',
+              },
+              {
+                label: 'Sin boletos',
+                value: String(metrics.totalNoTickets || 0),
+                icon: 'bi-ticket-detailed-fill',
+                color: 'secondary',
+              },
+              {
+                label: 'Finalizados',
+                value: String(metrics.totalFinished || 0),
+                icon: 'bi-check-circle-fill',
+                color: 'primary',
+              },
+            ];
+          }
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('API Error: No se pudieron cargar las métricas para el dashboard.', err);
+        },
+      });
 
     this.raffleService
       .getAll(1, 10, '', 'FINISHED,PENDING-DRAW', undefined, 'recent', '{"endDate":-1}')
@@ -153,9 +152,9 @@ export class Dashboard implements OnInit {
       .subscribe({
         next: (res) => {
           if (res && res.data) {
-                    this.recentRaffles = res.data;
-                    this.tableData = res.data.map((raffle) => mapRaffleForTable(raffle));
-                  }
+            this.recentRaffles = res.data;
+            this.tableData = res.data.map((raffle) => mapRaffleForTable(raffle));
+          }
           this.loading = false;
           this.cdr.detectChanges();
         },
@@ -229,33 +228,35 @@ export class Dashboard implements OnInit {
     const targetRaffle = this.rifaSeleccionadaParaBorrar;
     if (!targetRaffle) return;
 
-    this.raffleService.deleteRaffle(targetRaffle._id, razon)
+    this.raffleService
+      .deleteRaffle(targetRaffle._id, razon)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-      next: () => {
-        this.cargarRifas();
-      },
-      error: (err) => {
-        console.error('API Error: No se pudo eliminar la rifa.', err);
-      },
-    });
+        next: () => {
+          this.cargarRifas();
+        },
+        error: (err) => {
+          console.error('API Error: No se pudo eliminar la rifa.', err);
+        },
+      });
     this.rifaSeleccionadaParaBorrar = null;
   }
 
   onViewTicketDetails(raffle: Raffle) {
     this.selectedTicketData = null;
-    this.ticketService.getTicketsByRaffle(raffle._id)
+    this.ticketService
+      .getTicketsByRaffle(raffle._id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-      next: (res) => {
-        if (res && res.data) {
-          this.selectedTicketData = mapTicketDetails(res.data, raffle);
-        }
-      },
-      error: (err) => {
-        console.error('API Error: No se pudieron cargar los boletos del backend.', err);
-      },
-    });
+        next: (res) => {
+          if (res && res.data) {
+            this.selectedTicketData = mapTicketDetails(res.data, raffle);
+          }
+        },
+        error: (err) => {
+          console.error('API Error: No se pudieron cargar los boletos del backend.', err);
+        },
+      });
   }
 
   onViewDetails(raffle: Raffle) {

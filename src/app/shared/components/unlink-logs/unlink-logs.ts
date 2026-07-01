@@ -1,40 +1,128 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, SimpleChanges, DestroyRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Raffle, UnlinkLog } from '../../../core/interfaces/api/raffle.interface';
+import { TicketService, BackendUnlinkLog } from '../../../core/services/api/ticket.service';
+import { Pagination } from '../pagination/pagination';
 
 @Component({
   selector: 'app-unlink-logs',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, Pagination],
   templateUrl: './unlink-logs.html',
   styleUrl: './unlink-logs.scss',
 })
-export class UnlinkLogs {
+export class UnlinkLogs implements OnInit, OnChanges {
   @Input() raffleData: Raffle | null = null;
+  
+  private ticketService = inject(TicketService);
+  private destroyRef = inject(DestroyRef);
+  
+  logs: UnlinkLog[] = [];
   searchTerm: string = '';
+  private searchSubject = new Subject<string>();
+  
+  currentPage: number = 1;
+  limit: number = 10;
+  totalCount: number = 0;
+  isLoading: boolean = false;
 
-  get filteredLogs(): UnlinkLog[] {
-    if (!this.raffleData || !this.raffleData.unlinks) return [];
-    if (!this.searchTerm.trim()) return this.raffleData.unlinks;
-
-    const term = this.searchTerm.toLowerCase().trim();
-    return this.raffleData.unlinks.filter(log =>
-      (log.number && log.number.toLowerCase().includes(term)) ||
-      (log.user && log.user.toLowerCase().includes(term)) ||
-      (log.purchaseId && log.purchaseId.toLowerCase().includes(term)) ||
-      (log.reason && log.reason.toLowerCase().includes(term)) ||
-      (log.date && log.date.toLowerCase().includes(term))
-    );
+  ngOnInit() {
+    this.searchSubject.pipe(
+      debounceTime(400),
+      distinctUntilChanged(),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(term => {
+      this.searchTerm = term;
+      this.currentPage = 1;
+      this.loadLogs();
+    });
   }
 
-  get totalUnlinks(): number {
-    return this.raffleData?.unlinks?.length || 0;
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['raffleData'] && this.raffleData) {
+      this.currentPage = 1;
+      this.searchTerm = '';
+      this.logs = [];
+      this.totalCount = 0;
+      this.loadLogs();
+    }
+  }
+
+  onSearchChange(term: string) {
+    this.searchSubject.next(term);
+  }
+
+  loadLogs() {
+    if (!this.raffleData || !this.raffleData._id) return;
+    
+    this.isLoading = true;
+    this.ticketService.getUnlinkedLogs(
+      this.raffleData._id,
+      this.currentPage,
+      this.limit,
+      this.searchTerm.trim() || undefined
+    )
+    .pipe(takeUntilDestroyed(this.destroyRef))
+    .subscribe({
+      next: (res) => {
+        this.isLoading = false;
+        const result = res?.data;
+        let rawLogs: BackendUnlinkLog[] = [];
+        
+        if (result) {
+          if (!Array.isArray(result) && result.result) {
+            rawLogs = result.result;
+            this.totalCount = result.totalCount || 0;
+          } else if (Array.isArray(result)) {
+            rawLogs = result;
+            this.totalCount = result.length;
+          }
+        }
+        
+        this.logs = rawLogs.map((log: BackendUnlinkLog) => {
+          const userVal = log.userId
+            ? typeof log.userId === 'object'
+              ? log.userId.name || log.userId.username
+              : log.userId
+            : 'User';
+          return {
+            number: log.number,
+            user:
+              typeof userVal === 'object'
+                ? (userVal as { name?: string; username?: string }).name ||
+                  (userVal as { name?: string; username?: string }).username ||
+                  'User'
+                : String(userVal),
+            purchaseId: log.purchaseId,
+            reason: log.reason,
+            date: log.date,
+          };
+        });
+      },
+      error: (err) => {
+        this.isLoading = false;
+        console.error('API Error: No se pudieron cargar logs de desvinculados', err);
+        this.logs = [];
+        this.totalCount = 0;
+      }
+    });
+  }
+
+  onPageChanged(page: number): void {
+    this.currentPage = page;
+    this.loadLogs();
+  }
+
+  get totalPages(): number {
+    return Math.ceil(this.totalCount / this.limit) || 1;
   }
 
   get uniqueUsersCount(): number {
-    if (!this.raffleData || !this.raffleData.unlinks) return 0;
-    const users = new Set(this.raffleData.unlinks.map(log => log.user));
+    const users = new Set(this.logs.map(log => log.user));
     return users.size;
   }
 

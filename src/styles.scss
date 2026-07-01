@@ -233,7 +233,7 @@
   border-radius: 10px !important;
   color: var(--primary-text) !important;
   font-size: 0.9rem;
-  transition: all 0.2s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
   cursor: pointer;
 
   i {

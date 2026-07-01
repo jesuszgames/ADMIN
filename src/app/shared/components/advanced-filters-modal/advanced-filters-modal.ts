@@ -1,4 +1,13 @@
-import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, inject, DestroyRef } from '@angular/core';
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  OnChanges,
+  SimpleChanges,
+  inject,
+  DestroyRef,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -26,7 +35,11 @@ export class AdvancedFiltersModal implements OnChanges {
   @Input() statusOptions: { id: string; label: string; icon?: string }[] = [];
   @Input() selectedStatus: string = '';
 
-  @Output() filterApplied = new EventEmitter<{ category: string; foundation: string; status: string }>();
+  @Output() filterApplied = new EventEmitter<{
+    category: string;
+    foundation: string;
+    status: string;
+  }>();
 
   tempCategory: string | null = null;
   tempFoundation: string | null = null;
@@ -44,7 +57,8 @@ export class AdvancedFiltersModal implements OnChanges {
 
   loadCategoriesIfNeeded(): void {
     if (this.categories.length === 0) {
-      this.categoryService.getAll(1, 100)
+      this.categoryService
+        .getAll(1, 100)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: (res) => {
@@ -61,7 +75,8 @@ export class AdvancedFiltersModal implements OnChanges {
 
   loadFoundationsIfNeeded(): void {
     if (this.foundations.length === 0) {
-      this.foundationService.getAll(1, 100)
+      this.foundationService
+        .getAll(1, 100)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: (res) => {
@@ -91,8 +106,7 @@ export class AdvancedFiltersModal implements OnChanges {
     if (bootstrapApi) {
       try {
         const bsCollapse =
-          bootstrapApi.Collapse.getInstance(element) ??
-          new bootstrapApi.Collapse(element);
+          bootstrapApi.Collapse.getInstance(element) ?? new bootstrapApi.Collapse(element);
         bsCollapse.hide();
         return;
       } catch (e) {
@@ -100,8 +114,6 @@ export class AdvancedFiltersModal implements OnChanges {
       }
     }
 
-    // Fallback when the Bootstrap JS bundle is not loaded: toggle the
-    // aria + class state manually so the collapse still hides.
     element.classList.remove('show');
     const triggers = document.querySelectorAll('[data-bs-target="#collapseFiltrosAvanzados"]');
     triggers.forEach((trigger) => {

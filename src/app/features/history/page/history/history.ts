@@ -11,7 +11,11 @@ import { HistoryTicketModel } from '../../../../shared/components/history-ticket
 import { AdvancedFiltersModal } from '../../../../shared/components/advanced-filters-modal/advanced-filters-modal';
 import { RaffleDetail } from '../../../../core/interfaces/api/raffle-detail.interface';
 import { TicketHistoryData } from '../../../../core/interfaces/api/ticket-history-data.interface';
-import { mapRaffleDetails, mapTicketDetails, mapRaffleForTable } from '../../../../core/helpers/ui/utils';
+import {
+  mapRaffleDetails,
+  mapTicketDetails,
+  mapRaffleForTable,
+} from '../../../../core/helpers/ui/utils';
 import {
   HISTORY_COLUMNS,
   HISTORY_FILTERS,
@@ -82,8 +86,6 @@ export class History implements OnInit, OnDestroy {
   loading = false;
 
   ngOnInit(): void {
-    // Defer to next tick so the initial ChangeDetection cycle has settled
-    // before we call detectChanges() inside cargarRifas().
     setTimeout(() => {
       this.cargarRifas();
     });
@@ -96,10 +98,7 @@ export class History implements OnInit, OnDestroy {
     this.loading = true;
     this.cdr.detectChanges();
 
-    let statuses = [
-      HISTORY_STATUS_VALUES.FINISHED,
-      HISTORY_STATUS_VALUES.DELETED,
-    ].join(',');
+    let statuses = [HISTORY_STATUS_VALUES.FINISHED, HISTORY_STATUS_VALUES.DELETED].join(',');
 
     let backendFilter = '';
     if (this.filtroActual === HISTORY_FILTER_TICKETS) {
@@ -122,7 +121,7 @@ export class History implements OnInit, OnDestroy {
         backendFilter,
         '{"endDate":-1}',
         this.selectedCategory || undefined,
-        this.selectedFoundation || undefined
+        this.selectedFoundation || undefined,
       )
       .subscribe({
         next: (res) => {
@@ -187,34 +186,8 @@ export class History implements OnInit, OnDestroy {
           document.getElementById(this.BTN_DELETE_HISTORY_ID)?.click();
         },
         [TABLE_ACTION_VIEW_UNLINK_LOGS]: () => {
-          this.selectedRaffleForLogs = { ...(evento.row as unknown as Raffle), unlinks: [] };
-          this.ticketService.getUnlinkedLogs(evento.row._id, 1, 1000)
-            .pipe(takeUntilDestroyed(this.destroyRef))
-            .subscribe({
-            next: (res) => {
-              const logs = res?.data && !Array.isArray(res.data) && res.data.result ? res.data.result : (Array.isArray(res?.data) ? res.data : []);
-              if (this.selectedRaffleForLogs) {
-                this.selectedRaffleForLogs.unlinks = logs.map((log: BackendUnlinkLog) => {
-                  const userVal = log.userId
-                    ? (typeof log.userId === 'object' ? log.userId.name || log.userId.username : log.userId)
-                    : 'User';
-                  return {
-                    number: log.number,
-                    user: typeof userVal === 'object'
-                      ? (userVal as { name?: string; username?: string }).name || (userVal as { name?: string; username?: string }).username || 'User'
-                      : String(userVal),
-                    purchaseId: log.purchaseId,
-                    reason: log.reason,
-                    date: log.date
-                  };
-                });
-                this.cdr.detectChanges();
-              }
-            },
-            error: (err) => {
-              console.error('API Error: No se pudieron cargar logs de desvinculados', err);
-            }
-          });
+          this.selectedRaffleForLogs = evento.row as unknown as Raffle;
+          this.cdr.detectChanges();
           document.getElementById('btn-abrir-modal-unlink-logs')?.click();
         },
       };
@@ -229,33 +202,35 @@ export class History implements OnInit, OnDestroy {
     const targetRaffle = this.rifaSeleccionadaParaBorrar;
     if (!targetRaffle) return;
 
-    this.raffleService.deleteRaffle(targetRaffle._id, razon)
+    this.raffleService
+      .deleteRaffle(targetRaffle._id, razon)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-      next: () => {
-        this.cargarRifas();
-      },
-      error: (err) => {
-        console.error('API Error: No se pudo eliminar la rifa.', err);
-      },
-    });
+        next: () => {
+          this.cargarRifas();
+        },
+        error: (err) => {
+          console.error('API Error: No se pudo eliminar la rifa.', err);
+        },
+      });
     this.rifaSeleccionadaParaBorrar = null;
   }
 
   onViewTicketDetails(raffle: HistoryRaffle): void {
     this.selectedTicketData = null;
-    this.ticketService.getTicketsByRaffle(raffle._id)
+    this.ticketService
+      .getTicketsByRaffle(raffle._id, 1, raffle.totalTickets)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-      next: (res) => {
-        if (res && res.data) {
-          this.selectedTicketData = mapTicketDetails(res.data, raffle);
-        }
-      },
-      error: (err) => {
-        console.error('API Error: No se pudieron cargar los boletos del backend.', err);
-      },
-    });
+        next: (res) => {
+          if (res && res.data) {
+            this.selectedTicketData = mapTicketDetails(res.data, raffle);
+          }
+        },
+        error: (err) => {
+          console.error('API Error: No se pudieron cargar los boletos del backend.', err);
+        },
+      });
   }
 
   onViewDetails(raffle: HistoryRaffle): void {
