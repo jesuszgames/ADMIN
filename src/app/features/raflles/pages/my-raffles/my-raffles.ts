@@ -3,6 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { RaffleService } from '../../../../core/services/api/raffle.service';
 import { TicketService } from '../../../../core/services/api/ticket.service';
+import { AuthService } from '../../../../core/services/api/auth.service';
 import { Subscription } from 'rxjs';
 import { RouterModule } from '@angular/router';
 import { Tables } from '../../../../shared/components/tables/tables';
@@ -67,6 +68,7 @@ import {
 export class Raffles implements OnInit, OnDestroy {
   private readonly raffleService = inject(RaffleService);
   private readonly ticketService = inject(TicketService);
+  private readonly authService = inject(AuthService);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly destroyRef = inject(DestroyRef);
   private activeSub?: Subscription;
@@ -88,6 +90,11 @@ export class Raffles implements OnInit, OnDestroy {
   showConfirmModal = false;
   changesToConfirm: ModelChange[] = [];
   pendingRowToToggle: Raffle | null = null;
+
+  showDeleteModal = false;
+  showCreateModal = false;
+  showTicketsModal = false;
+  showLogsModal = false;
 
   private readonly BTN_DELETE_RAFFLE_ID = 'btn-abrir-modal-delete-raffle';
   private readonly BTN_CREATE_RAFFLE_ID = 'btn-abrir-modal-create-raffle';
@@ -128,7 +135,7 @@ export class Raffles implements OnInit, OnDestroy {
       this.loading = true;
       this.cdr.detectChanges();
     }
-    let statuses = 'ACTIVE,INACTIVE,NO-TICKETS,SOON-TO-EXPIRED,GOAL,PENDING-DRAW';
+    let statuses = 'ACTIVE,INACTIVE,NO-TICKETS,SOON-TO-EXPIRE,GOAL,PENDING-DRAW';
 
     let backendFilter = '';
     let drawMethod = undefined;
@@ -145,7 +152,7 @@ export class Raffles implements OnInit, OnDestroy {
       backendFilter = RAFFLE_FILTER_VALUES.GOAL;
     } else if (this.filtroActual === RAFFLE_FILTER_PROX_EXPIRED) {
       statuses = 'ACTIVE';
-      backendFilter = RAFFLE_FILTER_VALUES.SOON_TO_EXPIRED;
+      backendFilter = RAFFLE_FILTER_VALUES.SOON_TO_EXPIRE;
     } else if (this.filtroActual === RAFFLE_FILTER_MANUAL) {
       drawMethod = 'MANUAL';
     } else if (this.filtroActual === RAFFLE_FILTER_AUTOMATIC) {
@@ -213,7 +220,29 @@ export class Raffles implements OnInit, OnDestroy {
   abrirCrearRifa() {
     this.selectedRaffleForEdit = null;
     this.isReadOnlyView = false;
+    this.showCreateModal = true;
+    this.cdr.detectChanges();
     document.getElementById(this.BTN_CREATE_RAFFLE_ID)?.click();
+  }
+
+  onCloseCreateRaffle() {
+    this.showCreateModal = false;
+    this.selectedRaffleForEdit = null;
+  }
+
+  onCloseDeleteModal() {
+    this.showDeleteModal = false;
+    this.rifaSeleccionadaParaBorrar = null;
+  }
+
+  onCloseTicketsModal() {
+    this.showTicketsModal = false;
+    this.selectedRaffleForTickets = null;
+  }
+
+  onCloseLogsModal() {
+    this.showLogsModal = false;
+    this.selectedRaffleForLogs = null;
   }
 
   manejarAccion(evento: { actionId: number; row: Record<string, unknown> }) {
@@ -246,25 +275,37 @@ export class Raffles implements OnInit, OnDestroy {
         },
         [TABLE_ACTION_DELETE]: () => {
           this.rifaSeleccionadaParaBorrar = row;
+          this.showDeleteModal = true;
+          this.cdr.detectChanges();
           document.getElementById(this.BTN_DELETE_RAFFLE_ID)?.click();
         },
         [TABLE_ACTION_EDIT_DETAIL]: () => {
           this.selectedRaffleForEdit = row;
           const hasExpired = row.endDate ? new Date(row.endDate) <= new Date() : false;
           const statusUpper = (row.status || '').toUpperCase();
+          
+          const isAdmin = this.authService.getUserRole() === 'ADMIN';
+          
           this.isReadOnlyView =
             isDeletedStatus(row.status) ||
-            statusUpper === 'FINISHED' ||
-            statusUpper === 'PENDING-DRAW' ||
-            hasExpired;
+            (!isAdmin && (
+              statusUpper === 'FINISHED' ||
+              statusUpper === 'PENDING-DRAW' ||
+              hasExpired
+            ));
+          this.showCreateModal = true;
+          this.cdr.detectChanges();
           document.getElementById(this.BTN_CREATE_RAFFLE_ID)?.click();
         },
         [TABLE_ACTION_EDIT_TICKETS]: () => {
           this.selectedRaffleForTickets = row;
+          this.showTicketsModal = true;
+          this.cdr.detectChanges();
           document.getElementById(this.BTN_EDIT_TICKETS_ID)?.click();
         },
         [TABLE_ACTION_VIEW_UNLINK_LOGS]: () => {
           this.selectedRaffleForLogs = row;
+          this.showLogsModal = true;
           this.cdr.detectChanges();
           document.getElementById('btn-abrir-modal-unlink-logs')?.click();
         },
@@ -379,10 +420,15 @@ export class Raffles implements OnInit, OnDestroy {
             const timeStr = baseMapped.remainingTime || '';
             if (timeStr.includes('días') || timeStr.includes('día')) {
               const days = parseInt(timeStr, 10);
-              if (!isNaN(days) && days <= 2) {
+              if (!isNaN(days) && days <= 1) {
                 statusDisplay = RAFFLE_STATUS_PROX_EXPIRED;
               }
-            } else if (timeStr.includes('horas')) {
+            } else if (
+              timeStr.includes('horas') ||
+              timeStr.includes('hora') ||
+              timeStr.includes('minutos') ||
+              timeStr.includes('minuto')
+            ) {
               statusDisplay = RAFFLE_STATUS_PROX_EXPIRED;
             }
           } catch {}

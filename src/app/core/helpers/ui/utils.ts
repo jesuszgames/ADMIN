@@ -101,15 +101,20 @@ export function mapRaffleDetails(raffle: Raffle): RaffleDetail {
   const beneficiaryAmount = (totalCollected * beneficiaryPercentage) / 100;
   const winnerAmount = (totalCollected * winnerPercentage) / 100;
 
-  const formatDate = (dateVal: Date | string | number | null | undefined) => {
+  const formatDate = (dateVal: Date | string | number | null | undefined, includeTime = false) => {
     if (!dateVal) return '';
     try {
       const dateObj = new Date(dateVal);
       if (isNaN(dateObj.getTime())) return String(dateVal);
-      const day = String(dateObj.getDate()).padStart(2, '0');
-      const month = String(dateObj.getMonth() + 1).padStart(2, '0');
       const year = dateObj.getFullYear();
-      return `${day}/${month}/${year}`;
+      const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+      const day = String(dateObj.getDate()).padStart(2, '0');
+      if (includeTime) {
+        const hours = String(dateObj.getHours()).padStart(2, '0');
+        const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+        return `${year}-${month}-${day} ${hours}:${minutes}`;
+      }
+      return `${year}-${month}-${day}`;
     } catch {
       return String(dateVal);
     }
@@ -118,8 +123,8 @@ export function mapRaffleDetails(raffle: Raffle): RaffleDetail {
   return {
     name: raffle.title,
     foundation: raffle.foundation,
-    startDate: formatDate(raffle.startDate) || '10/05/2026',
-    endDate: formatDate(raffle.endDate) || '14/05/2026',
+    startDate: formatDate(raffle.startDate) || '2026-05-10',
+    endDate: formatDate(raffle.endDate, true) || '2026-05-14 00:00',
     category: raffle.category,
     ticketPrice: raffle.ticketPrice || 30,
     winningTicket: raffle.winner,

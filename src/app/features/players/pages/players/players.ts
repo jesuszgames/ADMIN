@@ -37,7 +37,7 @@ const DEFAULT_USER_NAME_LABEL = 'Sin Nombre';
 @Component({
   selector: 'app-players',
   standalone: true,
-  imports: [CommonModule, FormsModule, Tables, ConfirmChangesModal, StatusFilterComponent],
+  imports: [CommonModule, FormsModule, Tables, ConfirmChangesModal],
   templateUrl: './players.html',
 })
 export class PlayersComponent implements OnInit {
@@ -51,13 +51,13 @@ export class PlayersComponent implements OnInit {
 
   usersData: User[] = [];
   tableData: User[] = [];
-  loading: boolean = false;
+  loading: boolean = true;
   isUserUpdatingState = false;
 
   selectedStatus: 'all' | 'ACTIVE' | 'INACTIVE' | 'DELETED' = 'all';
   tempStatus: 'all' | 'ACTIVE' | 'INACTIVE' | 'DELETED' = 'all';
 
-  readonly statusOptions = STATUS_FILTER_OPTIONS;
+  readonly statusOptions = STATUS_FILTER_OPTIONS.filter((opt) => opt.id !== 'DELETED');
 
   currentPage = 1;
   pageSize = 10;

@@ -94,6 +94,12 @@ function translateError(msg: string): string {
   translated = translated.replace(/is required/gi, 'es requerido');
   translated = translated.replace(/Unexpected field/gi, 'Campo inesperado');
 
+  // Clean up Joi pattern and value details
+  translated = translated.replace(/contains invalid characters/gi, 'contiene caracteres no permitidos');
+  translated = translated.replace(/with value "[^"]*"\s+/gi, '');
+  translated = translated.replace(/fails to match the required pattern:\s*.*/gi, 'contiene caracteres no permitidos o formato inválido');
+  translated = translated.replace(/""/g, '"');
+
   translated = translated.replace(/\bname\b/gi, 'El nombre');
   translated = translated.replace(/\bdescription\b/gi, 'La descripción');
   translated = translated.replace(/\bicon\b/gi, 'El icono');

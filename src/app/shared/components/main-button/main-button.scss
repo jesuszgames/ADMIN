@@ -29,4 +29,15 @@
   i {
     font-size: 1.1rem;
   }
+
+  .btn-label-text {
+    @media (max-width: 576px) {
+      display: none;
+    }
+  }
+
+  @media (max-width: 576px) {
+    padding: 10px 12px;
+    border-radius: 8px;
+  }
 }

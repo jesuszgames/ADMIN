@@ -18,6 +18,7 @@ export const MY_FOUNDATIONS_COLUMNS: TableColumn[] = [
   { field: 'description', header: 'DESCRIPCION' },
   { field: 'email', header: 'CORREO' },
   { field: 'phone', header: 'TELEFONO' },
+  { field: 'balanceFormatted', header: 'BALANCE' },
   { field: 'status', header: 'ESTADO', type: 'badge' },
   { field: 'actions', header: 'ACCIONES', type: 'actions' },
 ];

@@ -69,6 +69,11 @@ export class Dashboard implements OnInit {
   selectedTicketData: TicketHistoryData | null = null;
   selectedRaffleForLogs: Raffle | null = null;
 
+  showDeleteModal = false;
+  showRaffleModal = false;
+  showTicketsModal = false;
+  showLogsModal = false;
+
   cards: DashboardCard[] = [];
   welcomeGreeting: string = '';
   currentDate: string = '';
@@ -196,24 +201,53 @@ export class Dashboard implements OnInit {
   private readonly BTN_TICKETS_MODAL_ID = 'btn-abrir-modal-tickets';
   private readonly BTN_DELETE_MODAL_ID = 'btn-abrir-modal-delete';
 
+  onCloseDeleteModal(): void {
+    this.showDeleteModal = false;
+    this.rifaSeleccionadaParaBorrar = null;
+  }
+
+  onCloseRaffleModal(): void {
+    this.showRaffleModal = false;
+    this.selectedRaffle = null;
+    this.rifaSeleccionadaParaVer = null;
+  }
+
+  onCloseTicketsModal(): void {
+    this.showTicketsModal = false;
+    this.selectedTicketData = null;
+  }
+
+  onCloseLogsModal(): void {
+    this.showLogsModal = false;
+    this.selectedRaffleForLogs = null;
+  }
+
   manejarAccion(evento: { actionId: number; row: Raffle }) {
     try {
       const actions: Record<number, () => void> = {
         [TABLE_ACTION_VIEW_DETAIL]: () => {
           this.rifaSeleccionadaParaVer = evento.row;
           this.onViewDetails(evento.row);
+          this.showRaffleModal = true;
+          this.cdr.detectChanges();
           document.getElementById(this.BTN_HISTORY_MODAL_ID)?.click();
         },
         [TABLE_ACTION_VIEW_TICKETS]: () => {
           this.onViewTicketDetails(evento.row);
+          this.showTicketsModal = true;
+          this.cdr.detectChanges();
           document.getElementById(this.BTN_TICKETS_MODAL_ID)?.click();
         },
         [TABLE_ACTION_DASHBOARD_DELETE]: () => {
           this.rifaSeleccionadaParaBorrar = evento.row;
+          this.showDeleteModal = true;
+          this.cdr.detectChanges();
           document.getElementById(this.BTN_DELETE_MODAL_ID)?.click();
         },
         [TABLE_ACTION_VIEW_UNLINK_LOGS]: () => {
           this.selectedRaffleForLogs = evento.row;
+          this.showLogsModal = true;
+          this.cdr.detectChanges();
           document.getElementById('btn-abrir-modal-unlink-logs')?.click();
         },
       };
@@ -251,6 +285,7 @@ export class Dashboard implements OnInit {
         next: (res) => {
           if (res && res.data) {
             this.selectedTicketData = mapTicketDetails(res.data, raffle);
+            this.cdr.detectChanges();
           }
         },
         error: (err) => {

@@ -31,7 +31,7 @@ export const DEFAULT_MONEY_GOAL = 3000;
 export const BENEFICIARY_PERCENTAGE = 80;
 export const WINNER_PERCENTAGE = 20;
 
-export const MY_RAFFLES_PRINCIPAL_HEADER = 'Rifas Activas';
+export const MY_RAFFLES_PRINCIPAL_HEADER = 'Lista Rifas';
 
 export const MY_RAFFLES_COLUMNS: TableColumn[] = [
   { field: 'title', header: 'Nombre Rifa' },
@@ -59,7 +59,7 @@ export const RAFFLE_FILTER_VALUES = {
   NO_TICKETS: 'NO-TICKETS',
   INACTIVE: 'INACTIVE',
   GOAL: 'GOAL',
-  SOON_TO_EXPIRED: 'SOON-TO-EXPIRED',
+  SOON_TO_EXPIRE: 'SOON-TO-EXPIRE',
   PENDING_DRAW: 'PENDING-DRAW',
   TICKETS: 'tickets',
   DELETED: 'deleted',
@@ -75,4 +75,3 @@ export const MY_RAFFLES_FILTERS: FilterOption[] = [
   { id: RAFFLE_FILTER_PROX_EXPIRED, icon: 'bi-hourglass', label: 'Próximo a vencer' },
   { id: RAFFLE_FILTER_META_COMPLETED, icon: 'bi-check-all', label: 'Meta Completada' },
 ];
-

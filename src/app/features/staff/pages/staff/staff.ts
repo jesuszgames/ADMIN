@@ -92,6 +92,9 @@ export class StaffComponent implements OnInit {
   changesToConfirm: ModelChange[] = [];
   pendingRowToToggle: User | null = null;
 
+  showDeleteModal = false;
+  showEditUserModal = false;
+
   private readonly BTN_DELETE_USER_ID = 'btn-abrir-modal-delete-user';
   private readonly BTN_EDIT_USER_ID = 'btn-abrir-modal-edit-user';
 
@@ -204,15 +207,25 @@ export class StaffComponent implements OnInit {
     this.loadUsers();
   }
 
+  onCloseDeleteModal(): void {
+    this.showDeleteModal = false;
+    this.userSeleccionadoParaBorrar = null;
+  }
+
+  onCloseEditUserModal(): void {
+    this.showEditUserModal = false;
+    this.selectedUserForEdit = null;
+  }
+
   manejarAccion(evento: { actionId: number; row: User }) {
     try {
       const actions: Record<number, () => void> = {
         [USER_ACTION_EDIT]: () => {
           this.selectedUserForEdit = evento.row;
           this.isReadOnlyView = evento.row.status === STATE_DELETED;
-          setTimeout(() => {
-            document.getElementById(this.BTN_EDIT_USER_ID)?.click();
-          });
+          this.showEditUserModal = true;
+          this.cdr.detectChanges();
+          document.getElementById(this.BTN_EDIT_USER_ID)?.click();
         },
         [USER_ACTION_TOGGLE_STATUS]: () => {
           try {
@@ -240,6 +253,8 @@ export class StaffComponent implements OnInit {
         },
         [USER_ACTION_DELETE]: () => {
           this.userSeleccionadoParaBorrar = evento.row;
+          this.showDeleteModal = true;
+          this.cdr.detectChanges();
           document.getElementById(this.BTN_DELETE_USER_ID)?.click();
         },
       };
@@ -253,6 +268,8 @@ export class StaffComponent implements OnInit {
   abrirCrearStaff(): void {
     this.selectedUserForEdit = null;
     this.isReadOnlyView = false;
+    this.showEditUserModal = true;
+    this.cdr.detectChanges();
     document.getElementById(this.BTN_EDIT_USER_ID)?.click();
   }
 

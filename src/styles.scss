@@ -86,7 +86,7 @@
 
         &.ng-option-selected {
           background-color: var.$button-primary !important;
-          color: var.$primary-text !important;
+          color: #ffffff !important;
         }
       }
     }
@@ -100,6 +100,30 @@
   color: var.$primary-text !important;
   border-radius: 12px !important;
   z-index: 99999 !important;
+
+  .numInputWrapper {
+    span.arrowUp,
+    span.arrowDown {
+      border: none !important;
+      background: transparent !important;
+      
+      &:hover {
+        background: rgba(255, 255, 255, 0.1) !important;
+      }
+    }
+    
+    span.arrowUp {
+      &:after {
+        border-bottom-color: var.$primary-text !important;
+      }
+    }
+    
+    span.arrowDown {
+      &:after {
+        border-top-color: var.$primary-text !important;
+      }
+    }
+  }
 
   .flatpickr-months {
     background: transparent !important;
@@ -119,6 +143,11 @@
     .flatpickr-next-month {
       fill: var.$primary-text !important;
       color: var.$primary-text !important;
+      
+      svg {
+        fill: currentColor !important;
+      }
+
       &:hover {
         background: var.$hover-cancel-button !important;
       }

@@ -6,11 +6,13 @@ import {
   OnChanges,
   SimpleChanges,
   OnInit,
+  OnDestroy,
   inject,
   ViewChild,
   ElementRef,
   AfterViewInit,
   DestroyRef,
+  ChangeDetectorRef,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
@@ -54,7 +56,7 @@ import { debounceTime, distinctUntilChanged, switchMap, tap } from 'rxjs/operato
   templateUrl: './create-raffle-modal.html',
   styleUrl: './create-raffle-modal.scss',
 })
-export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit {
+export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit, OnDestroy {
   @Input() raffle: Raffle | null = null;
   @Input() isReadOnly = false;
   @Input() isSaving = false;
@@ -64,6 +66,7 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit {
   private readonly categoryService = inject(CategoryService);
   private readonly foundationService = inject(FoundationService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   categories: Category[] = [];
   categoriesLoading = false;
@@ -77,6 +80,23 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit {
   endDatePicker?: flatpickr.Instance;
 
   ngOnInit() {}
+
+  ngOnDestroy() {
+    if (this.startDatePicker) {
+      try {
+        this.startDatePicker.destroy();
+      } catch (e) {
+        console.error('Error destroying startDatePicker:', e);
+      }
+    }
+    if (this.endDatePicker) {
+      try {
+        this.endDatePicker.destroy();
+      } catch (e) {
+        console.error('Error destroying endDatePicker:', e);
+      }
+    }
+  }
 
   ensureCurrentRaffleValuesInDropdowns() {
     if (this.raffle && this.raffle.category) {
@@ -129,19 +149,26 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit {
     }
   }
 
-  loadCategories() {
+  categoriesPage = 1;
+  categoriesTotalCount = 0;
+  foundationsPage = 1;
+  foundationsTotalCount = 0;
+
+  loadCategories(page = 1) {
     this.categoriesLoading = true;
-    return this.categoryService.getAll(1, 100).pipe(
+    console.log(`[CreateRaffle] loadCategories page=${page}`);
+    return this.categoryService.getActive(page, 10).pipe(
       tap((res) => {
         this.categoriesLoading = false;
         if (res && res.data) {
-          this.categories = res.data.filter((c) => {
-            if (c.status === STATE_DELETED) return false;
-            if (!this.raffle) {
-              return c.status === 'ACTIVE';
-            }
-            return c.status === 'ACTIVE' || c.name === this.raffle.category;
-          });
+          if (page === 1) {
+            this.categories = res.data;
+          } else {
+            this.categories = [...this.categories, ...res.data];
+          }
+          this.categoriesPage = page;
+          this.categoriesTotalCount = res.totalCount || 0;
+          console.log(`[CreateRaffle] Loaded categories: current=${this.categories.length}, total=${this.categoriesTotalCount}`);
 
           if (this.raffle && this.raffle.category) {
             const hasCurrent = this.categories.some((c) => c.name === this.raffle!.category);
@@ -155,30 +182,39 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit {
               } as Category);
             }
           }
+          this.cdr.detectChanges();
         }
       }),
     );
   }
 
-  loadFoundations() {
+  loadMoreCategories() {
+    console.log(`[CreateRaffle] loadMoreCategories triggered. Loading=${this.categoriesLoading}, current=${this.categories.length}, total=${this.categoriesTotalCount}`);
+    if (this.categoriesLoading || this.categories.length >= this.categoriesTotalCount) return;
+    this.loadCategories(this.categoriesPage + 1).subscribe();
+  }
+
+  loadFoundations(page = 1) {
     this.foundationsLoading = true;
-    return this.foundationService.getAll(1, 100).pipe(
+    console.log(`[CreateRaffle] loadFoundations page=${page}`);
+    return this.foundationService.getActive(page, 10).pipe(
       tap((res) => {
         this.foundationsLoading = false;
         if (res && res.data) {
-          this.foundations = res.data.filter((f) => {
-            if (f.status === STATE_DELETED) return false;
-            if (!this.raffle) {
-              return f.status === 'ACTIVE';
-            }
-            return f.status === 'ACTIVE' || f.name === this.raffle.foundation;
-          });
+          if (page === 1) {
+            this.foundations = res.data;
+          } else {
+            this.foundations = [...this.foundations, ...res.data];
+          }
+          this.foundationsPage = page;
+          this.foundationsTotalCount = res.totalCount || 0;
+          console.log(`[CreateRaffle] Loaded foundations: current=${this.foundations.length}, total=${this.foundationsTotalCount}`);
 
           if (this.raffle && this.raffle.foundation) {
             const hasCurrent = this.foundations.some((f) => f.name === this.raffle!.foundation);
             if (!hasCurrent) {
               this.foundations.push({
-                _id: 'temp_found',
+                _id: 'temp_fnd',
                 name: this.raffle.foundation,
                 status: 'ACTIVE',
                 createdAt: new Date().toISOString(),
@@ -186,9 +222,16 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit {
               } as Foundation);
             }
           }
+          this.cdr.detectChanges();
         }
       }),
     );
+  }
+
+  loadMoreFoundations() {
+    console.log(`[CreateRaffle] loadMoreFoundations triggered. Loading=${this.foundationsLoading}, current=${this.foundations.length}, total=${this.foundationsTotalCount}`);
+    if (this.foundationsLoading || this.foundations.length >= this.foundationsTotalCount) return;
+    this.loadFoundations(this.foundationsPage + 1).subscribe();
   }
 
   title = '';
@@ -221,15 +264,14 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit {
         locale: Spanish,
         dateFormat: 'Y-m-d',
         disableMobile: true,
-        allowInput: false,
+        allowInput: true,
         clickOpens: !this.isReadOnly,
         defaultDate: this.startDate,
-        minDate: this.getMinStartDate(),
         onChange: (selectedDates, dateStr) => {
           this.startDate = dateStr;
           this.touchedFields['startDate'] = true;
           if (this.endDatePicker) {
-            this.endDatePicker.set('minDate', dateStr || this.getTodayDate());
+            this.endDatePicker.set('minDate', dateStr || undefined);
           }
         },
         onClose: () => {
@@ -241,15 +283,15 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit {
     if (this.endDateInput && this.endDateInput.nativeElement) {
       this.endDatePicker = flatpickr(this.endDateInput.nativeElement, {
         locale: Spanish,
-        dateFormat: 'Y-m-d h:i K',
+        dateFormat: 'Y-m-d H:i',
         enableTime: true,
-        time_24hr: false,
+        time_24hr: true,
         minuteIncrement: 1,
         disableMobile: true,
-        allowInput: false,
+        allowInput: true,
         clickOpens: !this.isReadOnly,
         defaultDate: this.endDate,
-        minDate: this.startDate || this.getTodayDate(),
+        minDate: this.startDate || undefined,
         onChange: (selectedDates, dateStr) => {
           this.endDate = dateStr;
           this.touchedFields['endDate'] = true;
@@ -259,6 +301,20 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit {
         onClose: () => {
           this.touchedFields['endDate'] = true;
         },
+        onOpen: (selectedDates, dateStr, instance) => {
+          setTimeout(() => {
+            const hourInput = instance.calendarContainer?.querySelector('.flatpickr-hour') as HTMLInputElement;
+            const minuteInput = instance.calendarContainer?.querySelector('.flatpickr-minute') as HTMLInputElement;
+            if (hourInput) {
+              hourInput.addEventListener('focus', () => hourInput.select());
+              hourInput.addEventListener('click', () => hourInput.select());
+            }
+            if (minuteInput) {
+              minuteInput.addEventListener('focus', () => minuteInput.select());
+              minuteInput.addEventListener('click', () => minuteInput.select());
+            }
+          }, 50);
+        }
       });
     }
   }
@@ -272,30 +328,63 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit {
       if (!includeTime && /^\d{4}-\d{2}-\d{2}$/.test(dateVal)) {
         return dateVal;
       }
-      if (includeTime && /^\d{4}-\d{2}-\d{2} \d{2}:\d{2} (AM|PM)$/.test(dateVal)) {
+      if (includeTime && /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/.test(dateVal)) {
         return dateVal;
       }
     }
     try {
       const date = new Date(dateVal);
       if (isNaN(date.getTime())) return '';
-      const offsetDate = new Date(date.getTime() - 5 * 60 * 60 * 1000);
-      const year = offsetDate.getUTCFullYear();
-      const month = String(offsetDate.getUTCMonth() + 1).padStart(2, '0');
-      const day = String(offsetDate.getUTCDate()).padStart(2, '0');
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
       if (includeTime) {
-        let hoursNum = offsetDate.getUTCHours();
-        const ampm = hoursNum >= 12 ? 'PM' : 'AM';
-        hoursNum = hoursNum % 12;
-        hoursNum = hoursNum ? hoursNum : 12;
-        const hours = String(hoursNum).padStart(2, '0');
-        const minutes = String(offsetDate.getUTCMinutes()).padStart(2, '0');
-        return `${year}-${month}-${day} ${hours}:${minutes} ${ampm}`;
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        return `${year}-${month}-${day} ${hours}:${minutes}`;
       }
       return `${year}-${month}-${day}`;
     } catch {
       return '';
     }
+  }
+
+  parseFlatpickrDateTime(dateStr: string): Date | null {
+    if (!dateStr) return null;
+    const parts = dateStr.split(' ');
+    if (parts.length < 2) return null;
+    const dateParts = parts[0].split('-');
+    const timeParts = parts[1].split(':');
+
+    if (dateParts.length < 3 || timeParts.length < 2) return null;
+
+    const year = parseInt(dateParts[0], 10);
+    const month = parseInt(dateParts[1], 10) - 1;
+    const day = parseInt(dateParts[2], 10);
+    const hour = parseInt(timeParts[0], 10);
+    const minute = parseInt(timeParts[1], 10);
+
+    return new Date(year, month, day, hour, minute);
+  }
+
+  isPastEndDate(dateStr: string): boolean {
+    const parsed = this.parseFlatpickrDateTime(dateStr);
+    if (!parsed) return false;
+    
+    const now = Date.now();
+    if (!this.raffle) {
+      // Al crear: la fecha de fin debe ser a futuro (reloj del navegador)
+      return parsed.getTime() < now - 60000;
+    }
+
+    // Al editar: solo validar si el usuario cambió activamente la fecha de fin a una del pasado
+    const originalEndStr = this.formatDateToYYYYMMDD(this.raffle.endDate, true);
+    const isEndChanged = dateStr !== originalEndStr;
+    if (isEndChanged) {
+      return parsed.getTime() < now - 60000;
+    }
+
+    return false;
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -358,11 +447,10 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit {
 
     if (this.startDatePicker) {
       this.startDatePicker.setDate(this.startDate);
-      this.startDatePicker.set('minDate', this.getMinStartDate());
     }
     if (this.endDatePicker) {
       this.endDatePicker.setDate(this.endDate);
-      this.endDatePicker.set('minDate', this.startDate || this.getTodayDate());
+      this.endDatePicker.set('minDate', this.startDate || undefined);
     }
 
     this.ensureCurrentRaffleValuesInDropdowns();
@@ -486,8 +574,7 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit {
         return false;
       }
     }
-    const minStart = this.getMinStartDate();
-    if (this.startDate && this.startDate < minStart) {
+    if (this.endDate && this.isPastEndDate(this.endDate)) {
       return false;
     }
     return (
@@ -513,7 +600,9 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit {
       !!this.photo &&
       !!this.banner &&
       this.blogCardText.trim() !== '' &&
-      this.blogDetailText.trim() !== ''
+      this.blogCardText.length <= 500 &&
+      this.blogDetailText.trim() !== '' &&
+      this.blogDetailText.length <= 500
     );
   }
 
@@ -623,6 +712,9 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit {
   onSubmit() {
     if (!this.isFormValid() || this.isSaving) return;
 
+    const localStart = this.startDate ? new Date(this.startDate + 'T00:00:00') : null;
+    const localEnd = this.endDate ? this.parseFlatpickrDateTime(this.endDate) : null;
+
     const data: Raffle = {
       _id: this.raffle?._id ?? '',
       status: this.raffle?.status || 'ACTIVE',
@@ -635,8 +727,8 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit {
       title: this.title,
       foundation: this.foundation ?? '',
       category: this.category ?? '',
-      startDate: this.startDate,
-      endDate: this.endDate,
+      startDate: localStart ? localStart.toISOString() : '',
+      endDate: localEnd ? localEnd.toISOString() : '',
       goal: this.goal,
       totalTickets: this.ticketsAvailable ?? DEFAULT_RAFFLE_TICKETS_TOTAL,
       ticketPrice: this.ticketPrice ?? DEFAULT_RAFFLE_TICKET_PRICE,

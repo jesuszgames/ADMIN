@@ -20,6 +20,7 @@ export const HISTORY_COLUMNS: TableColumn[] = [
   { field: 'category', header: 'CATEGORIA' },
   { field: 'soldTicketsStr', header: 'BOLETOS VENDIDOS' },
   { field: 'collectedStr', header: 'TOTAL RECAUDADO' },
+  { field: 'endDateFormatted', header: 'FECHA FINALIZACIÓN' },
   { field: 'drawMethod', header: 'Método Sorteo', type: 'badge' },
   { field: 'status', header: 'Estado', type: 'badge' },
   { field: 'winner', header: 'BOLETO GANADOR' },

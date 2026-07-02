@@ -41,7 +41,6 @@ import {
     MainButton,
     CreateFoundationModal,
     ConfirmChangesModal,
-    StatusFilterComponent,
   ],
   templateUrl: './foundations.html',
 })
@@ -67,6 +66,9 @@ export class Foundations implements OnInit {
   changesToConfirm: ModelChange[] = [];
   pendingRowToToggle: Foundation | null = null;
 
+  showDeleteModal = false;
+  showCreateModal = false;
+
   isFoundationSaving = false;
   isFoundationDeleting = false;
   isFoundationUpdatingState = false;
@@ -85,7 +87,7 @@ export class Foundations implements OnInit {
     });
   }
 
-  loading = false;
+  loading = true;
 
   loadFoundations(): void {
     this.loading = true;
@@ -97,7 +99,13 @@ export class Foundations implements OnInit {
         next: (res) => {
           if (res) {
             this.foundationsData = res.data || [];
-            this.tableData = this.foundationsData;
+            this.tableData = this.foundationsData.map((f: Foundation) => {
+              const balanceNum = typeof f.balance === 'number' ? f.balance : 0;
+              return {
+                ...f,
+                balanceFormatted: `${balanceNum.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} $`,
+              };
+            });
             this.totalCount = res.totalCount || 0;
           }
           this.loading = false;
@@ -139,7 +147,19 @@ export class Foundations implements OnInit {
   abrirCrearFundacion(): void {
     this.selectedFoundationForEdit = null;
     this.isReadOnlyView = false;
+    this.showCreateModal = true;
+    this.cdr.detectChanges();
     document.getElementById(this.BTN_CREATE_FOUNDATION_ID)?.click();
+  }
+
+  onCloseCreateFoundation(): void {
+    this.showCreateModal = false;
+    this.selectedFoundationForEdit = null;
+  }
+
+  onCloseDeleteModal(): void {
+    this.showDeleteModal = false;
+    this.fundacionSeleccionadaParaBorrar = null;
   }
 
   manejarAccion(evento: { actionId: number; row: Record<string, unknown> }): void {
@@ -166,11 +186,15 @@ export class Foundations implements OnInit {
         },
         [TABLE_ACTION_DELETE]: () => {
           this.fundacionSeleccionadaParaBorrar = row;
+          this.showDeleteModal = true;
+          this.cdr.detectChanges();
           document.getElementById(this.BTN_DELETE_FOUNDATION_ID)?.click();
         },
         [TABLE_ACTION_EDIT_DETAIL]: () => {
           this.selectedFoundationForEdit = row;
           this.isReadOnlyView = row.status === STATE_DELETED;
+          this.showCreateModal = true;
+          this.cdr.detectChanges();
           document.getElementById(this.BTN_CREATE_FOUNDATION_ID)?.click();
         },
       };

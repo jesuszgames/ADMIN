@@ -24,12 +24,16 @@
           {{ isReadOnly ? 'Detalle de Staff' : user ? 'Editar Staff' : 'Crear Staff' }}
         </h3>
 
+        @if (!isReadOnly) {
+          <p class="text-white-50 fs-8 mb-4" style="font-size: 0.8rem;"><span class="text-danger">*</span> Campos obligatorios</p>
+        }
+
         @if (isReadOnly && deleteReason) {
           <div
             class="alert alert-danger border-danger border-opacity-25 bg-danger bg-opacity-10 text-danger rounded-3 p-3 mb-4 d-flex align-items-start gap-2"
           >
             <i class="bi bi-exclamation-octagon-fill fs-5 lh-1"></i>
-            <div>
+            <div class="text-break">
               <strong class="d-block mb-1 text-uppercase fs-7">Usuario Eliminado</strong>
               <span class="fs-7"><strong>Razón de la eliminación:</strong> {{ deleteReason }}</span>
             </div>
@@ -39,7 +43,7 @@
         <div class="row g-3">
           <div class="col-md-6 col-12">
             <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
-              >Nombre de Usuario (Login)</label
+              >Nombre de Usuario (Login) <span class="text-danger" *ngIf="!isReadOnly">*</span></label
             >
             <input
               type="text"
@@ -65,7 +69,7 @@
           </div>
 
           <div class="col-md-6 col-12">
-            <label class="form-label text-white-50 text-uppercase fs-7 mb-2">Contraseña</label>
+            <label class="form-label text-white-50 text-uppercase fs-7 mb-2">Contraseña <span class="text-danger" *ngIf="!isReadOnly && !user">*</span></label>
             <div class="input-group">
               <input
                 [type]="showPassword ? 'text' : 'password'"
@@ -101,7 +105,7 @@
             }
           </div>
           <div class="col-md-6 col-12">
-            <label class="form-label text-white-50 text-uppercase fs-7 mb-2">Nombre Completo</label>
+            <label class="form-label text-white-50 text-uppercase fs-7 mb-2">Nombre Completo <span class="text-danger" *ngIf="!isReadOnly">*</span></label>
             <input
               type="text"
               class="form-control custom-dark-input py-2"
@@ -123,7 +127,7 @@
 
           <div class="col-md-6 col-12">
             <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
-              >Correo Electrónico</label
+              >Correo Electrónico <span class="text-danger" *ngIf="!isReadOnly">*</span></label
             >
             <input
               type="email"
@@ -143,7 +147,7 @@
           </div>
 
           <div class="col-md-6 col-12">
-            <label class="form-label text-white-50 text-uppercase fs-7 mb-2">Teléfono</label>
+            <label class="form-label text-white-50 text-uppercase fs-7 mb-2">Teléfono <span class="text-danger" *ngIf="!isReadOnly">*</span></label>
             <input
               type="text"
               class="form-control custom-dark-input py-2"
@@ -172,7 +176,7 @@
             }
           </div>
           <div class="col-md-6 col-12">
-            <label class="form-label text-white-50 text-uppercase fs-7 mb-2">Rol de Usuario</label>
+            <label class="form-label text-white-50 text-uppercase fs-7 mb-2">Rol de Usuario <span class="text-danger" *ngIf="!isReadOnly">*</span></label>
             <ng-select
               class="custom-ng-select"
               [(ngModel)]="role"
@@ -187,7 +191,7 @@
         </div>
       </div>
 
-      <div class="modal-footer border-0 pt-0 pe-4 pe-md-5 pb-4 pb-md-5 justify-content-end gap-3">
+      <div class="modal-footer border-0 pt-0 pe-4 pe-md-5 justify-content-end gap-3">
         <button
           type="button"
           class="btn px-4 py-2 rounded-3 text-uppercase fs-7 custom-btn-secondary"
