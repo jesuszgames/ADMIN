@@ -146,6 +146,13 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
   minCollectedFilter: number | null = null;
   maxCollectedFilter: number | null = null;
 
+  tempStartDateFilter: string | null = null;
+  tempEndDateFilter: string | null = null;
+  tempCategoryFilter: string | null = null;
+  tempFoundationFilter: string | null = null;
+  tempMinCollectedFilter: number | null = null;
+  tempMaxCollectedFilter: number | null = null;
+
   categoriesList: any[] = [];
   categoriesPage = 1;
   categoriesTotalCount = 0;
@@ -269,11 +276,10 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
         allowInput: true,
         position: 'auto right',
         onChange: (selectedDates, dateStr) => {
-          this.startDateFilter = dateStr || null;
+          this.tempStartDateFilter = dateStr || null;
           if (this.endDatePicker) {
             this.endDatePicker.set('minDate', dateStr || undefined);
           }
-          this.cargarMetricas();
         },
       });
     }
@@ -286,10 +292,61 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
         allowInput: true,
         position: 'auto right',
         onChange: (selectedDates, dateStr) => {
-          this.endDateFilter = dateStr || null;
-          this.cargarMetricas();
+          this.tempEndDateFilter = dateStr || null;
         },
       });
+    }
+  }
+
+  sincronizarFiltrosATemp(): void {
+    this.tempStartDateFilter = this.startDateFilter;
+    this.tempEndDateFilter = this.endDateFilter;
+    this.tempCategoryFilter = this.categoryFilter;
+    this.tempFoundationFilter = this.foundationFilter;
+    this.tempMinCollectedFilter = this.minCollectedFilter;
+    this.tempMaxCollectedFilter = this.maxCollectedFilter;
+
+    // Update flatpickr inputs if instances exist
+    if (this.startDatePicker) {
+      if (this.startDateFilter) {
+        this.startDatePicker.setDate(this.startDateFilter, false);
+      } else {
+        this.startDatePicker.clear(false);
+      }
+    }
+
+    if (this.endDatePicker) {
+      if (this.endDateFilter) {
+        this.endDatePicker.setDate(this.endDateFilter, false);
+      } else {
+        this.endDatePicker.clear(false);
+      }
+    }
+  }
+
+  aplicarFiltros(): void {
+    this.startDateFilter = this.tempStartDateFilter;
+    this.endDateFilter = this.tempEndDateFilter;
+    this.categoryFilter = this.tempCategoryFilter;
+    this.foundationFilter = this.tempFoundationFilter;
+    this.minCollectedFilter = this.tempMinCollectedFilter;
+    this.maxCollectedFilter = this.tempMaxCollectedFilter;
+
+    this.cargarMetricas();
+    this.cargarRifas();
+
+    // Close offcanvas
+    const element = document.getElementById('offcanvasFilters');
+    if (element) {
+      const bootstrapApi = (window as any).bootstrap;
+      if (bootstrapApi) {
+        try {
+          const bsOffcanvas = bootstrapApi.Offcanvas.getInstance(element);
+          if (bsOffcanvas) bsOffcanvas.hide();
+        } catch (e) {
+          console.error(e);
+        }
+      }
     }
   }
 
@@ -300,14 +357,38 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
     this.foundationFilter = null;
     this.minCollectedFilter = null;
     this.maxCollectedFilter = null;
+
+    this.tempStartDateFilter = null;
+    this.tempEndDateFilter = null;
+    this.tempCategoryFilter = null;
+    this.tempFoundationFilter = null;
+    this.tempMinCollectedFilter = null;
+    this.tempMaxCollectedFilter = null;
+
     if (this.startDatePicker) {
-      this.startDatePicker.clear();
+      this.startDatePicker.clear(false);
     }
     if (this.endDatePicker) {
-      this.endDatePicker.clear();
+      this.endDatePicker.clear(false);
       this.endDatePicker.set('minDate', undefined);
     }
+
     this.cargarMetricas();
+    this.cargarRifas();
+
+    // Close offcanvas
+    const element = document.getElementById('offcanvasFilters');
+    if (element) {
+      const bootstrapApi = (window as any).bootstrap;
+      if (bootstrapApi) {
+        try {
+          const bsOffcanvas = bootstrapApi.Offcanvas.getInstance(element);
+          if (bsOffcanvas) bsOffcanvas.hide();
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    }
   }
 
   cargarMetricas(): void {
