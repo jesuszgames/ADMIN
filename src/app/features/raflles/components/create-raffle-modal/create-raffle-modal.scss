@@ -28,10 +28,8 @@
   &:focus {
     background-color: var.$background;
     color: var.$primary-text;
-    border-color: var.$color-info;
-    box-shadow:
-      0 0 0 1px var.$color-info,
-      0 0 14px var.$color-info-shadow;
+    border-color: var.$button-primary;
+    box-shadow: 0 0 0 0.25rem var.$input-focus-shadow;
     outline: none;
   }
 
@@ -71,10 +69,8 @@ select.custom-dark-input {
       box-shadow 0.2s ease;
 
     &:focus-within {
-      border-color: var.$color-info !important;
-      box-shadow:
-        0 0 0 1px var.$color-info,
-        0 0 14px var.$color-info-shadow !important;
+      border-color: var.$button-primary !important;
+      box-shadow: 0 0 0 0.25rem var.$input-focus-shadow !important;
     }
 
     .form-control,

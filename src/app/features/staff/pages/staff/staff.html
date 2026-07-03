@@ -33,7 +33,7 @@
     <div class="collapse" id="collapseFiltrosAvanzados">
       <div class="card custom-modal-bg border-secondary border-opacity-25 rounded-3 shadow-lg p-4 position-relative">
         <div class="row align-items-end pe-4">
-          <div class="col-md col-12 mb-3 mb-md-0">
+          <div class="col-md-4 col-12 mb-3 mb-md-0">
             <label class="form-label text-white-50 text-uppercase fs-7 mb-2">Rol</label>
             <ng-select
               class="custom-ng-select"
@@ -47,7 +47,7 @@
             </ng-select>
           </div>
 
-          <div class="col-md col-12 mb-3 mb-md-0">
+          <div class="col-md-4 col-12 mb-3 mb-md-0">
             <label class="form-label text-white-50 text-uppercase fs-7 mb-2">Estado</label>
             <ng-select
               class="custom-ng-select"
@@ -60,23 +60,26 @@
             >
             </ng-select>
           </div>
+        </div>
 
-          <div class="col-md-auto col-12 d-flex gap-2 justify-content-end mt-4 mt-md-0" style="min-width: 200px; transform: translateY(3px);">
-            <button
-              type="button"
-              class="btn px-3 py-2 rounded-3 text-uppercase fs-7 custom-btn-secondary flex-grow-1"
-              (click)="clearFilters()"
-            >
-              Restablecer
-            </button>
-            <button
-              type="button"
-              class="btn px-3 py-2 rounded-3 text-uppercase fs-7 custom-btn-primary flex-grow-1"
-              (click)="applyFilters()"
-            >
-              Aplicar
-            </button>
-          </div>
+        <!-- Acciones abajo (alineadas a la derecha) -->
+        <div class="d-flex justify-content-end gap-2 mt-4 pe-4">
+          <button
+            type="button"
+            class="btn px-4 py-2 rounded-3 text-uppercase fs-7 custom-btn-secondary"
+            style="min-width: 140px;"
+            (click)="clearFilters()"
+          >
+            Restablecer
+          </button>
+          <button
+            type="button"
+            class="btn px-4 py-2 rounded-3 text-uppercase fs-7 custom-btn-primary"
+            style="min-width: 140px;"
+            (click)="applyFilters()"
+          >
+            Aplicar
+          </button>
         </div>
       </div>
     </div>
@@ -190,30 +193,35 @@
   </div>
 </div>
 
-<app-delete-modal
-  [id]="'eliminar-user'"
-  (confirmDelete)="confirmarEliminar($event)"
-></app-delete-modal>
-<button
-  id="btn-abrir-modal-delete-user"
-  data-bs-toggle="modal"
-  data-bs-target="#modal-eliminar-user"
-  hidden
-></button>
+@if (showDeleteModal) {
+  <app-delete-modal
+    [id]="'eliminar-user'"
+    (confirmDelete)="confirmarEliminar($event)"
+    (closed)="onCloseDeleteModal()"
+  ></app-delete-modal>
+  <button
+    id="btn-abrir-modal-delete-user"
+    data-bs-toggle="modal"
+    data-bs-target="#modal-eliminar-user"
+    hidden
+  ></button>
+}
 
-<app-edit-user-modal
-  [user]="selectedUserForEdit"
-  [isReadOnly]="isReadOnlyView"
-  [isSaving]="isUserSaving"
-  (save)="onSaveUser($event)"
-  (closed)="selectedUserForEdit = null"
-></app-edit-user-modal>
-<button
-  id="btn-abrir-modal-edit-user"
-  data-bs-toggle="modal"
-  data-bs-target="#modalEditarUsuario"
-  hidden
-></button>
+@if (showEditUserModal) {
+  <app-edit-user-modal
+    [user]="selectedUserForEdit"
+    [isReadOnly]="isReadOnlyView"
+    [isSaving]="isUserSaving"
+    (save)="onSaveUser($event)"
+    (closed)="onCloseEditUserModal()"
+  ></app-edit-user-modal>
+  <button
+    id="btn-abrir-modal-edit-user"
+    data-bs-toggle="modal"
+    data-bs-target="#modalEditarUsuario"
+    hidden
+  ></button>
+}
 
 <app-confirm-changes-modal
   [title]="'Confirmar Cambio de Estado'"

@@ -13,22 +13,25 @@
         [loading]="loading"
         [placeholderSearch]="'Buscar nombre rifa'"
         (actionClicked)="manejarAccion($event)"
+        (refreshData)="cargarDatos()"
       >
       </app-tables>
     </div>
   </div>
 </div>
 
-<button
-  id="btn-abrir-modal-edit-tickets"
-  data-bs-toggle="modal"
-  data-bs-target="#modalEditarBoletos"
-  hidden
-></button>
+@if (showTicketsModal) {
+  <button
+    id="btn-abrir-modal-edit-tickets"
+    data-bs-toggle="modal"
+    data-bs-target="#modalEditarBoletos"
+    hidden
+  ></button>
 
-<app-edit-tickets-modal
-  [raffle]="selectedRaffleForTickets"
-  [mode]="'sorteos'"
-  (save)="onSaveTickets($event)"
-  (closed)="selectedRaffleForTickets = null"
-></app-edit-tickets-modal>
+  <app-edit-tickets-modal
+    [raffle]="selectedRaffleForTickets"
+    [mode]="'sorteos'"
+    (save)="onSaveTickets($event)"
+    (closed)="onCloseTicketsModal()"
+  ></app-edit-tickets-modal>
+}

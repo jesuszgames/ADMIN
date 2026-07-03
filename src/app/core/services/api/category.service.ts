@@ -60,4 +60,33 @@ export class CategoryService {
       body: { deleteReason },
     });
   }
+
+  getActive(page?: number, limit?: number): Observable<{ data: Category[]; totalCount: number }> {
+    let params = new HttpParams();
+    if (page) params = params.set('page', page.toString());
+    if (limit) params = params.set('limit', limit.toString());
+
+    return this.http.get<any>(`${this.apiUrl}/get-active`, { params }).pipe(
+      map((res) => {
+        let dataArray: Category[] = [];
+        let totalCount = 0;
+        if (Array.isArray(res)) {
+          dataArray = res;
+          totalCount = res.length;
+        } else if (res) {
+          if (Array.isArray(res.data)) {
+            dataArray = res.data;
+            totalCount = res.data.length;
+          } else if (res.data && Array.isArray(res.data.data)) {
+            dataArray = res.data.data;
+            totalCount = res.data.totalCount !== undefined ? res.data.totalCount : res.data.data.length;
+          } else if (res.data && Array.isArray(res.data.result)) {
+            dataArray = res.data.result;
+            totalCount = res.data.totalCount !== undefined ? res.data.totalCount : res.data.result.length;
+          }
+        }
+        return { data: dataArray, totalCount };
+      })
+    );
+  }
 }

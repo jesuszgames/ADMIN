@@ -4,9 +4,9 @@
     class="btn advanced-filters-btn d-inline-flex align-items-center justify-content-between w-100"
     [class.active]="selectedStatus && selectedStatus !== 'all'"
     data-bs-toggle="collapse"
-    data-bs-target="#collapseFiltrosAvanzados"
+    [attr.data-bs-target]="'#collapseFiltrosAvanzados-' + filterId"
     aria-expanded="false"
-    aria-controls="collapseFiltrosAvanzados"
+    [attr.aria-controls]="'collapseFiltrosAvanzados-' + filterId"
   >
     <div class="d-flex align-items-center gap-2">
       <i class="bi bi-funnel"></i>
@@ -18,10 +18,10 @@
     <i class="bi bi-chevron-down filter-chevron"></i>
   </button>
 
-  <div class="collapse" id="collapseFiltrosAvanzados">
+  <div class="collapse" [id]="'collapseFiltrosAvanzados-' + filterId">
     <div class="card custom-modal-bg border-secondary border-opacity-25 rounded-3 shadow-lg p-4 position-relative">
       <div class="row align-items-end pe-4">
-        <div class="col-md col-12 mb-3 mb-md-0">
+        <div class="col-12">
           <label class="form-label text-white-50 text-uppercase fs-7 mb-2">Estado</label>
           <ng-select
             class="custom-ng-select"
@@ -34,23 +34,26 @@
           >
           </ng-select>
         </div>
+      </div>
 
-        <div class="col-md-auto col-12 d-flex gap-2 justify-content-end mt-4 mt-md-0" style="min-width: 200px; transform: translateY(3px);">
-          <button
-            type="button"
-            class="btn px-3 py-2 rounded-3 text-uppercase fs-7 custom-btn-secondary flex-grow-1"
-            (click)="onReset()"
-          >
-            Restablecer
-          </button>
-          <button
-            type="button"
-            class="btn px-3 py-2 rounded-3 text-uppercase fs-7 custom-btn-primary flex-grow-1"
-            (click)="onApply()"
-          >
-            Aplicar
-          </button>
-        </div>
+      <!-- Acciones abajo (alineadas a la derecha) -->
+      <div class="d-flex justify-content-end gap-2 mt-4 pe-4">
+        <button
+          type="button"
+          class="btn px-4 py-2 rounded-3 text-uppercase fs-7 custom-btn-secondary"
+          style="min-width: 140px;"
+          (click)="onReset()"
+        >
+          Restablecer
+        </button>
+        <button
+          type="button"
+          class="btn px-4 py-2 rounded-3 text-uppercase fs-7 custom-btn-primary"
+          style="min-width: 140px;"
+          (click)="onApply()"
+        >
+          Aplicar
+        </button>
       </div>
     </div>
   </div>
@@ -61,7 +64,7 @@
   class="btn advanced-filters-btn floating-mobile-filter-btn d-inline-flex d-md-none align-items-center gap-2"
   [class.active]="selectedStatus && selectedStatus !== 'all'"
   data-bs-toggle="offcanvas"
-  data-bs-target="#offcanvasFiltrosAvanzados"
+  [attr.data-bs-target]="'#offcanvasFiltrosAvanzados-' + filterId"
 >
   <i class="bi bi-funnel"></i>
   <span>Filtros Avanzados</span>
@@ -75,12 +78,12 @@
   <div
     class="offcanvas offcanvas-end custom-modal-bg border-start border-secondary border-opacity-25 shadow-lg text-white"
     tabindex="-1"
-    id="offcanvasFiltrosAvanzados"
-    aria-labelledby="offcanvasFiltrosLabel"
+    [id]="'offcanvasFiltrosAvanzados-' + filterId"
+    [attr.aria-labelledby]="'offcanvasFiltrosLabel-' + filterId"
     style="max-width: 85vw; width: 340px;"
   >
     <div class="offcanvas-header border-0 pb-0 pt-4 px-4 d-flex justify-content-between align-items-center">
-      <h5 class="offcanvas-title fw-bold" id="offcanvasFiltrosLabel">Filtros Avanzados</h5>
+      <h5 class="offcanvas-title fw-bold" [id]="'offcanvasFiltrosLabel-' + filterId">Filtros Avanzados</h5>
       <button
         type="button"
         class="btn-close btn-close-white"

@@ -3,12 +3,6 @@
     <h3 class="m-0 text-theme-primary fw-bold">Jugadores</h3>
   </div>
 
-  <app-status-filter
-    [selectedStatus]="selectedStatus"
-    (apply)="applyFilters($event)"
-    (reset)="clearFilters()"
-  ></app-status-filter>
-
   <div class="row">
     <div class="col-12">
       <app-tables
@@ -22,6 +16,10 @@
         [pageSize]="pageSize"
         [currentPage]="currentPage"
         [placeholderSearch]="'Buscar por usuario...'"
+        [showStatusFilter]="true"
+        [statusOptions]="statusOptions"
+        [selectedStatus]="selectedStatus"
+        (statusChanged)="applyFilters($event)"
         (actionClicked)="manejarAccion($event)"
         (pageChanged)="onPageChanged($event)"
         (searchChanged)="onSearchChanged($event)"
@@ -31,9 +29,6 @@
     </div>
   </div>
 </div>
-
-<!-- Trigger Button for Mobile (Offcanvas) and Mobile Offcanvas are
-     rendered by <app-status-filter>; nothing else to do here. -->
 
 <app-confirm-changes-modal
   [title]="'Confirmar Cambio de Estado'"

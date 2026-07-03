@@ -19,7 +19,15 @@ export class ThemeService {
   }
 
   toggleTheme(): void {
+    const doc = document.documentElement;
+    doc.classList.add('no-transitions');
     this.themeSignal.update((t) => (t === 'dark' ? 'light' : 'dark'));
+
+    window.getComputedStyle(doc).opacity;
+
+    setTimeout(() => {
+      doc.classList.remove('no-transitions');
+    }, 150);
   }
 
   setTheme(theme: Theme): void {

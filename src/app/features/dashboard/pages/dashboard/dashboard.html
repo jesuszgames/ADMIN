@@ -1,43 +1,54 @@
 <div class="container-fluid px-3 pt-5 pb-4 mt-4 dashboard-container">
-  <div class="d-flex justify-content-between align-items-center mb-4">
+  <!-- Cabecera de Titulo -->
+  <div class="d-flex justify-content-between align-items-center gap-3 mb-4">
     <h3 class="dashboard-title">Dashboard</h3>
   </div>
-  <div class="row align-items-stretch mb-4 g-4">
-    <div class="col-12 col-xl-6">
-      <div class="welcome-card">
-        <div class="card-body p-0 d-flex flex-column h-100">
-          <h4 class="welcome-title">{{ welcomeGreeting }}, {{ userName }}!</h4>
-          <p class="welcome-subtitle">
-            Esto es lo que está pasando hoy en tu plataforma de sorteos.
-          </p>
-          @if (currentDate) {
-            <div class="welcome-meta">
-              <i class="bi bi-calendar3"></i>
-              <span>{{ currentDate }}</span>
-            </div>
-          }
-        </div>
+
+  <!-- Tarjetas de Métricas en una Fila Completa -->
+  <div class="row row-cols-2 row-cols-sm-3 row-cols-xl-6 g-3 mb-4">
+    @for (item of cards; track item.label) {
+      <div class="col card-item-animate">
+        <app-simple-card
+          [name]="item.label"
+          [value]="item.value"
+          [icon]="item.icon"
+          [color]="item.color"
+        ></app-simple-card>
+      </div>
+    }
+  </div>
+
+  <!-- Primera Fila de Gráficas: Historial y Categorías -->
+  <div class="row g-4 mb-4">
+    <div class="col-12 col-lg-8">
+      <div class="chart-card containers-colors p-4 rounded-3 h-100">
+        <h5 class="chart-title mb-3">Tendencia de Recaudación</h5>
+        @if (loadingMetricas) {
+          <div class="chart-skeleton-loader" style="height: 250px;"></div>
+        } @else {
+          <div class="chart-wrapper">
+            <canvas #trendChartCanvas></canvas>
+          </div>
+        }
       </div>
     </div>
-
-    <div class="col-12 col-xl-6">
-      <div class="row row-cols-2 row-cols-sm-3 g-3 h-100 align-content-start">
-        @for (item of cards; track item.label) {
-          <div class="col">
-            <app-simple-card
-              [name]="item.label"
-              [value]="item.value"
-              [icon]="item.icon"
-              [color]="item.color"
-            ></app-simple-card>
+    <div class="col-12 col-lg-4">
+      <div class="chart-card containers-colors p-4 rounded-3 text-center h-100">
+        <h5 class="chart-title mb-3 text-start">Recaudación por Categoría</h5>
+        @if (loadingMetricas) {
+          <div class="chart-skeleton-loader doughnut-skeleton" style="height: 270px;"></div>
+        } @else {
+          <div class="chart-wrapper doughnut-wrapper">
+            <canvas #categoryChartCanvas></canvas>
           </div>
         }
       </div>
     </div>
   </div>
 
-  <div class="row">
-    <div class="col-12">
+  <!-- Segunda Fila: Tabla y Top Rifas -->
+  <div class="row g-4 mb-4">
+    <div class="col-12 col-xl-8 order-2 order-xl-1">
       <app-tables
         [principalheader]="principalHeader"
         [columns]="dashboardColumns"
@@ -51,67 +62,259 @@
       >
       </app-tables>
     </div>
+    <div class="col-12 col-xl-4 order-1 order-xl-2">
+      <div class="chart-card containers-colors p-4 rounded-3 h-100">
+        <h5 class="chart-title mb-3">Top 5 Rifas con Mayor Recaudación</h5>
+        @if (loadingMetricas) {
+          <div class="chart-skeleton-loader bar-skeleton" style="height: 290px;"></div>
+        } @else {
+          <div class="chart-wrapper bar-wrapper">
+            <canvas #topRafflesChartCanvas></canvas>
+          </div>
+        }
+      </div>
+    </div>
   </div>
 </div>
 
-<button
-  id="btn-abrir-modal-history"
-  data-bs-toggle="modal"
-  data-bs-target="#modalDetalleRifa"
-  hidden
-></button>
-<app-delete-modal [id]="'eliminar'" (confirmDelete)="confirmarEliminar($event)"></app-delete-modal>
-<button
-  id="btn-abrir-modal-delete"
-  data-bs-toggle="modal"
-  data-bs-target="#modal-eliminar"
-  hidden
-></button>
-<app-history-raffles-modal [raffleData]="selectedRaffle"></app-history-raffles-modal>
+@if (showDeleteModal) {
+  <app-delete-modal
+    [id]="'eliminar'"
+    (confirmDelete)="confirmarEliminar($event)"
+    (closed)="onCloseDeleteModal()"
+  ></app-delete-modal>
+  <button
+    id="btn-abrir-modal-delete"
+    data-bs-toggle="modal"
+    data-bs-target="#modal-eliminar"
+    hidden
+  ></button>
+}
 
-<button
-  id="btn-abrir-modal-tickets"
-  data-bs-toggle="modal"
-  data-bs-target="#modalHistorialBoletos"
-  hidden
-></button>
-<app-history-ticket-model [ticketData]="selectedTicketData"></app-history-ticket-model>
+@if (showRaffleModal) {
+  <button
+    id="btn-abrir-modal-history"
+    data-bs-toggle="modal"
+    data-bs-target="#modalDetalleRifa"
+    hidden
+  ></button>
+  <app-history-raffles-modal
+    [raffleData]="selectedRaffle"
+    (closed)="onCloseRaffleModal()"
+  ></app-history-raffles-modal>
+}
 
-<button
-  id="btn-abrir-modal-unlink-logs"
-  data-bs-toggle="modal"
-  data-bs-target="#modalVerDesvinculaciones"
-  hidden
-></button>
+@if (showTicketsModal) {
+  <button
+    id="btn-abrir-modal-tickets"
+    data-bs-toggle="modal"
+    data-bs-target="#modalHistorialBoletos"
+    hidden
+  ></button>
+  <app-history-ticket-model
+    [ticketData]="selectedTicketData"
+    (closed)="onCloseTicketsModal()"
+  ></app-history-ticket-model>
+}
 
-<div class="modal fade" id="modalVerDesvinculaciones" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-xl modal-dialog-centered">
-    <div
-      class="modal-content custom-modal-bg border-secondary border-opacity-25 rounded-3 shadow-lg"
-    >
+@if (showLogsModal) {
+  <button
+    id="btn-abrir-modal-unlink-logs"
+    data-bs-toggle="modal"
+    data-bs-target="#modalVerDesvinculaciones"
+    hidden
+  ></button>
+
+  <div
+    class="modal fade"
+    id="modalVerDesvinculaciones"
+    tabindex="-1"
+    aria-hidden="true"
+    (hidden.bs.modal)="onCloseLogsModal()"
+  >
+    <div class="modal-dialog modal-xl modal-dialog-centered">
       <div
-        class="modal-header border-0 pb-0 pt-4 px-4 px-md-5 d-flex justify-content-between align-items-center"
+        class="modal-content custom-modal-bg border-secondary border-opacity-25 rounded-3 shadow-lg"
       >
-        <h5 class="modal-title text-white fw-bold">Bitácora de Desvinculaciones</h5>
-        <button
-          type="button"
-          class="btn-close btn-close-white"
-          data-bs-dismiss="modal"
-          aria-label="Close"
-        ></button>
-      </div>
-      <div class="modal-body p-4 p-md-5 pt-3 pb-3">
-        <app-unlink-logs [raffleData]="selectedRaffleForLogs"></app-unlink-logs>
-      </div>
-      <div class="modal-footer border-0 pt-0 pe-4 pe-md-5 pb-4 pb-md-5 justify-content-end">
-        <button
-          type="button"
-          class="btn px-4 py-2 rounded-3 text-uppercase fs-7 custom-btn-secondary"
-          data-bs-dismiss="modal"
+        <div
+          class="modal-header border-0 pb-0 pt-4 px-4 px-md-5 d-flex justify-content-between align-items-center"
         >
-          Cerrar
-        </button>
+          <h5 class="modal-title text-white fw-bold">Bitácora de Desvinculaciones</h5>
+          <button
+            type="button"
+            class="btn-close btn-close-white"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body p-4 p-md-5 pt-3 pb-3">
+          <app-unlink-logs [raffleData]="selectedRaffleForLogs"></app-unlink-logs>
+        </div>
+        <div class="modal-footer border-0 pt-0 pe-4 pe-md-5 justify-content-end">
+          <button
+            type="button"
+            class="btn px-4 py-2 rounded-3 text-uppercase fs-7 custom-btn-secondary"
+            data-bs-dismiss="modal"
+          >
+            Cerrar
+          </button>
+        </div>
       </div>
+    </div>
+  </div>
+}
+
+<!-- Botón Flotante para abrir Filtros -->
+<button
+  class="btn btn-primary floating-filter-btn"
+  type="button"
+  data-bs-toggle="offcanvas"
+  data-bs-target="#offcanvasFilters"
+  aria-controls="offcanvasFilters"
+  title="Filtros avanzados"
+  (click)="sincronizarFiltrosATemp()"
+>
+  <i class="bi" [ngClass]="(startDateFilter || endDateFilter || categoryFilter || foundationFilter || minCollectedFilter || maxCollectedFilter) ? 'bi-funnel-fill text-warning' : 'bi-funnel'"></i>
+  @if (
+    startDateFilter ||
+    endDateFilter ||
+    categoryFilter ||
+    foundationFilter ||
+    minCollectedFilter ||
+    maxCollectedFilter
+  ) {
+    <span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle">
+      <span class="visually-hidden">Filtros activos</span>
+    </span>
+  }
+</button>
+
+<!-- Offcanvas de Filtros -->
+<div
+  class="offcanvas offcanvas-end containers-colors"
+  tabindex="-1"
+  id="offcanvasFilters"
+  aria-labelledby="offcanvasFiltersLabel"
+  style="width: 320px; max-width: 85vw; border-left: 1px solid rgba(255, 255, 255, 0.08);"
+>
+  <div class="offcanvas-header border-bottom border-secondary-subtle">
+    <h5 class="offcanvas-title fw-bold" id="offcanvasFiltersLabel">
+      <i class="bi bi-funnel-fill me-2 text-primary"></i>Filtros Avanzados
+    </h5>
+    <button
+      type="button"
+      class="btn-close text-reset"
+      data-bs-dismiss="offcanvas"
+      aria-label="Close"
+    ></button>
+  </div>
+  <div class="offcanvas-body d-flex flex-column justify-content-between gap-4">
+    <div class="d-flex flex-column gap-3">
+      <!-- Categoría -->
+      <div>
+        <label class="filter-label">Categoría</label>
+        <ng-select
+          class="custom-ng-select"
+          [items]="categoriesList"
+          [loading]="categoriesLoading"
+          bindLabel="name"
+          bindValue="_id"
+          [(ngModel)]="tempCategoryFilter"
+          placeholder="Seleccionar..."
+          [virtualScroll]="true"
+          (scrollToEnd)="loadMoreCategories()"
+          (open)="loadCategoriesIfNeeded()"
+        >
+        </ng-select>
+      </div>
+
+      <!-- Fundación -->
+      <div>
+        <label class="filter-label">Fundación</label>
+        <ng-select
+          class="custom-ng-select"
+          [items]="foundationsList"
+          [loading]="foundationsLoading"
+          bindLabel="name"
+          bindValue="_id"
+          [(ngModel)]="tempFoundationFilter"
+          placeholder="Seleccionar..."
+          [virtualScroll]="true"
+          (scrollToEnd)="loadMoreFoundations()"
+          (open)="loadFoundationsIfNeeded()"
+        >
+        </ng-select>
+      </div>
+
+      <!-- Fecha Inicio -->
+      <div>
+        <label class="filter-label">Fecha Inicio</label>
+        <div class="filter-wrapper date-picker-wrapper w-100">
+          <span class="calendar-icon"><i class="bi bi-calendar3"></i></span>
+          <input
+            #startDateInput
+            type="text"
+            class="form-control custom-date-input"
+            placeholder="Fecha Inicio"
+            readonly
+          />
+        </div>
+      </div>
+
+      <!-- Fecha Fin -->
+      <div>
+        <label class="filter-label">Fecha Fin</label>
+        <div class="filter-wrapper date-picker-wrapper w-100">
+          <span class="calendar-icon"><i class="bi bi-calendar3"></i></span>
+          <input
+            #endDateInput
+            type="text"
+            class="form-control custom-date-input"
+            placeholder="Fecha Fin"
+            readonly
+          />
+        </div>
+      </div>
+
+      <!-- Recaudado Mínimo -->
+      <div>
+        <label class="filter-label">Mínimo Recaudado ($)</label>
+        <input
+          type="number"
+          class="form-control custom-num-input"
+          [(ngModel)]="tempMinCollectedFilter"
+          placeholder="Mínimo"
+        />
+      </div>
+
+      <!-- Recaudado Máximo -->
+      <div>
+        <label class="filter-label">Máximo Recaudado ($)</label>
+        <input
+          type="number"
+          class="form-control custom-num-input"
+          [(ngModel)]="tempMaxCollectedFilter"
+          placeholder="Máximo"
+        />
+      </div>
+    </div>
+
+    <!-- Botones de Acción del Offcanvas -->
+    <div class="border-top border-secondary-subtle pt-3 d-flex gap-2">
+      <button
+        type="button"
+        class="btn px-4 py-2 rounded-3 text-uppercase fs-7 custom-btn-secondary flex-grow-1"
+        (click)="limpiarFiltros()"
+      >
+        Restablecer
+      </button>
+      <button
+        type="button"
+        class="btn px-4 py-2 rounded-3 text-uppercase fs-7 custom-btn-primary flex-grow-1"
+        (click)="aplicarFiltros()"
+      >
+        Aplicar
+      </button>
     </div>
   </div>
 </div>

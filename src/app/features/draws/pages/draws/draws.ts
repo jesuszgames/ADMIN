@@ -36,10 +36,11 @@ export class Draws implements OnInit {
   ];
 
   selectedRaffleForTickets: Raffle | null = null;
+  showTicketsModal = false;
 
   rifasData: Raffle[] = [];
   tableData: Raffle[] = [];
-  loading = false;
+  loading = true;
 
   rowActions = [{ id: 1, icon: 'bi-trophy', label: 'Realizar Sorteo' }];
 
@@ -81,9 +82,16 @@ export class Draws implements OnInit {
     if (evento.actionId === 1) {
       this.selectedRaffleForTickets = this.rifasData.find((r) => r._id === row._id) || null;
       if (this.selectedRaffleForTickets) {
+        this.showTicketsModal = true;
+        this.cdr.detectChanges();
         document.getElementById('btn-abrir-modal-edit-tickets')?.click();
       }
     }
+  }
+
+  onCloseTicketsModal() {
+    this.showTicketsModal = false;
+    this.selectedRaffleForTickets = null;
   }
 
   onSaveTickets(_updatedRaffle: Raffle) {

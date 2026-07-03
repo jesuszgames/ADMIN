@@ -51,7 +51,7 @@ export function parseDateString(dateStr: string): Date | null {
   }
 }
 
-export function calculateRemainingTime(endDateStr: string, status?: string): string {
+export function calculateRemainingTime(endDateStr: string, status?: string, startDateStr?: string): string {
   const statusUpper = (status || '').toUpperCase();
   if (statusUpper === 'FINISHED' || statusUpper === 'DELETED') {
     return '0 días';
@@ -66,6 +66,29 @@ export function calculateRemainingTime(endDateStr: string, status?: string): str
 
   try {
     const today = new Date();
+
+    if (startDateStr) {
+      let start = new Date(startDateStr);
+      if (isNaN(start.getTime()) || startDateStr.length <= 10) {
+        start = parseDateString(startDateStr) || start;
+      }
+      if (start && !isNaN(start.getTime()) && today.getTime() < start.getTime()) {
+        const diffStartMs = start.getTime() - today.getTime();
+        const diffHoursStart = diffStartMs / (1000 * 60 * 60);
+
+        if (diffHoursStart < 1) {
+          const minutes = Math.ceil(diffStartMs / (1000 * 60));
+          return `Empieza en ${minutes} min`;
+        }
+        if (diffHoursStart < 24) {
+          const hours = Math.ceil(diffHoursStart);
+          return `Empieza en ${hours} ${hours === 1 ? 'hora' : 'horas'}`;
+        }
+        const diffDaysStart = Math.floor(diffHoursStart / 24);
+        return `Empieza en ${diffDaysStart} ${diffDaysStart === 1 ? 'día' : 'días'}`;
+      }
+    }
+
     const diffMs = end.getTime() - today.getTime();
     if (diffMs <= 0) return '0 días';
 
@@ -101,15 +124,20 @@ export function mapRaffleDetails(raffle: Raffle): RaffleDetail {
   const beneficiaryAmount = (totalCollected * beneficiaryPercentage) / 100;
   const winnerAmount = (totalCollected * winnerPercentage) / 100;
 
-  const formatDate = (dateVal: Date | string | number | null | undefined) => {
+  const formatDate = (dateVal: Date | string | number | null | undefined, includeTime = false) => {
     if (!dateVal) return '';
     try {
       const dateObj = new Date(dateVal);
       if (isNaN(dateObj.getTime())) return String(dateVal);
-      const day = String(dateObj.getDate()).padStart(2, '0');
-      const month = String(dateObj.getMonth() + 1).padStart(2, '0');
       const year = dateObj.getFullYear();
-      return `${day}/${month}/${year}`;
+      const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+      const day = String(dateObj.getDate()).padStart(2, '0');
+      if (includeTime) {
+        const hours = String(dateObj.getHours()).padStart(2, '0');
+        const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+        return `${year}-${month}-${day} ${hours}:${minutes}`;
+      }
+      return `${year}-${month}-${day}`;
     } catch {
       return String(dateVal);
     }
@@ -118,8 +146,8 @@ export function mapRaffleDetails(raffle: Raffle): RaffleDetail {
   return {
     name: raffle.title,
     foundation: raffle.foundation,
-    startDate: formatDate(raffle.startDate) || '10/05/2026',
-    endDate: formatDate(raffle.endDate) || '14/05/2026',
+    startDate: formatDate(raffle.startDate) || '2026-05-10',
+    endDate: formatDate(raffle.endDate, true) || '2026-05-14 00:00',
     category: raffle.category,
     ticketPrice: raffle.ticketPrice || 30,
     winningTicket: raffle.winner,
@@ -208,7 +236,8 @@ export function mapTicketDetails(tickets: Ticket[], raffle: Raffle): TicketHisto
 }
 
 export function isActiveStatus(status: string): boolean {
-  return (status || '').toUpperCase() === 'ACTIVE';
+  const stat = (status || '').toUpperCase();
+  return stat === 'ACTIVE' || stat === 'UPCOMING';
 }
 
 export function isInactiveStatus(status: string): boolean {
@@ -246,20 +275,33 @@ export function mapRaffleForTable(
   const soldTicketsStr = `${raffle.soldTickets}/${raffle.totalTickets}`;
   const remainingTime =
     raffle.endDate !== undefined
-      ? calculateRemainingTime(raffle.endDate, raffle.status)
+      ? calculateRemainingTime(raffle.endDate, raffle.status, raffle.startDate)
       : raffle.remainingTime;
 
   const fechaSorteo =
     raffle.endDate !== undefined
-      ? calculateRemainingTime(raffle.endDate, raffle.status)
+      ? calculateRemainingTime(raffle.endDate, raffle.status, raffle.startDate)
       : 'Sin Fecha';
 
   const ganadorText = raffle.winner
     ? `Boleto ${raffle.winner} (${raffle.winnerName || 'Sin Nombre'})`
     : 'Pendiente Sorteo';
 
+  let status = raffle.status;
+  const hoy = new Date();
+  if (status === 'ACTIVE' && raffle.startDate) {
+    let start = new Date(raffle.startDate);
+    if (isNaN(start.getTime()) || String(raffle.startDate).length <= 10) {
+      start = parseDateString(String(raffle.startDate)) || start;
+    }
+    if (start && !isNaN(start.getTime()) && hoy.getTime() < start.getTime()) {
+      status = 'UPCOMING';
+    }
+  }
+
   return {
     ...raffle,
+    status,
     drawMethod: raffle.drawMethod || defaultDrawMethod,
     soldTicketsStr,
     collectedStr,

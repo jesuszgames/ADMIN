@@ -8,12 +8,6 @@
     ></app-main-button>
   </div>
 
-  <app-status-filter
-    [selectedStatus]="selectedStatus"
-    (apply)="applyFilters($event)"
-    (reset)="clearFilters()"
-  ></app-status-filter>
-
   <div class="row">
     <div class="col-12">
       <app-tables
@@ -27,6 +21,10 @@
         [totalItems]="totalCount"
         [pageSize]="pageSize"
         [currentPage]="currentPage"
+        [showStatusFilter]="true"
+        [statusOptions]="statusOptions"
+        [selectedStatus]="selectedStatus"
+        (statusChanged)="applyFilters($event)"
         (pageChanged)="onPageChanged($event)"
         (searchChanged)="onSearchChanged($event)"
         (actionClicked)="manejarAccion($event)"
@@ -37,33 +35,35 @@
   </div>
 </div>
 
-<!-- Trigger Button for Mobile (Offcanvas) and Mobile Offcanvas are
-     rendered by <app-status-filter>; nothing else to do here. -->
+@if (showDeleteModal) {
+  <app-delete-modal
+    [id]="'eliminar-categoria'"
+    (confirmDelete)="confirmarEliminar($event)"
+    (closed)="onCloseDeleteModal()"
+  ></app-delete-modal>
+  <button
+    id="btn-abrir-modal-delete-category"
+    data-bs-toggle="modal"
+    data-bs-target="#modal-eliminar-categoria"
+    hidden
+  ></button>
+}
 
-<app-delete-modal
-  [id]="'eliminar-categoria'"
-  (confirmDelete)="confirmarEliminar($event)"
-></app-delete-modal>
-<button
-  id="btn-abrir-modal-delete-category"
-  data-bs-toggle="modal"
-  data-bs-target="#modal-eliminar-categoria"
-  hidden
-></button>
-
-<app-create-category-modal
-  [category]="selectedCategoryForEdit"
-  [isReadOnly]="isReadOnlyView"
-  [isSaving]="isCategorySaving"
-  (save)="onSaveCategory($event)"
-  (closed)="selectedCategoryForEdit = null"
-></app-create-category-modal>
-<button
-  id="btn-abrir-modal-create-category"
-  data-bs-toggle="modal"
-  data-bs-target="#modalCrearCategoria"
-  hidden
-></button>
+@if (showCreateModal) {
+  <app-create-category-modal
+    [category]="selectedCategoryForEdit"
+    [isReadOnly]="isReadOnlyView"
+    [isSaving]="isCategorySaving"
+    (save)="onSaveCategory($event)"
+    (closed)="onCloseCreateCategory()"
+  ></app-create-category-modal>
+  <button
+    id="btn-abrir-modal-create-category"
+    data-bs-toggle="modal"
+    data-bs-target="#modalCrearCategoria"
+    hidden
+  ></button>
+}
 
 <app-confirm-changes-modal
   [title]="'Confirmar Cambio de Estado'"

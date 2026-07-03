@@ -12,6 +12,7 @@ import { FormsModule } from '@angular/forms';
 export class DeleteModal {
   @Input() id!: string;
   @Output() confirmDelete = new EventEmitter<string>();
+  @Output() closed = new EventEmitter<void>();
 
   razon: string = '';
 
@@ -29,5 +30,6 @@ export class DeleteModal {
 
   onModalClosed(): void {
     this.razon = '';
+    this.closed.emit();
   }
 }

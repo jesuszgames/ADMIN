@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ImageCropperComponent } from '../image-cropper/image-cropper';
 import { RaffleDetail } from '../../../core/interfaces/api/raffle-detail.interface';
@@ -12,9 +12,14 @@ import { RaffleDetail } from '../../../core/interfaces/api/raffle-detail.interfa
 })
 export class HistoryRafflesModal {
   @Input() raffleData: RaffleDetail | null = null;
+  @Output() closed = new EventEmitter<void>();
   activeTab: 'card' | 'detalle' | 'desvinculaciones' = 'card';
 
   setTab(tab: 'card' | 'detalle' | 'desvinculaciones') {
     this.activeTab = tab;
+  }
+
+  onModalClosed() {
+    this.closed.emit();
   }
 }

@@ -42,6 +42,9 @@ import {
   templateUrl: './status-filter.component.html',
 })
 export class StatusFilterComponent {
+  /** Unique ID suffix to prevent ID conflicts when using multiple instances. */
+  @Input() filterId = 'default';
+
   /** Currently applied status; used to display the "Activo" badge. */
   @Input({ required: true }) selectedStatus!: StatusFilterId;
 

@@ -4,7 +4,7 @@
   background-color: var.$background;
   border: 1px solid var.$border-color;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
-  height: 38px;
+  height: 42px !important;
   max-width: 250px;
 
   &:focus-within {

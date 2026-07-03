@@ -40,7 +40,6 @@ import { CategoryService } from '../../../../core/services/api/category.service'
     MainButton,
     CreateCategoryModal,
     ConfirmChangesModal,
-    StatusFilterComponent,
   ],
   templateUrl: './categories.html',
   styleUrl: './categories.scss',
@@ -67,12 +66,15 @@ export class Categories implements OnInit {
   changesToConfirm: ModelChange[] = [];
   pendingRowToToggle: Category | null = null;
 
+  showDeleteModal = false;
+  showCreateModal = false;
+
   private readonly BTN_DELETE_CATEGORY_ID = 'btn-abrir-modal-delete-category';
   private readonly BTN_CREATE_CATEGORY_ID = 'btn-abrir-modal-create-category';
 
   categoriesData: Category[] = [];
   tableData: Category[] = [];
-  loading: boolean = false;
+  loading: boolean = true;
   isCategorySaving = false;
   isCategoryDeleting = false;
   isCategoryUpdatingState = false;
@@ -137,7 +139,19 @@ export class Categories implements OnInit {
   abrirCrearCategoria(): void {
     this.selectedCategoryForEdit = null;
     this.isReadOnlyView = false;
+    this.showCreateModal = true;
+    this.cdr.detectChanges();
     document.getElementById(this.BTN_CREATE_CATEGORY_ID)?.click();
+  }
+
+  onCloseCreateCategory(): void {
+    this.showCreateModal = false;
+    this.selectedCategoryForEdit = null;
+  }
+
+  onCloseDeleteModal(): void {
+    this.showDeleteModal = false;
+    this.categoriaSeleccionadaParaBorrar = null;
   }
 
   manejarAccion(evento: { actionId: number; row: Record<string, unknown> }): void {
@@ -164,11 +178,15 @@ export class Categories implements OnInit {
         },
         [TABLE_ACTION_DELETE]: () => {
           this.categoriaSeleccionadaParaBorrar = row;
+          this.showDeleteModal = true;
+          this.cdr.detectChanges();
           document.getElementById(this.BTN_DELETE_CATEGORY_ID)?.click();
         },
         [TABLE_ACTION_EDIT_DETAIL]: () => {
           this.selectedCategoryForEdit = row;
           this.isReadOnlyView = row.status === STATE_DELETED;
+          this.showCreateModal = true;
+          this.cdr.detectChanges();
           document.getElementById(this.BTN_CREATE_CATEGORY_ID)?.click();
         },
       };

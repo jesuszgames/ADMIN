@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnInit, SimpleChanges, DestroyRef, inject } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, SimpleChanges, DestroyRef, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
@@ -20,6 +20,7 @@ export class UnlinkLogs implements OnInit, OnChanges {
   
   private ticketService = inject(TicketService);
   private destroyRef = inject(DestroyRef);
+  private cdr = inject(ChangeDetectorRef);
   
   logs: UnlinkLog[] = [];
   searchTerm: string = '';
@@ -99,15 +100,17 @@ export class UnlinkLogs implements OnInit, OnChanges {
                 : String(userVal),
             purchaseId: log.purchaseId,
             reason: log.reason,
-            date: log.date,
+            date: this.formatLogDate(log.date),
           };
         });
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.isLoading = false;
         console.error('API Error: No se pudieron cargar logs de desvinculados', err);
         this.logs = [];
         this.totalCount = 0;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -142,6 +145,22 @@ export class UnlinkLogs implements OnInit, OnChanges {
         return 'bg-danger bg-opacity-20 text-danger border border-danger border-opacity-20';
       default:
         return 'bg-secondary bg-opacity-20 text-secondary border border-secondary border-opacity-20';
+    }
+  }
+
+  formatLogDate(dateVal: Date | string | number | null | undefined): string {
+    if (!dateVal) return '-';
+    try {
+      const d = new Date(dateVal);
+      if (isNaN(d.getTime())) return '-';
+      const day = String(d.getDate()).padStart(2, '0');
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const year = d.getFullYear();
+      const hours = String(d.getHours()).padStart(2, '0');
+      const minutes = String(d.getMinutes()).padStart(2, '0');
+      return `${day}/${month}/${year} ${hours}:${minutes}`;
+    } catch {
+      return '-';
     }
   }
 }

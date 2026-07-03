@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TicketHistoryData } from '../../../core/interfaces/api/ticket-history-data.interface';
 import { Ticket } from '../../../core/interfaces/api/ticket.interface';
@@ -12,12 +12,17 @@ import { Ticket } from '../../../core/interfaces/api/ticket.interface';
 })
 export class HistoryTicketModel implements OnChanges {
   @Input() ticketData: TicketHistoryData | null = null;
+  @Output() closed = new EventEmitter<void>();
 
   currentPage = 1;
   pageSize = 100;
   pagedTickets: Ticket[] = [];
   loading = false;
   showSkeleton = true;
+
+  onModalClosed() {
+    this.closed.emit();
+  }
 
   get totalPages(): number {
     if (!this.ticketData || !this.ticketData.tickets) return 0;

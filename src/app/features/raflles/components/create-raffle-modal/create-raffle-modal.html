@@ -25,6 +25,10 @@
           {{ isReadOnly ? 'Detalle Rifa' : raffle ? 'Editar Rifa' : 'Crear Rifa' }}
         </h3>
 
+        @if (!isReadOnly) {
+          <p class="text-white-50 fs-8 mb-4" style="font-size: 0.8rem;"><span class="text-danger">*</span> Campos obligatorios</p>
+        }
+
         @if (isReadOnly && raffle && raffle.deleteReason) {
           <div
             class="alert alert-danger border-danger border-opacity-25 bg-danger bg-opacity-10 text-danger rounded-3 p-3 mb-4 d-flex align-items-start gap-2"
@@ -38,14 +42,13 @@
             </div>
           </div>
         }
-
         <div class="row g-4 mb-2">
           <div class="col-lg-7">
             <div class="d-flex flex-column gap-4">
               <div class="row g-4">
                 <div class="col-md-6">
                   <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
-                    >Nombre Rifa</label
+                    >Nombre Rifa <span class="text-danger" *ngIf="!isReadOnly">*</span></label
                   >
                   <input
                     type="text"
@@ -70,11 +73,12 @@
                 </div>
 
                 <div class="col-md-6">
-                  <label class="form-label text-white-50 text-uppercase fs-7 mb-2">Fundacion</label>
+                  <label class="form-label text-white-50 text-uppercase fs-7 mb-2">Fundacion <span class="text-danger" *ngIf="!isReadOnly">*</span></label>
                   <ng-select
                     class="custom-ng-select"
                     [class.is-invalid]="touchedFields['foundation'] && !foundation"
                     [items]="foundations"
+                    [loading]="foundationsLoading"
                     bindLabel="name"
                     bindValue="name"
                     [(ngModel)]="foundation"
@@ -84,6 +88,8 @@
                     [clearable]="false"
                     placeholder="Seleccionar..."
                     (open)="loadFoundationsIfNeeded()"
+                    [virtualScroll]="true"
+                    (scrollToEnd)="loadMoreFoundations()"
                   >
                   </ng-select>
                   @if (touchedFields['foundation'] && !foundation) {
@@ -96,18 +102,16 @@
 
               <div class="row g-4">
                 <div class="col-md-6">
-                  <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
-                    >Fecha Inicio</label
-                  >
+                  <div class="d-flex align-items-center mb-2" style="height: 21px;">
+                    <label class="form-label text-white-50 text-uppercase fs-7 mb-0">Fecha Inicio <span class="text-danger" *ngIf="!isReadOnly">*</span></label>
+                  </div>
                   <input
                     #startDateInput
                     type="text"
-                    readonly
                     class="form-control custom-dark-input py-2 w-100"
                     [class.is-invalid]="
                       (touchedFields['startDate'] && !startDate) ||
-                      (startDate && endDate && startDate > endDate) ||
-                      (startDate && startDate < getMinStartDate())
+                      (startDate && endDate && startDate > endDate)
                     "
                     [(ngModel)]="startDate"
                     [disabled]="isReadOnly"
@@ -119,23 +123,21 @@
                       La fecha de inicio es requerida.
                     </div>
                   }
-                  @if (startDate && startDate < getMinStartDate()) {
-                    <div class="text-danger fs-8 mt-1" style="font-size: 0.75rem; color: #ef5350">
-                      La fecha de inicio no puede ser anterior a la mínima permitida.
-                    </div>
-                  }
                 </div>
 
                 <div class="col-md-6">
-                  <label class="form-label text-white-50 text-uppercase fs-7 mb-2">Fecha Fin</label>
+                  <div class="d-flex justify-content-between align-items-center mb-2" style="height: 21px;">
+                    <label class="form-label text-white-50 text-uppercase fs-7 mb-0">Fecha Fin <span class="text-danger" *ngIf="!isReadOnly">*</span></label>
+                    <span class="fs-8 text-white-50" style="font-size: 0.7rem; opacity: 0.6; font-weight: normal;">24 horas</span>
+                  </div>
                   <input
                     #endDateInput
                     type="text"
-                    readonly
                     class="form-control custom-dark-input py-2 w-100"
                     [class.is-invalid]="
                       (touchedFields['endDate'] && !endDate) ||
-                      (startDate && endDate && startDate > endDate)
+                      (startDate && endDate && startDate > endDate) ||
+                      (endDate && isPastEndDate(endDate))
                     "
                     [(ngModel)]="endDate"
                     [disabled]="isReadOnly"
@@ -152,13 +154,18 @@
                       La fecha de inicio no puede ser posterior a la fecha de fin.
                     </div>
                   }
+                  @if (endDate && isPastEndDate(endDate)) {
+                    <div class="text-danger fs-8 mt-1" style="font-size: 0.75rem; color: #ef5350">
+                      La fecha/hora de finalización no puede estar en el pasado.
+                    </div>
+                  }
                 </div>
               </div>
 
               <div class="row g-4">
                 <div class="col-md-6">
                   <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
-                    >Meta Dinero</label
+                    >Meta Dinero <span class="text-danger" *ngIf="!isReadOnly">*</span></label
                   >
                   <div
                     class="input-group"
@@ -188,11 +195,12 @@
                 </div>
 
                 <div class="col-md-6">
-                  <label class="form-label text-white-50 text-uppercase fs-7 mb-2">Categoria</label>
+                  <label class="form-label text-white-50 text-uppercase fs-7 mb-2">Categoria <span class="text-danger" *ngIf="!isReadOnly">*</span></label>
                   <ng-select
                     class="custom-ng-select"
                     [class.is-invalid]="touchedFields['category'] && !category"
                     [items]="categories"
+                    [loading]="categoriesLoading"
                     bindLabel="name"
                     bindValue="name"
                     [(ngModel)]="category"
@@ -202,6 +210,8 @@
                     [clearable]="false"
                     placeholder="Seleccionar..."
                     (open)="loadCategoriesIfNeeded()"
+                    [virtualScroll]="true"
+                    (scrollToEnd)="loadMoreCategories()"
                   >
                   </ng-select>
                   @if (touchedFields['category'] && !category) {
@@ -230,7 +240,7 @@
 
                 <div class="col-md-6">
                   <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
-                    >Numero Maximos de Boletos</label
+                    >Numero Maximos de Boletos <span class="text-danger" *ngIf="!isReadOnly">*</span></label
                   >
                   <div
                     class="input-group"
@@ -287,7 +297,7 @@
               <div class="row g-4">
                 <div class="col-md-6">
                   <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
-                    >Precio Boleto</label
+                    >Precio Boleto <span class="text-danger" *ngIf="!isReadOnly">*</span></label
                   >
                   <div
                     class="input-group"
@@ -394,7 +404,7 @@
               <div class="row g-4">
                 <div class="col-md-6">
                   <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
-                    >Porcentaje Beneficiarios</label
+                    >Porcentaje Beneficiarios <span class="text-danger" *ngIf="!isReadOnly">*</span></label
                   >
                   <div
                     class="input-group"
@@ -445,7 +455,7 @@
 
                 <div class="col-md-6">
                   <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
-                    >Porcentaje Ganadores</label
+                    >Porcentaje Ganadores <span class="text-danger" *ngIf="!isReadOnly">*</span></label
                   >
                   <div
                     class="input-group"
@@ -525,7 +535,10 @@
                 <div class="tab-content">
                   <textarea
                     class="form-control custom-dark-input blog-textarea w-100"
-                    [class.is-invalid]="touchedFields['blogCardText'] && !blogCardText.trim()"
+                    [class.is-invalid]="
+                      (touchedFields['blogCardText'] && !blogCardText.trim()) ||
+                      blogCardText.length > 500
+                    "
                     [(ngModel)]="blogCardText"
                     (blur)="touchedFields['blogCardText'] = true"
                     placeholder="Ayuda a reforestar 10,000 hectáreas en el Amazonas."
@@ -535,6 +548,12 @@
                   @if (touchedFields['blogCardText'] && !blogCardText.trim()) {
                     <div class="text-danger fs-8 mt-1" style="font-size: 0.75rem; color: #ef5350">
                       El texto de la card del blog es requerido.
+                    </div>
+                  }
+                  @if (blogCardText.length > 500) {
+                    <div class="text-danger fs-8 mt-1" style="font-size: 0.75rem; color: #ef5350">
+                      El texto de la card del blog no debe superar los 500 caracteres. (Actual:
+                      {{ blogCardText.length }}/500)
                     </div>
                   }
                   <div class="text-white-50 fs-8 mt-2 lh-sm">
@@ -547,7 +566,10 @@
                 <div class="tab-content">
                   <textarea
                     class="form-control custom-dark-input blog-textarea w-100"
-                    [class.is-invalid]="touchedFields['blogDetailText'] && !blogDetailText.trim()"
+                    [class.is-invalid]="
+                      (touchedFields['blogDetailText'] && !blogDetailText.trim()) ||
+                      blogDetailText.length > 500
+                    "
                     [(ngModel)]="blogDetailText"
                     (blur)="touchedFields['blogDetailText'] = true"
                     placeholder="Detalle completo de la rifa..."
@@ -557,6 +579,12 @@
                   @if (touchedFields['blogDetailText'] && !blogDetailText.trim()) {
                     <div class="text-danger fs-8 mt-1" style="font-size: 0.75rem; color: #ef5350">
                       El texto de detalle de la rifa es requerido.
+                    </div>
+                  }
+                  @if (blogDetailText.length > 500) {
+                    <div class="text-danger fs-8 mt-1" style="font-size: 0.75rem; color: #ef5350">
+                      El texto de detalle de la rifa no debe superar los 500 caracteres. (Actual:
+                      {{ blogDetailText.length }}/500)
                     </div>
                   }
                   <div class="text-white-50 fs-8 mt-2 lh-sm">
@@ -570,7 +598,7 @@
           <div class="col-lg-5 d-flex flex-column gap-3 pt-lg-2">
             <div>
               <label class="form-label text-white-50 text-uppercase fs-7 mb-2 text-center d-block"
-                >Imagen de Card</label
+                >Imagen de Card <span class="text-danger" *ngIf="!isReadOnly">*</span></label
               >
               <app-image-cropper
                 [(photo)]="photo"
@@ -590,7 +618,7 @@
 
             <div class="mt-2">
               <label class="form-label text-white-50 text-uppercase fs-7 mb-2 text-center d-block"
-                >Imagen de Banner</label
+                >Imagen de Banner <span class="text-danger" *ngIf="!isReadOnly">*</span></label
               >
               <app-image-cropper
                 [(photo)]="banner"
@@ -611,7 +639,7 @@
         </div>
       </div>
 
-      <div class="modal-footer border-0 pt-0 pe-4 pe-md-5 pb-4 pb-md-5 justify-content-end gap-3">
+      <div class="modal-footer border-0 pt-0 pe-4 pe-md-5 justify-content-end gap-3">
         <button
           type="button"
           class="btn px-4 py-2 rounded-3 text-uppercase fs-7 custom-btn-secondary"

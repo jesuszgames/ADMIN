@@ -31,7 +31,7 @@ export const DEFAULT_MONEY_GOAL = 3000;
 export const BENEFICIARY_PERCENTAGE = 80;
 export const WINNER_PERCENTAGE = 20;
 
-export const MY_RAFFLES_PRINCIPAL_HEADER = 'Rifas Activas';
+export const MY_RAFFLES_PRINCIPAL_HEADER = 'Lista Rifas';
 
 export const MY_RAFFLES_COLUMNS: TableColumn[] = [
   { field: 'title', header: 'Nombre Rifa' },
@@ -54,12 +54,13 @@ export const RAFFLE_FILTER_PENDING_DRAW = 'pendiente-sorteo';
 export const RAFFLE_FILTER_DELETE = 'eliminadas';
 export const RAFFLE_FILTER_MANUAL = 'manual';
 export const RAFFLE_FILTER_AUTOMATIC = 'automatico';
+export const RAFFLE_FILTER_UPCOMING = 'upcoming';
 
 export const RAFFLE_FILTER_VALUES = {
   NO_TICKETS: 'NO-TICKETS',
   INACTIVE: 'INACTIVE',
   GOAL: 'GOAL',
-  SOON_TO_EXPIRED: 'SOON-TO-EXPIRED',
+  SOON_TO_EXPIRE: 'SOON-TO-EXPIRE',
   PENDING_DRAW: 'PENDING-DRAW',
   TICKETS: 'tickets',
   DELETED: 'deleted',
@@ -69,10 +70,10 @@ export const MY_RAFFLES_FILTERS: FilterOption[] = [
   { id: RAFFLE_FILTER_ALL, icon: 'bi-list-ul', label: 'Todo' },
   { id: RAFFLE_FILTER_INACTIVE, icon: 'bi-ban', label: 'Inactiva' },
   { id: RAFFLE_FILTER_PENDING_DRAW, icon: 'bi-clock-history', label: 'Pendiente Sorteo' },
+  { id: RAFFLE_FILTER_UPCOMING, icon: 'bi-calendar-event', label: 'Próximamente' },
   { id: RAFFLE_FILTER_MANUAL, icon: 'bi-ticket-perforated', label: 'Manual' },
   { id: RAFFLE_FILTER_AUTOMATIC, icon: 'bi-ticket-perforated', label: 'Automatico' },
   { id: RAFFLE_FILTER_NO_TICKETS, icon: 'bi-ticket-perforated', label: 'Sin Boletos' },
   { id: RAFFLE_FILTER_PROX_EXPIRED, icon: 'bi-hourglass', label: 'Próximo a vencer' },
   { id: RAFFLE_FILTER_META_COMPLETED, icon: 'bi-check-all', label: 'Meta Completada' },
 ];
-

@@ -7,6 +7,7 @@ import {
   SimpleChanges,
   inject,
   DestroyRef,
+  ChangeDetectorRef,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
@@ -28,6 +29,7 @@ export class AdvancedFiltersModal implements OnChanges {
   private readonly categoryService = inject(CategoryService);
   private readonly foundationService = inject(FoundationService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   @Input() selectedCategory: string = '';
   @Input() selectedFoundation: string = '';
@@ -45,7 +47,9 @@ export class AdvancedFiltersModal implements OnChanges {
   tempFoundation: string | null = null;
   tempStatus: string = 'all';
   categories: Category[] = [];
+  categoriesLoading = false;
   foundations: Foundation[] = [];
+  foundationsLoading = false;
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['selectedCategory'] || changes['selectedFoundation'] || changes['selectedStatus']) {
@@ -55,40 +59,93 @@ export class AdvancedFiltersModal implements OnChanges {
     }
   }
 
+  categoriesPage = 1;
+  categoriesTotalCount = 0;
+  foundationsPage = 1;
+  foundationsTotalCount = 0;
+
+  loadCategories(page = 1): void {
+    this.categoriesLoading = true;
+    console.log(`[AdvancedFilters] loadCategories page=${page}`);
+    this.cdr.detectChanges();
+    this.categoryService
+      .getActive(page, 10)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.categoriesLoading = false;
+          if (res && res.data) {
+            if (page === 1) {
+              this.categories = res.data;
+            } else {
+              this.categories = [...this.categories, ...res.data];
+            }
+            this.categoriesPage = page;
+            this.categoriesTotalCount = res.totalCount || 0;
+            console.log(`[AdvancedFilters] Loaded categories: current=${this.categories.length}, total=${this.categoriesTotalCount}`);
+          }
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('AdvancedFiltersModal: error al cargar categorías', err);
+          this.categoriesLoading = false;
+          this.cdr.detectChanges();
+        },
+      });
+  }
+
   loadCategoriesIfNeeded(): void {
     if (this.categories.length === 0) {
-      this.categoryService
-        .getAll(1, 100)
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe({
-          next: (res) => {
-            if (res && res.data) {
-              this.categories = res.data.filter((c: Category) => c.status === 'ACTIVE');
-            }
-          },
-          error: (err) => {
-            console.error('AdvancedFiltersModal: error al cargar categorías', err);
-          },
-        });
+      this.loadCategories(1);
     }
+  }
+
+  loadMoreCategories(): void {
+    console.log(`[AdvancedFilters] loadMoreCategories triggered. Loading=${this.categoriesLoading}, current=${this.categories.length}, total=${this.categoriesTotalCount}`);
+    if (this.categoriesLoading || this.categories.length >= this.categoriesTotalCount) return;
+    this.loadCategories(this.categoriesPage + 1);
+  }
+
+  loadFoundations(page = 1): void {
+    this.foundationsLoading = true;
+    console.log(`[AdvancedFilters] loadFoundations page=${page}`);
+    this.cdr.detectChanges();
+    this.foundationService
+      .getActive(page, 10)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.foundationsLoading = false;
+          if (res && res.data) {
+            if (page === 1) {
+              this.foundations = res.data;
+            } else {
+              this.foundations = [...this.foundations, ...res.data];
+            }
+            this.foundationsPage = page;
+            this.foundationsTotalCount = res.totalCount || 0;
+            console.log(`[AdvancedFilters] Loaded foundations: current=${this.foundations.length}, total=${this.foundationsTotalCount}`);
+          }
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('AdvancedFiltersModal: error al cargar fundaciones', err);
+          this.foundationsLoading = false;
+          this.cdr.detectChanges();
+        },
+      });
   }
 
   loadFoundationsIfNeeded(): void {
     if (this.foundations.length === 0) {
-      this.foundationService
-        .getAll(1, 100)
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe({
-          next: (res) => {
-            if (res && res.data) {
-              this.foundations = res.data.filter((f: Foundation) => f.status === 'ACTIVE');
-            }
-          },
-          error: (err) => {
-            console.error('AdvancedFiltersModal: error al cargar fundaciones', err);
-          },
-        });
+      this.loadFoundations(1);
     }
+  }
+
+  loadMoreFoundations(): void {
+    console.log(`[AdvancedFilters] loadMoreFoundations triggered. Loading=${this.foundationsLoading}, current=${this.foundations.length}, total=${this.foundationsTotalCount}`);
+    if (this.foundationsLoading || this.foundations.length >= this.foundationsTotalCount) return;
+    this.loadFoundations(this.foundationsPage + 1);
   }
 
   clearFilters(): void {

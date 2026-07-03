@@ -78,6 +78,11 @@ export class History implements OnInit, OnDestroy {
   selectedTicketData: TicketHistoryData | null = null;
   selectedRaffleForLogs: Raffle | null = null;
 
+  showDeleteModal = false;
+  showRaffleModal = false;
+  showTicketsModal = false;
+  showLogsModal = false;
+
   private readonly BTN_HISTORY_MODAL_ID = 'btn-abrir-modal-history';
   private readonly BTN_TICKETS_MODAL_ID = 'btn-abrir-modal-tickets';
   private readonly BTN_DELETE_HISTORY_ID = 'btn-abrir-modal-delete-history';
@@ -127,12 +132,34 @@ export class History implements OnInit, OnDestroy {
         next: (res) => {
           if (res && res.data) {
             this.totalItems = res.totalCount || 0;
-            this.tableData = res.data.map((r: Raffle) =>
-              mapRaffleForTable({
+            this.tableData = res.data.map((r: Raffle) => {
+              const base = mapRaffleForTable({
                 ...r,
                 goal: r.goal || 0,
-              }),
-            ) as unknown as HistoryRaffle[];
+              });
+              let formattedEndDate = 'Sin Fecha';
+              if (r.endDate) {
+                try {
+                  const date = new Date(r.endDate);
+                  const day = String(date.getDate()).padStart(2, '0');
+                  const month = String(date.getMonth() + 1).padStart(2, '0');
+                  const year = date.getFullYear();
+                  let hours = date.getHours();
+                  const minutes = String(date.getMinutes()).padStart(2, '0');
+                  const ampm = hours >= 12 ? 'PM' : 'AM';
+                  hours = hours % 12;
+                  hours = hours ? hours : 12;
+                  const hoursStr = String(hours).padStart(2, '0');
+                  formattedEndDate = `${day}/${month}/${year} ${hoursStr}:${minutes} ${ampm}`;
+                } catch {
+                  formattedEndDate = String(r.endDate);
+                }
+              }
+              return {
+                ...base,
+                endDateFormatted: formattedEndDate,
+              };
+            }) as unknown as HistoryRaffle[];
           }
           this.loading = false;
           this.cdr.detectChanges();
@@ -170,23 +197,50 @@ export class History implements OnInit, OnDestroy {
     this.cargarRifas();
   }
 
+  onCloseDeleteModal(): void {
+    this.showDeleteModal = false;
+    this.rifaSeleccionadaParaBorrar = null;
+  }
+
+  onCloseRaffleModal(): void {
+    this.showRaffleModal = false;
+    this.selectedRaffle = null;
+  }
+
+  onCloseTicketsModal(): void {
+    this.showTicketsModal = false;
+    this.selectedTicketData = null;
+  }
+
+  onCloseLogsModal(): void {
+    this.showLogsModal = false;
+    this.selectedRaffleForLogs = null;
+  }
+
   manejarAccion(evento: { actionId: number; row: HistoryRaffle }): void {
     try {
       const actions: Record<number, () => void> = {
         [TABLE_ACTION_VIEW_DETAIL]: () => {
           this.onViewDetails(evento.row);
+          this.showRaffleModal = true;
+          this.cdr.detectChanges();
           document.getElementById(this.BTN_HISTORY_MODAL_ID)?.click();
         },
         [TABLE_ACTION_VIEW_TICKETS]: () => {
           this.onViewTicketDetails(evento.row);
+          this.showTicketsModal = true;
+          this.cdr.detectChanges();
           document.getElementById(this.BTN_TICKETS_MODAL_ID)?.click();
         },
         [TABLE_ACTION_DASHBOARD_DELETE]: () => {
           this.rifaSeleccionadaParaBorrar = evento.row;
+          this.showDeleteModal = true;
+          this.cdr.detectChanges();
           document.getElementById(this.BTN_DELETE_HISTORY_ID)?.click();
         },
         [TABLE_ACTION_VIEW_UNLINK_LOGS]: () => {
           this.selectedRaffleForLogs = evento.row as unknown as Raffle;
+          this.showLogsModal = true;
           this.cdr.detectChanges();
           document.getElementById('btn-abrir-modal-unlink-logs')?.click();
         },
@@ -225,6 +279,7 @@ export class History implements OnInit, OnDestroy {
         next: (res) => {
           if (res && res.data) {
             this.selectedTicketData = mapTicketDetails(res.data, raffle);
+            this.cdr.detectChanges();
           }
         },
         error: (err) => {

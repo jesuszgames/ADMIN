@@ -1,5 +1,7 @@
 import { Component, Input, Output, EventEmitter, SimpleChanges, HostListener, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NgSelectComponent } from '@ng-select/ng-select';
 import { Pagination } from '../pagination/pagination';
 import { Dropdown } from '../dropdown/dropdown';
 import { DropdownAction } from '../../../core/interfaces/api/dropdown-action.interface';
@@ -17,12 +19,21 @@ import { TableColumn } from '../../../core/interfaces/api/table-column.interface
 @Component({
   selector: 'app-tables',
   standalone: true,
-  imports: [CommonModule, Pagination, Dropdown, Search],
+  imports: [CommonModule, FormsModule, NgSelectComponent, Pagination, Dropdown, Search],
   templateUrl: './tables.html',
   styleUrl: './tables.scss',
 })
 export class Tables<T extends Record<string, unknown> = Record<string, unknown>> implements OnInit {
   isMobile = false;
+
+  @Input() showStatusFilter = false;
+  @Input() statusOptions: readonly any[] = [];
+  @Input() selectedStatus: any = 'all';
+  @Output() statusChanged = new EventEmitter<any>();
+
+  onStatusChange(newStatus: any): void {
+    this.statusChanged.emit(newStatus);
+  }
 
   ngOnInit(): void {
     this.checkScreenSize();
@@ -97,9 +108,10 @@ export class Tables<T extends Record<string, unknown> = Record<string, unknown>>
       'NO TICKETS': 'Sin Boletos',
       'NO-TICKETS': 'Sin Boletos',
       'SOON TO EXPIRE': 'Próximo a Vencer',
-      'SOON-TO-EXPIRED': 'Próximo a Vencer',
+      'SOON-TO-EXPIRE': 'Próximo a Vencer',
       'GOAL COMPLETED': 'Meta Alcanzada',
       GOAL: 'Meta Alcanzada',
+      UPCOMING: 'Próximamente',
     };
     return translations[valStr] || String(value);
   }

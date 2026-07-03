@@ -7,13 +7,17 @@
   background-color: var.$background;
   color: var.$primary-text;
   border: 1px solid var.$input-border;
-  padding: 0.75rem 1rem;
-  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
   font-size: 0.9rem;
   resize: none;
   transition:
     border-color 0.2s ease,
     box-shadow 0.2s ease;
+
+  &:not(textarea) {
+    height: 42px !important;
+  }
 
   &::placeholder {
     color: var.$secondary-text;
@@ -41,7 +45,7 @@ select.custom-dark-input {
 .custom-dark-addon {
   background-color: var.$background;
   border: 1px solid var.$input-border;
-  border-radius: 6px;
+  border-radius: 8px;
   padding: 0.5rem 1rem;
 }
 
@@ -49,7 +53,10 @@ select.custom-dark-input {
   .input-group {
     background-color: var.$background;
     border: 1px solid var.$input-border;
-    border-radius: 6px;
+    border-radius: 8px;
+    height: 42px !important;
+    display: flex;
+    align-items: center;
     transition:
       border-color 0.2s ease,
       box-shadow 0.2s ease;

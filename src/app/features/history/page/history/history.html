@@ -85,69 +85,78 @@
   ></app-advanced-filters-modal>
 </div>
 
-<app-delete-modal
-  [id]="'eliminar-historial'"
-  (confirmDelete)="confirmarEliminar($event)"
-></app-delete-modal>
-<button
-  id="btn-abrir-modal-delete-history"
-  data-bs-toggle="modal"
-  data-bs-target="#modal-eliminar-historial"
-  hidden
-></button>
+@if (showDeleteModal) {
+  <app-delete-modal
+    [id]="'eliminar-historial'"
+    (confirmDelete)="confirmarEliminar($event)"
+    (closed)="onCloseDeleteModal()"
+  ></app-delete-modal>
+  <button
+    id="btn-abrir-modal-delete-history"
+    data-bs-toggle="modal"
+    data-bs-target="#modal-eliminar-historial"
+    hidden
+  ></button>
+}
 
-<button
-  id="btn-abrir-modal-history"
-  data-bs-toggle="modal"
-  data-bs-target="#modalDetalleRifa"
-  hidden
-></button>
-<app-history-raffles-modal [raffleData]="selectedRaffle"></app-history-raffles-modal>
+@if (showRaffleModal) {
+  <button
+    id="btn-abrir-modal-history"
+    data-bs-toggle="modal"
+    data-bs-target="#modalDetalleRifa"
+    hidden
+  ></button>
+  <app-history-raffles-modal [raffleData]="selectedRaffle" (closed)="onCloseRaffleModal()"></app-history-raffles-modal>
+}
 
-<button
-  id="btn-abrir-modal-tickets"
-  data-bs-toggle="modal"
-  data-bs-target="#modalHistorialBoletos"
-  hidden
-></button>
-<app-history-ticket-model [ticketData]="selectedTicketData"></app-history-ticket-model>
+@if (showTicketsModal) {
+  <button
+    id="btn-abrir-modal-tickets"
+    data-bs-toggle="modal"
+    data-bs-target="#modalHistorialBoletos"
+    hidden
+  ></button>
+  <app-history-ticket-model [ticketData]="selectedTicketData" (closed)="onCloseTicketsModal()"></app-history-ticket-model>
+}
 
-<button
-  id="btn-abrir-modal-unlink-logs"
-  data-bs-toggle="modal"
-  data-bs-target="#modalVerDesvinculaciones"
-  hidden
-></button>
+@if (showLogsModal) {
+  <button
+    id="btn-abrir-modal-unlink-logs"
+    data-bs-toggle="modal"
+    data-bs-target="#modalVerDesvinculaciones"
+    hidden
+  ></button>
 
-<div class="modal fade" id="modalVerDesvinculaciones" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-xl modal-dialog-centered">
-    <div
-      class="modal-content custom-modal-bg border-secondary border-opacity-25 rounded-3 shadow-lg"
-    >
+  <div class="modal fade" id="modalVerDesvinculaciones" tabindex="-1" aria-hidden="true" (hidden.bs.modal)="onCloseLogsModal()">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
       <div
-        class="modal-header border-0 pb-0 pt-4 px-4 px-md-5 d-flex justify-content-between align-items-center"
+        class="modal-content custom-modal-bg border-secondary border-opacity-25 rounded-3 shadow-lg"
       >
-        <h5 class="modal-title text-white fw-bold">Bitácora de Desvinculaciones</h5>
-        <button
-          type="button"
-          class="btn-close btn-close-white"
-          data-bs-dismiss="modal"
-          aria-label="Close"
-        ></button>
-      </div>
-      <div class="modal-body p-4 p-md-5 pt-3 pb-3">
-        <app-unlink-logs [raffleData]="selectedRaffleForLogs"></app-unlink-logs>
-      </div>
-      <div class="modal-footer border-0 pt-0 pe-4 pe-md-5 pb-4 pb-md-5 justify-content-end">
-        <button
-          type="button"
-          class="btn px-4 py-2 rounded-3 text-uppercase fs-7 custom-btn-secondary"
-          data-bs-dismiss="modal"
+        <div
+          class="modal-header border-0 pb-0 pt-4 px-4 px-md-5 d-flex justify-content-between align-items-center"
         >
-          Cerrar
-        </button>
+          <h5 class="modal-title text-white fw-bold">Bitácora de Desvinculaciones</h5>
+          <button
+            type="button"
+            class="btn-close btn-close-white"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body p-4 p-md-5 pt-3 pb-3">
+          <app-unlink-logs [raffleData]="selectedRaffleForLogs"></app-unlink-logs>
+        </div>
+        <div class="modal-footer border-0 pt-0 pe-4 pe-md-5 justify-content-end">
+          <button
+            type="button"
+            class="btn px-4 py-2 rounded-3 text-uppercase fs-7 custom-btn-secondary"
+            data-bs-dismiss="modal"
+          >
+            Cerrar
+          </button>
+        </div>
       </div>
     </div>
   </div>
-</div>
+}
 

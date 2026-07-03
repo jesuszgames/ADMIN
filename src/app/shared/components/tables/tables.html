@@ -1,9 +1,23 @@
-<div class="table-responsive containers-colors p-3 rounded-3">
+<div class="containers-colors p-3 rounded-3 overflow-hidden">
   <div class="d-flex justify-content-between align-items-center mb-3">
     <header>
       {{ principalheader }}
     </header>
     <div class="d-flex align-items-center gap-2">
+      @if (showStatusFilter && statusOptions && statusOptions.length > 0) {
+        <ng-select
+          class="custom-ng-select"
+          [items]="statusOptions"
+          bindLabel="label"
+          bindValue="id"
+          [ngModel]="selectedStatus"
+          (ngModelChange)="onStatusChange($event)"
+          placeholder="Estado..."
+          [clearable]="false"
+          style="min-width: 160px;"
+        >
+        </ng-select>
+      }
       @if (showSearch) {
         <app-search (onSearch)="handleSearch($event)" [placeholder]="placeholderSearch" [loading]="loading"></app-search>
       }
@@ -21,7 +35,8 @@
   </div>
 
   @if (!isMobile) {
-    <table class="table table-sm custom-table dark-table ta-hover align-middle m-0">
+    <div class="table-responsive">
+      <table class="table table-sm custom-table dark-table ta-hover align-middle m-0">
       <thead>
         <tr>
           @for (col of columns; track col.field) {
@@ -80,11 +95,11 @@
                       @if (row[col.iconField || 'icon']) {
                         <i [class]="row[col.iconField || 'icon'] + ' text-secondary'"></i>
                       }
-                      <span class="text-truncate-cell" [title]="row[col.field]">{{ row[col.field] }}</span>
+                      <span class="text-truncate-cell" [title]="row[col.field]">{{ row[col.field] === null || row[col.field] === undefined || row[col.field] === '' ? '-' : row[col.field] }}</span>
                     </div>
                   } @else {
                     <span class="text-truncate-cell" [title]="row[col.field]">
-                      {{ row[col.field] }}
+                      {{ row[col.field] === null || row[col.field] === undefined || row[col.field] === '' ? '-' : row[col.field] }}
                     </span>
                   }
                 </td>
@@ -100,6 +115,7 @@
         }
       </tbody>
     </table>
+    </div>
   } @else {
     <!-- Card view for mobile screens -->
     <div class="table-cards-container">
@@ -124,14 +140,16 @@
                       {{ translateStatus(row[columns[0].field]) }}
                     </span>
                   } @else if (columns[0].type === 'icon-text') {
-                    <span class="d-inline-flex align-items-center gap-2">
+                    <span class="d-inline-flex align-items-center gap-2" style="max-width: 85%;">
                       @if (row[columns[0].iconField || 'icon']) {
-                        <i [class]="row[columns[0].iconField || 'icon'] + ' text-secondary'"></i>
+                        <i [class]="row[columns[0].iconField || 'icon'] + ' text-secondary flex-shrink-0'"></i>
                       }
-                      <span>{{ row[columns[0].field] }}</span>
+                      <span class="text-truncate">{{ row[columns[0].field] === null || row[columns[0].field] === undefined || row[columns[0].field] === '' ? '-' : row[columns[0].field] }}</span>
                     </span>
                   } @else {
-                    {{ row[columns[0].field] }}
+                    <span class="text-truncate" style="max-width: 85%; display: inline-block; vertical-align: middle;">
+                      {{ row[columns[0].field] === null || row[columns[0].field] === undefined || row[columns[0].field] === '' ? '-' : row[columns[0].field] }}
+                    </span>
                   }
                 } @else {
                   Registro #{{ $index + 1 }}
@@ -155,22 +173,22 @@
             <div class="card-mobile-body d-flex flex-column gap-2">
               @for (col of columns; track col.field; let first = $first) {
                 @if (col.type !== 'actions' && !(first && col.field !== 'actions')) {
-                  <div class="d-flex justify-content-between align-items-center py-1 border-bottom border-dashed">
-                    <span class="text-white-50 small text-uppercase me-2">{{ col.header }}</span>
-                    <span class="text-white fw-medium text-end">
+                  <div class="d-flex justify-content-between align-items-center py-1 border-bottom border-dashed gap-3">
+                    <span class="text-white-50 small text-uppercase me-2 flex-shrink-0">{{ col.header }}</span>
+                    <span class="text-white fw-medium text-end text-truncate" style="max-width: 70%; display: inline-block;">
                       @if (col.type === 'badge') {
                         <span [attr.class]="getBadgeClasses(row[col.field]) + ' badge-text badge'">
                           {{ translateStatus(row[col.field]) }}
                         </span>
                       } @else if (col.type === 'icon-text') {
-                        <span class="d-inline-flex align-items-center gap-2">
+                        <span class="d-inline-flex align-items-center gap-2" style="max-width: 100%;">
                           @if (row[col.iconField || 'icon']) {
-                            <i [class]="row[col.iconField || 'icon'] + ' text-secondary'"></i>
+                            <i [class]="row[col.iconField || 'icon'] + ' text-secondary flex-shrink-0'"></i>
                           }
-                          <span>{{ row[col.field] }}</span>
+                          <span class="text-truncate">{{ row[col.field] === null || row[col.field] === undefined || row[col.field] === '' ? '-' : row[col.field] }}</span>
                         </span>
                       } @else {
-                        {{ row[col.field] }}
+                        {{ row[col.field] === null || row[col.field] === undefined || row[col.field] === '' ? '-' : row[col.field] }}
                       }
                     </span>
                   </div>
