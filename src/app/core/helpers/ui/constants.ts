@@ -44,6 +44,7 @@ export const STATUS_CLASSES = {
   ADMIN: 'badge-active',
   SORTEADOR: 'badge-automatico',
   DEFAULT: 'badge-default',
+  UPCOMING: 'badge-prox-expired',
 };
 
 export const STATUS = {
@@ -83,6 +84,7 @@ export const BADGE_MAP: Record<string, keyof typeof STATUS_CLASSES> = {
   ADMIN: 'ADMIN',
   SORTEADOR: 'SORTEADOR',
   SORT: 'SORTEADOR',
+  UPCOM: 'UPCOMING',
 };
 
 export const CONNECTION_STATUS = {

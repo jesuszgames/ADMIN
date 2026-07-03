@@ -49,7 +49,16 @@ export class RaffleService {
     );
   }
 
-  getDashboardMetrics(): Observable<{
+  getDashboardMetrics(filters?: {
+    month?: number | string | null;
+    year?: number | string | null;
+    startDate?: string | null;
+    endDate?: string | null;
+    category?: string | null;
+    foundationId?: string | null;
+    minCollected?: number | string | null;
+    maxCollected?: number | string | null;
+  }): Observable<{
     data: {
       totalCollected: number;
       totalBeneficiaries: number;
@@ -57,18 +66,87 @@ export class RaffleService {
       totalActive: number;
       totalNoTickets: number;
       totalFinished: number;
-    }
+    };
+    charts?: {
+      categoryData: Array<{ label: string; value: number }>;
+      foundationData: Array<{ label: string; value: number }>;
+      salesTrendData: Array<{ label: string; value: number }>;
+      topRafflesData: Array<{ label: string; value: number }>;
+    };
   }> {
-    return this.http.get<{
-      data: {
-        totalCollected: number;
-        totalBeneficiaries: number;
-        totalWinners: number;
-        totalActive: number;
-        totalNoTickets: number;
-        totalFinished: number;
+    let params = new HttpParams();
+    if (filters) {
+      if (filters.month !== undefined && filters.month !== null && filters.month !== '') {
+        params = params.set('month', String(filters.month));
       }
-    }>(`${this.apiUrl}/dashboard-metrics`);
+      if (filters.year !== undefined && filters.year !== null && filters.year !== '') {
+        params = params.set('year', String(filters.year));
+      }
+      if (filters.startDate) {
+        params = params.set('startDate', filters.startDate);
+      }
+      if (filters.endDate) {
+        params = params.set('endDate', filters.endDate);
+      }
+      if (filters.category) {
+        params = params.set('category', filters.category);
+      }
+      if (filters.foundationId) {
+        params = params.set('foundationId', filters.foundationId);
+      }
+      if (filters.minCollected) {
+        params = params.set('minCollected', String(filters.minCollected));
+      }
+      if (filters.maxCollected) {
+        params = params.set('maxCollected', String(filters.maxCollected));
+      }
+    }
+    return this.http
+      .get<{
+        data: {
+          data: {
+            totalCollected: number;
+            totalBeneficiaries: number;
+            totalWinners: number;
+            totalActive: number;
+            totalNoTickets: number;
+            totalFinished: number;
+          };
+          charts?: {
+            categoryData: Array<{ label: string; value: number }>;
+            foundationData: Array<{ label: string; value: number }>;
+            salesTrendData: Array<{ label: string; value: number }>;
+            topRafflesData: Array<{ label: string; value: number }>;
+          };
+        };
+      }>(`${this.apiUrl}/dashboard-metrics`, { params })
+      .pipe(
+        map((res) => {
+          // El back envuelve con appResponse → la carga útil llega en res.data,
+          // y dentro el service mete { data: {...métricas}, charts: {...} }.
+          // Desenvolvemos una capa para que el consumidor trabaje directo.
+          const inner = res?.data;
+          return {
+            data: inner?.data,
+            charts: inner?.charts,
+          } as {
+              data: {
+                totalCollected: number;
+                totalBeneficiaries: number;
+                totalWinners: number;
+                totalActive: number;
+                totalNoTickets: number;
+                totalFinished: number;
+              };
+              charts?: {
+                categoryData: Array<{ label: string; value: number }>;
+                foundationData: Array<{ label: string; value: number }>;
+                salesTrendData: Array<{ label: string; value: number }>;
+                topRafflesData: Array<{ label: string; value: number }>;
+              };
+            };
+        }),
+      );
   }
 
   getOne(id: string): Observable<{ data: Raffle }> {

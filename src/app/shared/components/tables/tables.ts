@@ -111,6 +111,7 @@ export class Tables<T extends Record<string, unknown> = Record<string, unknown>>
       'SOON-TO-EXPIRE': 'Próximo a Vencer',
       'GOAL COMPLETED': 'Meta Alcanzada',
       GOAL: 'Meta Alcanzada',
+      UPCOMING: 'Próximamente',
     };
     return translations[valStr] || String(value);
   }

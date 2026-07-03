@@ -15,6 +15,12 @@
 
 @import 'flatpickr/dist/flatpickr.css';
 
+.no-transitions *,
+.no-transitions *::before,
+.no-transitions *::after {
+  transition: none !important;
+}
+
 .ng-select.custom-ng-select {
   padding: 0;
 
@@ -308,16 +314,24 @@
     bottom: 80px !important;
     right: 24px !important;
     z-index: 1030 !important;
-    border-radius: 50px !important;
-    padding: 12px 20px !important;
+    border-radius: 50% !important;
+    padding: 0 !important;
+    width: 54px !important;
+    height: 54px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4) !important;
     background-color: var(--button-primary) !important;
     color: #ffffff !important;
     border: none !important;
-    height: auto !important;
+
+    span {
+      display: none !important;
+    }
 
     i {
-      font-size: 1.1rem;
+      font-size: 1.25rem;
     }
 
     &.active {
@@ -385,5 +399,16 @@
     border-color: var.$hover-cancel-button !important;
     cursor: not-allowed;
   }
+}
+
+body.sidebar-open .floating-filter-btn,
+body.sidebar-open .floating-mobile-filter-btn,
+.sidebar-open .floating-filter-btn,
+.sidebar-open .floating-mobile-filter-btn {
+  display: none !important;
+}
+
+[data-theme="dark"] .btn-close {
+  filter: invert(1) grayscale(1) brightness(2) !important;
 }
 

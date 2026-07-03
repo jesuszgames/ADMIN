@@ -40,6 +40,7 @@ import {
   RAFFLE_FILTER_MANUAL,
   RAFFLE_FILTER_AUTOMATIC,
   RAFFLE_FILTER_VALUES,
+  RAFFLE_FILTER_UPCOMING,
 } from '../../../../core/helpers/global/raffle.constants';
 import { Raffle } from '../../../../core/interfaces/api/raffle.interface';
 import {
@@ -153,6 +154,9 @@ export class Raffles implements OnInit, OnDestroy {
     } else if (this.filtroActual === RAFFLE_FILTER_PROX_EXPIRED) {
       statuses = 'ACTIVE';
       backendFilter = RAFFLE_FILTER_VALUES.SOON_TO_EXPIRE;
+    } else if (this.filtroActual === RAFFLE_FILTER_UPCOMING) {
+      statuses = 'ACTIVE';
+      backendFilter = 'upcoming';
     } else if (this.filtroActual === RAFFLE_FILTER_MANUAL) {
       drawMethod = 'MANUAL';
     } else if (this.filtroActual === RAFFLE_FILTER_AUTOMATIC) {
@@ -410,7 +414,9 @@ export class Raffles implements OnInit, OnDestroy {
       const baseMapped = mapRaffleForTable(raffle);
 
       let statusDisplay = baseMapped.status;
-      if (isActiveStatus(raffle.status)) {
+      if (baseMapped.status === 'UPCOMING') {
+        // Mantenemos el estado de Próximamente
+      } else if (isActiveStatus(raffle.status)) {
         if (raffle.soldTickets === raffle.totalTickets) {
           statusDisplay = RAFFLE_STATUS_NO_TICKETS;
         } else if (raffle.collected && raffle.goal && raffle.collected >= raffle.goal) {
