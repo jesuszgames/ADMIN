@@ -1,5 +1,17 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject, ChangeDetectorRef, DestroyRef, AfterViewInit, OnDestroy, ElementRef, ViewChild, effect, signal } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  inject,
+  ChangeDetectorRef,
+  DestroyRef,
+  AfterViewInit,
+  OnDestroy,
+  ElementRef,
+  ViewChild,
+  effect,
+  signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ThemeService } from '../../../../core/services/ui/theme.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -23,7 +35,6 @@ import {
   mapRaffleDetails,
   mapTicketDetails,
   mapRaffleForTable,
-  isDeletedStatus,
 } from '../../../../core/helpers/ui/utils';
 import {
   DEFAULT_USER_NAME,
@@ -33,11 +44,8 @@ import {
   HISTORY_ROW_ACTIONS,
   DASHBOARD_CHART_PALETTE,
   DASHBOARD_CHART_TREND_COLOR,
-  DASHBOARD_CHART_BAR_COLOR,
-  DASHBOARD_CHART_BAR_HOVER,
   DARK_AXIS_TICKS,
   DARK_AXIS_GRID,
-  DARK_LEGEND,
   DOUGHNUT_TOP_N,
 } from '../../../../core/helpers/global/dashboard.constants';
 import { UnlinkLogs } from '../../../../shared/components/unlink-logs/unlink-logs';
@@ -47,7 +55,6 @@ import {
   TABLE_ACTION_DASHBOARD_DELETE,
   TABLE_ACTION_VIEW_UNLINK_LOGS,
 } from '../../../../core/helpers/ui/constants';
-import { STATE_DELETED } from '../../../../core/helpers/global/raffle.constants';
 import { Raffle } from '../../../../core/interfaces/api/raffle.interface';
 
 export interface DashboardCard {
@@ -263,7 +270,8 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
   }
 
   loadMoreFoundations(): void {
-    if (this.foundationsLoading || this.foundationsList.length >= this.foundationsTotalCount) return;
+    if (this.foundationsLoading || this.foundationsList.length >= this.foundationsTotalCount)
+      return;
     this.loadFoundations(this.foundationsPage + 1);
   }
 
@@ -480,7 +488,6 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
     return item.label;
   }
 
-
   renderCharts(chartsData: any): void {
     this.destroyCharts();
 
@@ -499,7 +506,9 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /** Devuelve el context 2D de un canvas o null si el elemento no está listo. */
-  private getCanvasContext(canvas: ElementRef<HTMLCanvasElement> | undefined): CanvasRenderingContext2D | null {
+  private getCanvasContext(
+    canvas: ElementRef<HTMLCanvasElement> | undefined,
+  ): CanvasRenderingContext2D | null {
     return canvas?.nativeElement?.getContext('2d') ?? null;
   }
 
@@ -524,7 +533,10 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
    * categorías más el resto acumulado en una entrada "Otros". Si hay <= N entradas,
    * devuelve la lista tal cual.
    */
-  private topNPlusOtros(items: Array<{ label: string; value: number }>, n: number = DOUGHNUT_TOP_N) {
+  private topNPlusOtros(
+    items: Array<{ label: string; value: number }>,
+    n: number = DOUGHNUT_TOP_N,
+  ) {
     const sorted = [...items].sort((a, b) => b.value - a.value);
     if (sorted.length <= n) {
       return {
@@ -560,18 +572,20 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
       type: 'line',
       data: {
         labels,
-        datasets: [{
-          label: 'Recaudación ($)',
-          data,
-          borderColor: DASHBOARD_CHART_TREND_COLOR,
-          backgroundColor: gradient,
-          fill: true,
-          tension: 0.4,
-          pointBackgroundColor: DASHBOARD_CHART_TREND_COLOR,
-          pointBorderColor: '#ffffff',
-          pointBorderWidth: 1.5,
-          pointHoverRadius: 7,
-        }],
+        datasets: [
+          {
+            label: 'Recaudación ($)',
+            data,
+            borderColor: DASHBOARD_CHART_TREND_COLOR,
+            backgroundColor: gradient,
+            fill: true,
+            tension: 0.4,
+            pointBackgroundColor: DASHBOARD_CHART_TREND_COLOR,
+            pointBorderColor: '#ffffff',
+            pointBorderWidth: 1.5,
+            pointHoverRadius: 7,
+          },
+        ],
       },
       options: {
         responsive: true,
@@ -596,11 +610,13 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
       type: 'doughnut',
       data: {
         labels,
-        datasets: [{
-          data,
-          backgroundColor: [...DASHBOARD_CHART_PALETTE],
-          borderWidth: 0,
-        }],
+        datasets: [
+          {
+            data,
+            backgroundColor: [...DASHBOARD_CHART_PALETTE],
+            borderWidth: 0,
+          },
+        ],
       },
       options: {
         responsive: true,
@@ -628,13 +644,15 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
       type: 'bar',
       data: {
         labels,
-        datasets: [{
-          label: 'Recaudado ($)',
-          data,
-          backgroundColor: [...DASHBOARD_CHART_PALETTE],
-          borderRadius: 5,
-          borderWidth: 0,
-        }],
+        datasets: [
+          {
+            label: 'Recaudado ($)',
+            data,
+            backgroundColor: [...DASHBOARD_CHART_PALETTE],
+            borderRadius: 5,
+            borderWidth: 0,
+          },
+        ],
       },
       options: {
         responsive: true,
@@ -646,7 +664,7 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
             labels: {
               color: textColor,
               boxWidth: 12,
-              padding: 15,
+              padding: 6,
               generateLabels: (chart: any) => {
                 const data = chart.data;
                 if (data.labels.length && data.datasets.length) {
@@ -659,24 +677,24 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
                     color: textColor,
                     lineWidth: 0,
                     hidden: false,
-                    index: i
+                    index: i,
                   }));
                 }
                 return [];
-              }
-            }
-          }
+              },
+            },
+          },
         },
         scales: {
           x: {
             grid: { display: false },
-            ticks: { display: false }
+            ticks: { display: false },
           },
           y: {
             grid: { color: gridColor },
-            ticks: { color: tickColor }
-          }
-        }
+            ticks: { color: tickColor },
+          },
+        },
       } as any,
     });
   }
@@ -684,7 +702,6 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
   cargarRifas(): void {
     this.loading = true;
     this.cdr.detectChanges();
-    this.cargarMetricas();
 
     this.raffleService
       .getAll(1, 10, '', 'FINISHED,PENDING-DRAW', undefined, 'recent', '{"endDate":-1}')

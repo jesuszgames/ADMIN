@@ -6,13 +6,7 @@ import {
   TABLE_ACTION_DASHBOARD_DELETE,
   TABLE_ACTION_VIEW_UNLINK_LOGS,
 } from '../ui/constants';
-
-// Re-exported from auth.constants.ts to keep a single source of truth.
 export { DEFAULT_USER_NAME } from '../global/auth.constants';
-
-// Re-exported from raffle.constants.ts because legacy consumers (utils.ts)
-// imported these constants from this module. Keeping the re-exports avoids
-// a cascade of import-path changes in files we are not touching today.
 export {
   DEFAULT_MONEY_GOAL,
   BENEFICIARY_PERCENTAGE,
@@ -43,11 +37,11 @@ export const HISTORY_ROW_ACTIONS: DropdownAction[] = [
 // Paleta centralizada para los charts del dashboard.
 // Se usa en el área chart (línea tendencia) y en el doughnut de categorías.
 export const DASHBOARD_CHART_PALETTE = [
-  '#0d6efd', // primary
-  '#20c997', // teal
-  '#ffc107', // warning
-  '#dc3545', // danger
-  '#6c757d', // secondary
+  '#0d6efd',
+  '#20c997',
+  '#ffc107',
+  '#dc3545',
+  '#6c757d',
 ] as const;
 
 export const DASHBOARD_CHART_TREND_COLOR = '#0d6efd';

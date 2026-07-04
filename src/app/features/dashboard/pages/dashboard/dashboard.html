@@ -24,7 +24,7 @@
       <div class="chart-card containers-colors p-4 rounded-3 h-100">
         <h5 class="chart-title mb-3">Tendencia de Recaudación</h5>
         @if (loadingMetricas) {
-          <div class="chart-skeleton-loader" style="height: 250px;"></div>
+          <div class="chart-skeleton-loader"></div>
         } @else {
           <div class="chart-wrapper">
             <canvas #trendChartCanvas></canvas>
@@ -36,7 +36,7 @@
       <div class="chart-card containers-colors p-4 rounded-3 text-center h-100">
         <h5 class="chart-title mb-3 text-start">Recaudación por Categoría</h5>
         @if (loadingMetricas) {
-          <div class="chart-skeleton-loader doughnut-skeleton" style="height: 270px;"></div>
+          <div class="chart-skeleton-loader doughnut-skeleton"></div>
         } @else {
           <div class="chart-wrapper doughnut-wrapper">
             <canvas #categoryChartCanvas></canvas>
@@ -63,10 +63,10 @@
       </app-tables>
     </div>
     <div class="col-12 col-xl-4 order-1 order-xl-2">
-      <div class="chart-card containers-colors p-4 rounded-3 h-100">
+      <div class="chart-card containers-colors p-4 pb-0 rounded-3 h-100">
         <h5 class="chart-title mb-3">Top 5 Rifas con Mayor Recaudación</h5>
         @if (loadingMetricas) {
-          <div class="chart-skeleton-loader bar-skeleton" style="height: 290px;"></div>
+          <div class="chart-skeleton-loader bar-skeleton"></div>
         } @else {
           <div class="chart-wrapper bar-wrapper">
             <canvas #topRafflesChartCanvas></canvas>
