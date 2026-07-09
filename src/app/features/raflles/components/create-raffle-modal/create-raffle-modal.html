@@ -4,6 +4,7 @@
   aria-hidden="true"
   data-bs-backdrop="static"
   data-bs-keyboard="false"
+  data-bs-focus="false"
   (scroll)="closePickers()"
   (hide.bs.modal)="closePickers()"
   (hidden.bs.modal)="onModalClosed()"
@@ -20,13 +21,15 @@
         style="z-index: 1055"
         (click)="resetForm()"
       ></button>
-      <div class="modal-body p-4 p-md-5 pb-3">
-        <h3 class="text-white fw-bold mb-4 fs-4">
+      <div class="modal-body p-4 p-md-4 pb-3">
+        <h3 class="text-theme-primary fw-bold mb-4 fs-4">
           {{ isReadOnly ? 'Detalle Rifa' : raffle ? 'Editar Rifa' : 'Crear Rifa' }}
         </h3>
 
         @if (!isReadOnly) {
-          <p class="text-white-50 fs-8 mb-4" style="font-size: 0.8rem;"><span class="text-danger">*</span> Campos obligatorios</p>
+          <p class="text-theme-secondary fs-8 mb-4" style="font-size: 0.8rem">
+            <span class="text-danger">*</span> Campos obligatorios
+          </p>
         }
 
         @if (isReadOnly && raffle && raffle.deleteReason) {
@@ -47,8 +50,8 @@
             <div class="d-flex flex-column gap-4">
               <div class="row g-4">
                 <div class="col-md-6">
-                  <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
-                    >Nombre Rifa <span class="text-danger" *ngIf="!isReadOnly">*</span></label
+                  <label class="form-label text-theme-secondary text-uppercase fs-7 mb-2"
+                    >Nombre Rifa @if (!isReadOnly) { <span class="text-danger">*</span> }</label
                   >
                   <input
                     type="text"
@@ -73,7 +76,9 @@
                 </div>
 
                 <div class="col-md-6">
-                  <label class="form-label text-white-50 text-uppercase fs-7 mb-2">Fundacion <span class="text-danger" *ngIf="!isReadOnly">*</span></label>
+                  <label class="form-label text-theme-secondary text-uppercase fs-7 mb-2"
+                    >Fundacion @if (!isReadOnly) { <span class="text-danger">*</span> }</label
+                  >
                   <ng-select
                     class="custom-ng-select"
                     [class.is-invalid]="touchedFields['foundation'] && !foundation"
@@ -102,8 +107,10 @@
 
               <div class="row g-4">
                 <div class="col-md-6">
-                  <div class="d-flex align-items-center mb-2" style="height: 21px;">
-                    <label class="form-label text-white-50 text-uppercase fs-7 mb-0">Fecha Inicio <span class="text-danger" *ngIf="!isReadOnly">*</span></label>
+                  <div class="d-flex align-items-center mb-2" style="height: 21px">
+                    <label class="form-label text-theme-secondary text-uppercase fs-7 mb-0"
+                      >Fecha Inicio @if (!isReadOnly) { <span class="text-danger">*</span> }</label
+                    >
                   </div>
                   <input
                     #startDateInput
@@ -126,9 +133,18 @@
                 </div>
 
                 <div class="col-md-6">
-                  <div class="d-flex justify-content-between align-items-center mb-2" style="height: 21px;">
-                    <label class="form-label text-white-50 text-uppercase fs-7 mb-0">Fecha Fin <span class="text-danger" *ngIf="!isReadOnly">*</span></label>
-                    <span class="fs-8 text-white-50" style="font-size: 0.7rem; opacity: 0.6; font-weight: normal;">24 horas</span>
+                  <div
+                    class="d-flex justify-content-between align-items-center mb-2"
+                    style="height: 21px"
+                  >
+                    <label class="form-label text-theme-secondary text-uppercase fs-7 mb-0"
+                      >Fecha Fin @if (!isReadOnly) { <span class="text-danger">*</span> }</label
+                    >
+                    <span
+                      class="fs-8 text-theme-secondary"
+                      style="font-size: 0.7rem; opacity: 0.6; font-weight: normal"
+                      >24 horas</span
+                    >
                   </div>
                   <input
                     #endDateInput
@@ -164,8 +180,8 @@
 
               <div class="row g-4">
                 <div class="col-md-6">
-                  <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
-                    >Meta Dinero <span class="text-danger" *ngIf="!isReadOnly">*</span></label
+                  <label class="form-label text-theme-secondary text-uppercase fs-7 mb-2"
+                    >Meta Dinero @if (!isReadOnly) { <span class="text-danger">*</span> }</label
                   >
                   <div
                     class="input-group"
@@ -183,7 +199,7 @@
                       [disabled]="isReadOnly"
                       required
                     />
-                    <span class="input-group-text custom-dark-addon border-start-0 text-white-50">
+                    <span class="input-group-text custom-dark-addon border-start-0 text-theme-secondary">
                       <i class="bi bi-currency-dollar fs-5"></i>
                     </span>
                   </div>
@@ -195,7 +211,9 @@
                 </div>
 
                 <div class="col-md-6">
-                  <label class="form-label text-white-50 text-uppercase fs-7 mb-2">Categoria <span class="text-danger" *ngIf="!isReadOnly">*</span></label>
+                  <label class="form-label text-theme-secondary text-uppercase fs-7 mb-2"
+                    >Categoria @if (!isReadOnly) { <span class="text-danger">*</span> }</label
+                  >
                   <ng-select
                     class="custom-ng-select"
                     [class.is-invalid]="touchedFields['category'] && !category"
@@ -224,7 +242,7 @@
 
               <div class="row g-4">
                 <div class="col-md-6">
-                  <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
+                  <label class="form-label text-theme-secondary text-uppercase fs-7 mb-2"
                     >Método de Sorteo</label
                   >
                   <ng-select
@@ -239,8 +257,9 @@
                 </div>
 
                 <div class="col-md-6">
-                  <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
-                    >Numero Maximos de Boletos <span class="text-danger" *ngIf="!isReadOnly">*</span></label
+                  <label class="form-label text-theme-secondary text-uppercase fs-7 mb-2"
+                    >Numero Maximos de Boletos
+                    @if (!isReadOnly) { <span class="text-danger">*</span> }</label
                   >
                   <div
                     class="input-group"
@@ -272,7 +291,7 @@
                       [disabled]="isReadOnly || !!(raffle && raffle.soldTickets > 0)"
                       required
                     />
-                    <span class="input-group-text custom-dark-addon border-start-0 text-white-50">
+                    <span class="input-group-text custom-dark-addon border-start-0 text-theme-secondary">
                       <i class="bi bi-hash fs-5"></i>
                     </span>
                   </div>
@@ -296,8 +315,8 @@
               <!-- Row 5: Precio Boleto & Link/URL -->
               <div class="row g-4">
                 <div class="col-md-6">
-                  <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
-                    >Precio Boleto <span class="text-danger" *ngIf="!isReadOnly">*</span></label
+                  <label class="form-label text-theme-secondary text-uppercase fs-7 mb-2"
+                    >Precio Boleto @if (!isReadOnly) { <span class="text-danger">*</span> }</label
                   >
                   <div
                     class="input-group"
@@ -329,7 +348,7 @@
                       [disabled]="isReadOnly || !!(raffle && raffle.soldTickets > 0)"
                       required
                     />
-                    <span class="input-group-text custom-dark-addon border-start-0 text-white-50">
+                    <span class="input-group-text custom-dark-addon border-start-0 text-theme-secondary">
                       <i class="bi bi-currency-dollar fs-5"></i>
                     </span>
                   </div>
@@ -383,7 +402,7 @@
                 </div>
 
                 <div class="col-md-6">
-                  <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
+                  <label class="form-label text-theme-secondary text-uppercase fs-7 mb-2"
                     >Link / URL (Opcional)</label
                   >
                   <div class="input-group">
@@ -394,7 +413,7 @@
                       placeholder="https://ejemplo.com"
                       [disabled]="isReadOnly"
                     />
-                    <span class="input-group-text custom-dark-addon border-start-0 text-white-50">
+                    <span class="input-group-text custom-dark-addon border-start-0 text-theme-secondary">
                       <i class="bi bi-link-45deg"></i>
                     </span>
                   </div>
@@ -403,16 +422,17 @@
 
               <div class="row g-4">
                 <div class="col-md-6">
-                  <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
-                    >Porcentaje Beneficiarios <span class="text-danger" *ngIf="!isReadOnly">*</span></label
+                  <label class="form-label text-theme-secondary text-uppercase fs-7 mb-2"
+                    >Porcentaje Beneficiarios
+                    @if (!isReadOnly) { <span class="text-danger">*</span> }</label
                   >
                   <div
                     class="input-group"
                     [class.is-invalid]="
                       touchedFields['beneficiaryPercentage'] &&
                       (beneficiaryPercentage === null ||
-                        beneficiaryPercentage < 0 ||
-                        beneficiaryPercentage > 100)
+                        beneficiaryPercentage < 1 ||
+                        beneficiaryPercentage > 99)
                     "
                   >
                     <input
@@ -421,8 +441,8 @@
                       [class.is-invalid]="
                         touchedFields['beneficiaryPercentage'] &&
                         (beneficiaryPercentage === null ||
-                          beneficiaryPercentage < 0 ||
-                          beneficiaryPercentage > 100)
+                          beneficiaryPercentage < 1 ||
+                          beneficiaryPercentage > 99)
                       "
                       [(ngModel)]="beneficiaryPercentage"
                       (blur)="touchedFields['beneficiaryPercentage'] = true"
@@ -444,24 +464,25 @@
                   @if (
                     touchedFields['beneficiaryPercentage'] &&
                     (beneficiaryPercentage === null ||
-                      beneficiaryPercentage < 0 ||
-                      beneficiaryPercentage > 100)
+                      beneficiaryPercentage < 1 ||
+                      beneficiaryPercentage > 99)
                   ) {
                     <div class="text-danger fs-8 mt-1" style="font-size: 0.75rem; color: #ef5350">
-                      El porcentaje debe estar entre 0 y 100.
+                      El porcentaje debe estar entre 1 y 99.
                     </div>
                   }
                 </div>
 
                 <div class="col-md-6">
-                  <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
-                    >Porcentaje Ganadores <span class="text-danger" *ngIf="!isReadOnly">*</span></label
+                  <label class="form-label text-theme-secondary text-uppercase fs-7 mb-2"
+                    >Porcentaje Ganadores
+                    @if (!isReadOnly) { <span class="text-danger">*</span> }</label
                   >
                   <div
                     class="input-group"
                     [class.is-invalid]="
                       touchedFields['winnerPercentage'] &&
-                      (winnerPercentage === null || winnerPercentage < 0 || winnerPercentage > 100)
+                      (winnerPercentage === null || winnerPercentage < 1 || winnerPercentage > 99)
                     "
                   >
                     <input
@@ -469,9 +490,7 @@
                       class="form-control custom-dark-input border-end-0 py-2"
                       [class.is-invalid]="
                         touchedFields['winnerPercentage'] &&
-                        (winnerPercentage === null ||
-                          winnerPercentage < 0 ||
-                          winnerPercentage > 100)
+                        (winnerPercentage === null || winnerPercentage < 1 || winnerPercentage > 99)
                       "
                       [(ngModel)]="winnerPercentage"
                       (blur)="touchedFields['winnerPercentage'] = true"
@@ -490,10 +509,10 @@
                   </div>
                   @if (
                     touchedFields['winnerPercentage'] &&
-                    (winnerPercentage === null || winnerPercentage < 0 || winnerPercentage > 100)
+                    (winnerPercentage === null || winnerPercentage < 1 || winnerPercentage > 99)
                   ) {
                     <div class="text-danger fs-8 mt-1" style="font-size: 0.75rem; color: #ef5350">
-                      El porcentaje debe estar entre 0 y 100.
+                      El porcentaje debe estar entre 1 y 99.
                     </div>
                   }
                 </div>
@@ -501,7 +520,7 @@
             </div>
 
             <div class="blog-section mt-5">
-              <label class="form-label text-white-50 text-uppercase fs-7 mb-3"
+              <label class="form-label text-theme-secondary text-uppercase fs-7 mb-3"
                 >Blog (Campos Requeridos)</label
               >
               <div class="d-flex gap-2 mb-3">
@@ -556,7 +575,7 @@
                       {{ blogCardText.length }}/500)
                     </div>
                   }
-                  <div class="text-white-50 fs-8 mt-2 lh-sm">
+                  <div class="text-theme-secondary fs-8 mt-2 lh-sm">
                     Breve descripción de lo que se va<br />a mostrar en la card
                   </div>
                 </div>
@@ -587,7 +606,7 @@
                       {{ blogDetailText.length }}/500)
                     </div>
                   }
-                  <div class="text-white-50 fs-8 mt-2 lh-sm">
+                  <div class="text-theme-secondary fs-8 mt-2 lh-sm">
                     Descripción completa que se mostrará en los detalles
                   </div>
                 </div>
@@ -597,8 +616,8 @@
 
           <div class="col-lg-5 d-flex flex-column gap-3 pt-lg-2">
             <div>
-              <label class="form-label text-white-50 text-uppercase fs-7 mb-2 text-center d-block"
-                >Imagen de Card <span class="text-danger" *ngIf="!isReadOnly">*</span></label
+              <label class="form-label text-theme-secondary text-uppercase fs-7 mb-2 text-center d-block"
+                >Imagen de Card @if (!isReadOnly) { <span class="text-danger">*</span> }</label
               >
               <app-image-cropper
                 [(photo)]="photo"
@@ -617,8 +636,8 @@
             </div>
 
             <div class="mt-2">
-              <label class="form-label text-white-50 text-uppercase fs-7 mb-2 text-center d-block"
-                >Imagen de Banner <span class="text-danger" *ngIf="!isReadOnly">*</span></label
+              <label class="form-label text-theme-secondary text-uppercase fs-7 mb-2 text-center d-block"
+                >Imagen de Banner @if (!isReadOnly) { <span class="text-danger">*</span> }</label
               >
               <app-image-cropper
                 [(photo)]="banner"
@@ -639,10 +658,10 @@
         </div>
       </div>
 
-      <div class="modal-footer border-0 pt-0 pe-4 pe-md-5 justify-content-end gap-3">
+      <div class="modal-footer border-0 pt-0 pe-4 pe-md-4 justify-content-end gap-3">
         <button
           type="button"
-          class="btn px-4 py-2 rounded-3 text-uppercase fs-7 custom-btn-secondary"
+          class="btn text-uppercase fs-7 custom-btn-secondary"
           data-bs-dismiss="modal"
           (click)="resetForm()"
         >
@@ -651,7 +670,7 @@
         @if (!isReadOnly) {
           <button
             type="button"
-            class="btn px-4 py-2 rounded-3 text-uppercase fs-7 custom-btn-primary d-flex align-items-center gap-2"
+            class="btn text-uppercase fs-7 custom-btn-primary d-flex align-items-center gap-2"
             [disabled]="!isFormValid() || isSaving"
             (click)="onSaveClick()"
           >
@@ -669,14 +688,14 @@
         }
         <button id="btn-cerrar-modal-crear-rifa" data-bs-dismiss="modal" hidden></button>
       </div>
-
-      <app-confirm-changes-modal
-        [title]="'Confirmar Cambios en Rifa'"
-        [changes]="cambios"
-        [isOpen]="showConfirmModal"
-        (confirm)="confirmSubmit()"
-        (cancel)="cancelConfirm()"
-      ></app-confirm-changes-modal>
     </div>
   </div>
 </div>
+
+<app-confirm-changes-modal
+  [title]="'Confirmar Cambios en Rifa'"
+  [changes]="cambios"
+  [isOpen]="showConfirmModal"
+  (confirm)="confirmSubmit()"
+  (cancel)="cancelConfirm()"
+></app-confirm-changes-modal>

@@ -278,31 +278,47 @@
   }
 }
 
-@media (max-width: 575.98px) {
+@media (max-width: 767.98px) {
   .table-responsive {
     padding: 12px !important;
     overflow-x: hidden !important;
+  }
+}
 
-    .d-flex.justify-content-between.align-items-center.mb-3 {
-      flex-direction: column !important;
-      align-items: stretch !important;
-      gap: 12px;
-      margin-bottom: 1rem !important;
+.table-header-row {
+  @media (max-width: 767.98px) {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px;
+  }
+}
 
-      header {
-        font-size: 1.1rem;
-        font-weight: 700;
-        text-align: left;
-      }
+.table-header-title {
+  @media (max-width: 767.98px) {
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-align: left;
+  }
+}
 
-      app-search {
-        width: 100%;
-        display: block;
+.table-header-actions {
+  app-search {
+    min-width: 240px;
+  }
 
-        ::ng-deep .custom-search-container {
-          width: 100% !important;
-          max-width: 100% !important;
-        }
+  @media (max-width: 767.98px) {
+    width: 100%;
+    justify-content: space-between;
+    gap: 8px !important;
+
+    app-search {
+      flex: 1;
+      width: 100%;
+      min-width: auto;
+
+      ::ng-deep .custom-search-container {
+        width: 100% !important;
+        max-width: 100% !important;
       }
     }
   }

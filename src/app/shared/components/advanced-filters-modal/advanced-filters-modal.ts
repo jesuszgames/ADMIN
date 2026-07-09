@@ -66,7 +66,6 @@ export class AdvancedFiltersModal implements OnChanges {
 
   loadCategories(page = 1): void {
     this.categoriesLoading = true;
-    console.log(`[AdvancedFilters] loadCategories page=${page}`);
     this.cdr.detectChanges();
     this.categoryService
       .getActive(page, 10)
@@ -82,7 +81,6 @@ export class AdvancedFiltersModal implements OnChanges {
             }
             this.categoriesPage = page;
             this.categoriesTotalCount = res.totalCount || 0;
-            console.log(`[AdvancedFilters] Loaded categories: current=${this.categories.length}, total=${this.categoriesTotalCount}`);
           }
           this.cdr.detectChanges();
         },
@@ -101,14 +99,12 @@ export class AdvancedFiltersModal implements OnChanges {
   }
 
   loadMoreCategories(): void {
-    console.log(`[AdvancedFilters] loadMoreCategories triggered. Loading=${this.categoriesLoading}, current=${this.categories.length}, total=${this.categoriesTotalCount}`);
     if (this.categoriesLoading || this.categories.length >= this.categoriesTotalCount) return;
     this.loadCategories(this.categoriesPage + 1);
   }
 
   loadFoundations(page = 1): void {
     this.foundationsLoading = true;
-    console.log(`[AdvancedFilters] loadFoundations page=${page}`);
     this.cdr.detectChanges();
     this.foundationService
       .getActive(page, 10)
@@ -124,7 +120,6 @@ export class AdvancedFiltersModal implements OnChanges {
             }
             this.foundationsPage = page;
             this.foundationsTotalCount = res.totalCount || 0;
-            console.log(`[AdvancedFilters] Loaded foundations: current=${this.foundations.length}, total=${this.foundationsTotalCount}`);
           }
           this.cdr.detectChanges();
         },
@@ -143,7 +138,6 @@ export class AdvancedFiltersModal implements OnChanges {
   }
 
   loadMoreFoundations(): void {
-    console.log(`[AdvancedFilters] loadMoreFoundations triggered. Loading=${this.foundationsLoading}, current=${this.foundations.length}, total=${this.foundationsTotalCount}`);
     if (this.foundationsLoading || this.foundations.length >= this.foundationsTotalCount) return;
     this.loadFoundations(this.foundationsPage + 1);
   }

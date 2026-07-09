@@ -1,79 +1,51 @@
 @use '../../../../assets/scss/utils/variables.scss' as var;
 
-.custom-modal {
-  .modal-content {
-    background-color: var.$container-bg;
-    border-radius: 16px;
+.modal-content {
+  background-color: var.$container-bg;
+  border-radius: 16px;
+}
+
+.text-secondary-text {
+  color: var.$text-hover;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.btn-danger-custom {
+  background-color: rgba(239, 83, 80, 0.1);
+  color: #ef5350;
+  border: 1px solid rgba(239, 83, 80, 0.3);
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: #ef5350;
+    color: #fff;
+    border-color: #ef5350;
   }
+}
 
-  .text-secondary-text {
-    color: var.$text-hover;
-    font-size: 0.95rem;
-    line-height: 1.5;
-  }
+.btn-success-custom {
+  background-color: var.$button-success-bg;
+  color: var.$button-success;
+  border: 1px solid var.$button-success;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.2s ease;
 
-  .btn-danger-custom {
-    background-color: rgba(239, 83, 80, 0.1);
-    color: #ef5350;
-    border: 1px solid rgba(239, 83, 80, 0.3);
-    border-radius: 8px;
-    font-weight: 500;
-    transition: all 0.2s ease;
-
-    &:hover {
-      background-color: #ef5350;
-      color: #fff;
-      border-color: #ef5350;
-    }
-  }
-
-  .btn-success-custom {
-    background-color: var.$button-success-bg;
-    color: var.$button-success;
-    border: 1px solid var.$button-success;
-    border-radius: 8px;
-    font-weight: 500;
-    transition: all 0.2s ease;
-
-    &:hover {
-      background-color: var.$button-success;
-      color: var.$primary-text;
-    }
-
-    &:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-      pointer-events: none;
-    }
-  }
-
-  .custom-dark-input {
-    background-color: var.$background;
+  &:hover {
+    background-color: var.$button-success;
     color: var.$primary-text;
-    border: 1px solid var.$input-border;
-    padding: 0.75rem 1rem;
-    border-radius: 6px;
-    font-size: 0.9rem;
-    resize: none;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-
-    &:focus {
-      background-color: var.$background;
-      color: var.$primary-text;
-      border-color: var.$button-primary;
-      box-shadow: 0 0 0 0.25rem var.$input-focus-shadow;
-      outline: none;
-    }
-
-    &.is-invalid {
-      border-color: var.$color-danger !important;
-      &:focus {
-        box-shadow: 0 0 0 0.25rem var.$color-danger-shadow !important;
-      }
-    }
   }
 
-  .fs-8 {
-    font-size: 0.75rem;
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
   }
+}
+
+.fs-8 {
+  font-size: 0.75rem;
 }

@@ -21,6 +21,9 @@
   border: 1px solid var.$option-hover-bg;
   width: 90%;
   max-width: 480px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
   box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
   animation: scaleUp 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -142,34 +145,4 @@
   font-size: 0.8rem;
   display: flex;
   align-items: center;
-}
-
-.custom-btn-secondary {
-  background-color: transparent;
-  color: var.$primary-text;
-  border: 1px solid var.$hover-cancel-button;
-  font-weight: 500;
-  letter-spacing: 0.5px;
-  transition: all 0.2s ease;
-
-  &:hover,
-  &:focus {
-    background-color: var.$hover-cancel-button;
-    color: var.$primary-text;
-  }
-}
-
-.custom-btn-primary {
-  background-color: var.$button-success-bg;
-  color: var.$button-success;
-  border: 1px solid var.$button-success;
-  font-weight: 500;
-  letter-spacing: 0.5px;
-  transition: all 0.2s ease;
-
-  &:hover:not(:disabled),
-  &:focus:not(:disabled) {
-    background-color: var.$button-success;
-    color: var.$primary-text;
-  }
 }

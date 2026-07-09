@@ -1,8 +1,7 @@
-@use '../../../../assets/scss/utils/variables' as var;
-
-.custom-modal-bg {
-  background-color: var.$container-bg;
-}
+// history-ticket-model SCSS
+// Shared rules (custom-modal-bg) live in
+// /assets/scss/components/modal-helpers.scss and are loaded globally.
+// Keep ONLY modal-specific rules here.
 
 /* Grid de Boletos */
 .ticket-grid {
@@ -34,13 +33,13 @@
 }
 
 .ticket-btn {
-  background-color: var.$background;
-  color: var.$secondary-text;
-  border: 1px solid transparent;
-  border-radius: 4px;
+  background-color: var(--background);
+  color: var(--secondary-text);
+  border: 1px solid var(--input-border);
+  border-radius: 6px;
   padding: 8px 0;
   text-align: center;
-  font-size: var(--fs-7);
+  font-size: 0.85rem;
   font-weight: 500;
   cursor: default;
   transition: all 0.2s ease;
@@ -56,104 +55,15 @@
   }
 
   &.ticket-seleccionado {
-    background-color: var.$button-primary;
+    background-color: var(--button-primary);
     color: #ffffff !important;
-    border: 1px solid color-mix(in srgb, var.$primary-text 20%, transparent);
+    border: 1px solid color-mix(in srgb, var(--primary-text) 20%, transparent);
   }
 
   &.ticket-ganador {
-    background-color: var.$active-text !important;
-    border: 1px solid var.$active-text !important;
+    background-color: var(--active-text) !important;
+    border: 1px solid var(--active-text) !important;
     color: #ffffff !important;
     font-weight: 700;
-  }
-}
-
-
-/* Inputs Oscuros (Reutilizados) */
-.custom-dark-input {
-  background-color: var.$background;
-  color: var.$primary-text;
-  border: 1px solid var.$input-border;
-  padding: 0.75rem 1rem;
-  border-radius: 6px;
-  font-size: 0.9rem;
-  resize: none;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-
-  &:focus {
-    border-color: var.$button-primary;
-    box-shadow: 0 0 0 0.25rem var.$input-focus-shadow;
-    outline: none;
-  }
-}
-
-.custom-dark-addon {
-  background-color: var.$background;
-  border: 1px solid var.$input-border;
-  border-radius: 6px;
-  padding: 0.5rem 1rem;
-}
-
-::ng-deep {
-  .input-group {
-    background-color: var.$background !important;
-    border: 1px solid var.$input-border !important;
-    border-radius: 8px !important;
-    height: 42px !important;
-    display: flex;
-    align-items: center;
-    flex-wrap: nowrap !important;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-
-    &:focus-within {
-      border-color: var.$color-info !important;
-      box-shadow:
-        0 0 0 1px var.$color-info,
-        0 0 14px var.$color-info-shadow !important;
-    }
-
-    .form-control,
-    .form-select,
-    .input-group-text,
-    .custom-dark-input,
-    .custom-dark-addon {
-      border: none !important;
-      background-color: transparent !important;
-      box-shadow: none !important;
-      color: var.$primary-text !important;
-      outline: none !important;
-      height: 100% !important;
-
-      &:focus {
-        border: none !important;
-        background-color: transparent !important;
-        box-shadow: none !important;
-        outline: none !important;
-      }
-    }
-
-    .custom-dark-addon {
-      padding: 0.5rem 1rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-  }
-}
-
-.custom-btn-secondary {
-  background-color: #ef5350;
-  color: #ffffff;
-  border: 1px solid #ef5350;
-  font-weight: 500;
-  letter-spacing: 0.5px;
-  transition: all 0.2s ease;
-
-  &:hover,
-  &:focus {
-    background-color: #d32f2f;
-    color: #ffffff;
-    border-color: #d32f2f;
   }
 }

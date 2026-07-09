@@ -1,4 +1,10 @@
-<div class="modal fade" id="modalHistorialBoletos" tabindex="-1" aria-hidden="true" (hidden.bs.modal)="onModalClosed()">
+<div
+  class="modal fade"
+  id="modalHistorialBoletos"
+  tabindex="-1"
+  aria-hidden="true"
+  (hidden.bs.modal)="onModalClosed()"
+>
   <div class="modal-dialog modal-xl modal-dialog-centered">
     <div
       class="modal-content custom-modal-bg border-secondary border-opacity-25 rounded-3 shadow-lg position-relative"
@@ -8,12 +14,12 @@
         class="btn-close btn-close-white position-absolute top-0 end-0 m-3"
         data-bs-dismiss="modal"
         aria-label="Close"
-        style="z-index: 1055;"
+        style="z-index: 1055"
       ></button>
-      <div class="modal-body p-4 p-md-5 pb-3">
-        <div class="row g-5">
+      <div class="modal-body p-4 p-md-4 pb-3">
+        <div class="row g-4">
           <div class="col-lg-6">
-            <h3 class="text-white fw-bold mb-4 fs-4">Historial Boletos</h3>
+            <h3 class="text-theme-primary fw-bold mb-4 fs-4">Historial Boletos</h3>
             <div class="ticket-grid mb-3" [class.loading-fade]="loading && !showSkeleton">
               @if (showSkeleton) {
                 @for (placeholder of [].constructor(100); track $index) {
@@ -62,7 +68,7 @@
           <div class="col-lg-6 pt-lg-5">
             <div class="row g-4 mb-3">
               <div class="col-12">
-                <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
+                <label class="form-label text-theme-secondary text-uppercase fs-7 mb-2"
                   >Nombre Ganador</label
                 >
                 <div class="input-group">
@@ -72,7 +78,7 @@
                     [value]="ticketData?.winnerName"
                     readonly
                   />
-                  <span class="input-group-text custom-dark-addon border-start-0 text-white-50">
+                  <span class="input-group-text custom-dark-addon border-start-0 text-theme-secondary">
                     <i class="bi bi-person"></i>
                   </span>
                 </div>
@@ -81,7 +87,7 @@
 
             <div class="row g-4 mb-3">
               <div class="col-md-6 d-flex flex-column">
-                <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
+                <label class="form-label text-theme-secondary text-uppercase fs-7 mb-2"
                   >Boletos Comprados</label
                 >
                 <div class="input-group mt-auto">
@@ -91,14 +97,14 @@
                     [value]="ticketData?.ticketsPurchased"
                     readonly
                   />
-                  <span class="input-group-text custom-dark-addon border-start-0 text-white-50">
+                  <span class="input-group-text custom-dark-addon border-start-0 text-theme-secondary">
                     <i class="bi bi-hash fs-5"></i>
                   </span>
                 </div>
               </div>
 
               <div class="col-md-6 d-flex flex-column">
-                <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
+                <label class="form-label text-theme-secondary text-uppercase fs-7 mb-2"
                   >Todos los números asociados</label
                 >
                 <div class="input-group mt-auto">
@@ -108,7 +114,7 @@
                     [value]="ticketData?.associatedNumbers"
                     readonly
                   />
-                  <span class="input-group-text custom-dark-addon border-start-0 text-white-50">
+                  <span class="input-group-text custom-dark-addon border-start-0 text-theme-secondary">
                     <i class="bi bi-hash fs-5"></i>
                   </span>
                 </div>
@@ -117,7 +123,7 @@
 
             <div class="row g-4 mb-3">
               <div class="col-md-6 d-flex flex-column">
-                <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
+                <label class="form-label text-theme-secondary text-uppercase fs-7 mb-2"
                   >Boleto Ganador</label
                 >
                 <div class="input-group mt-auto">
@@ -127,14 +133,14 @@
                     [value]="ticketData?.winnerTicket"
                     readonly
                   />
-                  <span class="input-group-text custom-dark-addon border-start-0 text-white-50">
+                  <span class="input-group-text custom-dark-addon border-start-0 text-theme-secondary">
                     <i class="bi bi-hash fs-5"></i>
                   </span>
                 </div>
               </div>
 
               <div class="col-md-6 d-flex flex-column">
-                <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
+                <label class="form-label text-theme-secondary text-uppercase fs-7 mb-2"
                   >Fecha compra de último boleto</label
                 >
                 <div class="input-group mt-auto">
@@ -144,7 +150,7 @@
                     [value]="ticketData?.lastPurchaseDate"
                     readonly
                   />
-                  <span class="input-group-text custom-dark-addon border-start-0 text-white-50">
+                  <span class="input-group-text custom-dark-addon border-start-0 text-theme-secondary">
                     <i class="bi bi-calendar"></i>
                   </span>
                 </div>
@@ -154,13 +160,13 @@
         </div>
       </div>
 
-      <div class="modal-footer border-0 pt-0 pe-4 pe-md-5 justify-content-end mt-4">
+      <div class="modal-footer border-0 pt-0 pe-4 pe-md-4 justify-content-end gap-3">
         <button
           type="button"
-          class="btn px-4 py-2 rounded-3 text-uppercase fs-7 custom-btn-secondary"
+          class="btn text-uppercase fs-7 custom-btn-secondary"
           data-bs-dismiss="modal"
         >
-          CERRAR
+          Cerrar
         </button>
       </div>
     </div>

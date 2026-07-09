@@ -6,6 +6,7 @@
 @use './assets/scss/layout/sidebar.scss';
 @use './assets/scss/layout/navbar.scss';
 @use './assets/scss/components/general.scss';
+@use './assets/scss/components/modal-helpers.scss';
 
 @use '@ng-select/ng-select/scss/default.theme.scss';
 
@@ -112,18 +113,18 @@
     span.arrowDown {
       border: none !important;
       background: transparent !important;
-      
+
       &:hover {
         background: rgba(255, 255, 255, 0.1) !important;
       }
     }
-    
+
     span.arrowUp {
       &:after {
         border-bottom-color: var.$primary-text !important;
       }
     }
-    
+
     span.arrowDown {
       &:after {
         border-top-color: var.$primary-text !important;
@@ -149,7 +150,7 @@
     .flatpickr-next-month {
       fill: var.$primary-text !important;
       color: var.$primary-text !important;
-      
+
       svg {
         fill: currentColor !important;
       }
@@ -268,7 +269,9 @@
   border-radius: 10px !important;
   color: var(--primary-text) !important;
   font-size: 0.9rem;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
   cursor: pointer;
 
   i {
@@ -311,8 +314,8 @@
 @media (max-width: 767.98px) {
   .floating-mobile-filter-btn {
     position: fixed !important;
-    bottom: 80px !important;
-    right: 24px !important;
+    bottom: 15px !important;
+    right: 5px !important;
     z-index: 1030 !important;
     border-radius: 50% !important;
     padding: 0 !important;
@@ -363,11 +366,23 @@
   }
 }
 
+.custom-btn-secondary,
+.custom-btn-primary {
+  height: 40px !important;
+  padding: 0 1.5rem !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 8px !important;
+  font-size: 0.85rem !important;
+  font-weight: 600 !important;
+  text-transform: uppercase;
+}
+
 .custom-btn-secondary {
   background-color: rgba(239, 83, 80, 0.08) !important;
   color: #ef5350 !important;
   border: 1px solid rgba(239, 83, 80, 0.4) !important;
-  font-weight: 500;
   letter-spacing: 0.5px;
   transition: var.$transition-premium;
 
@@ -383,7 +398,6 @@
   background-color: var.$button-success-bg !important;
   color: var.$button-success !important;
   border: 1px solid var.$button-success !important;
-  font-weight: 500;
   letter-spacing: 0.5px;
   transition: var.$transition-premium;
 
@@ -401,6 +415,14 @@
   }
 }
 
+.modal-footer {
+  padding: 0.75rem 2rem 1.5rem 2rem !important;
+  border-top: none !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+}
+
 body.sidebar-open .floating-filter-btn,
 body.sidebar-open .floating-mobile-filter-btn,
 .sidebar-open .floating-filter-btn,
@@ -408,7 +430,11 @@ body.sidebar-open .floating-mobile-filter-btn,
   display: none !important;
 }
 
-[data-theme="dark"] .btn-close {
+[data-theme='dark'] .btn-close {
   filter: invert(1) grayscale(1) brightness(2) !important;
 }
 
+.btn-close:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}

@@ -1,0 +1,76 @@
+// Shared styles for modals (form modals, history modals, etc.)
+// All rules are NON-scoped — they live in the global stylesheet (loaded via styles.scss)
+// so every modal that uses these classes renders identically without duplicating SCSS.
+
+@use '../utils/variables.scss' as var;
+
+// Background color of the modal panel (read-only inputs + dark cards inside modals).
+// Already defined in general.scss via the same selector; this rule is a safety net
+// in case the global one is ever scoped or removed.
+.custom-modal-bg {
+  background-color: var.$container-bg;
+}
+
+// Blog tab buttons (used in create-raffle-modal and history-raffles-modal).
+.tab-btn {
+  background-color: var.$background;
+  color: var.$secondary-text;
+  padding: 0.4rem 1.5rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  transition: all 0.2s ease;
+  border-radius: 6px;
+  border: none;
+
+  &:hover {
+    color: var.$primary-text;
+    background-color: var.$hover-cancel-button;
+  }
+
+  &.active {
+    background-color: var.$button-primary;
+    color: #ffffff !important;
+  }
+
+  &:focus {
+    box-shadow: none;
+    outline: none;
+  }
+}
+
+// Blog textareas (taller variant of the standard custom-dark-input).
+// Specific modals can override min-height with inline style if they need more space.
+.blog-textarea {
+  border: none;
+  min-height: 130px !important;
+}
+
+// Standard description textareas (used in create-foundation-modal and create-category-modal).
+.desc-textarea {
+  min-height: 180px !important;
+  max-height: 220px;
+}
+
+// Inline form feedback messages (used by create-raffle-modal for ticket price hints).
+.form-info-text,
+.form-warning-text {
+  font-size: 0.72rem !important;
+  margin-top: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0 !important;
+  background-color: transparent !important;
+  border: none !important;
+  font-weight: normal;
+  width: auto;
+}
+
+.form-info-text {
+  color: #34d399 !important;
+}
+
+.form-warning-text {
+  color: #fbbf24 !important;
+}
