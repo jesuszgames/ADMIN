@@ -82,10 +82,11 @@ export class FoundationService {
     });
   }
 
-  getActive(page?: number, limit?: number): Observable<{ data: Foundation[]; totalCount: number }> {
+  getActive(page?: number, limit?: number, search?: string): Observable<{ data: Foundation[]; totalCount: number }> {
     let params = new HttpParams();
     if (page) params = params.set('page', page.toString());
     if (limit) params = params.set('limit', limit.toString());
+    if (search) params = params.set('search', search);
 
     return this.http.get<any>(`${this.apiUrl}/get-active`, { params }).pipe(
       map((res) => {

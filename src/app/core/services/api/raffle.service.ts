@@ -49,6 +49,27 @@ export class RaffleService {
     );
   }
 
+  getActive(
+    page?: number,
+    limit?: number,
+    search?: string,
+    lightweight: boolean = false
+  ): Observable<{ data: Raffle[]; totalCount: number }> {
+    let params = new HttpParams();
+    if (page) params = params.set('page', page.toString());
+    if (limit) params = params.set('limit', limit.toString());
+    if (search) params = params.set('search', search);
+    if (lightweight) params = params.set('lightweight', 'true');
+
+    return this.http.get<{ data: { result?: Raffle[]; totalCount?: number } | Raffle[] }>(`${this.apiUrl}/get-active`, { params }).pipe(
+      map((res) => {
+        const list = res?.data && !Array.isArray(res.data) && res.data.result ? res.data.result : (Array.isArray(res?.data) ? res.data : []);
+        const total = res?.data && !Array.isArray(res.data) && res.data.totalCount !== undefined ? res.data.totalCount : list.length;
+        return { data: list, totalCount: total };
+      })
+    );
+  }
+
   getDashboardMetrics(filters?: {
     month?: number | string | null;
     year?: number | string | null;

@@ -223,6 +223,7 @@
           placeholder="Seleccionar..."
           [virtualScroll]="true"
           (scrollToEnd)="loadMoreCategories()"
+          (search)="onCategorySearch($event)"
           (open)="loadCategoriesIfNeeded()"
         >
         </ng-select>
@@ -241,6 +242,7 @@
           placeholder="Seleccionar..."
           [virtualScroll]="true"
           (scrollToEnd)="loadMoreFoundations()"
+          (search)="onFoundationSearch($event)"
           (open)="loadFoundationsIfNeeded()"
         >
         </ng-select>

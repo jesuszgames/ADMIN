@@ -58,6 +58,11 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'banners',
+    loadComponent: () => import('./features/banners/pages/banners/banners').then((m) => m.Banners),
+    canActivate: [authGuard],
+  },
+  {
     path: '**',
     redirectTo: 'dashboard',
   },

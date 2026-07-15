@@ -38,7 +38,7 @@ import { Category } from '../../../../core/interfaces/api/category.interface';
 import { Foundation } from '../../../../core/interfaces/api/foundation.interface';
 import { NgSelectComponent, NgOptionComponent } from '@ng-select/ng-select';
 import flatpickr from 'flatpickr';
-import { Spanish } from 'flatpickr/dist/l10n/es';
+import { Spanish } from 'flatpickr/dist/l10n/es.js';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap, tap } from 'rxjs/operators';
 
@@ -79,7 +79,28 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit, OnDe
   startDatePicker?: flatpickr.Instance;
   endDatePicker?: flatpickr.Instance;
 
-  ngOnInit() {}
+  categorySearchSubject = new Subject<string>();
+  foundationSearchSubject = new Subject<string>();
+
+  ngOnInit() {
+    this.categorySearchSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(term => {
+      this.categorySearchTerm = term;
+      this.loadCategories(1, true).subscribe();
+    });
+
+    this.foundationSearchSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(term => {
+      this.foundationSearchTerm = term;
+      this.loadFoundations(1, true).subscribe();
+    });
+  }
 
   ngOnDestroy() {
     if (this.startDatePicker) {
@@ -147,12 +168,20 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit, OnDe
 
   categoriesPage = 1;
   categoriesTotalCount = 0;
+  categorySearchTerm = '';
+
   foundationsPage = 1;
   foundationsTotalCount = 0;
+  foundationSearchTerm = '';
 
-  loadCategories(page = 1) {
+  loadCategories(page = 1, reset = false) {
+    if (reset) {
+      this.categoriesPage = 1;
+      this.categories = [];
+      this.categoriesTotalCount = 0;
+    }
     this.categoriesLoading = true;
-    return this.categoryService.getActive(page, 10).pipe(
+    return this.categoryService.getActive(page, 10, this.categorySearchTerm).pipe(
       tap((res) => {
         this.categoriesLoading = false;
         if (res && res.data) {
@@ -187,9 +216,18 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit, OnDe
     this.loadCategories(this.categoriesPage + 1).subscribe();
   }
 
-  loadFoundations(page = 1) {
+  onCategorySearch(event: { term: string }) {
+    this.categorySearchSubject.next(event.term);
+  }
+
+  loadFoundations(page = 1, reset = false) {
+    if (reset) {
+      this.foundationsPage = 1;
+      this.foundations = [];
+      this.foundationsTotalCount = 0;
+    }
     this.foundationsLoading = true;
-    return this.foundationService.getActive(page, 10).pipe(
+    return this.foundationService.getActive(page, 10, this.foundationSearchTerm).pipe(
       tap((res) => {
         this.foundationsLoading = false;
         if (res && res.data) {
@@ -222,6 +260,10 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit, OnDe
   loadMoreFoundations() {
     if (this.foundationsLoading || this.foundations.length >= this.foundationsTotalCount) return;
     this.loadFoundations(this.foundationsPage + 1).subscribe();
+  }
+
+  onFoundationSearch(event: { term: string }) {
+    this.foundationSearchSubject.next(event.term);
   }
 
   title = '';

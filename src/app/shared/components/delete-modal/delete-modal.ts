@@ -11,6 +11,7 @@ import { FormsModule } from '@angular/forms';
 })
 export class DeleteModal {
   @Input() id!: string;
+  @Input() itemName?: string;
   @Output() confirmDelete = new EventEmitter<string>();
   @Output() closed = new EventEmitter<void>();
 

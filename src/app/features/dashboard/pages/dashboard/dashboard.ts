@@ -16,7 +16,9 @@ import { FormsModule } from '@angular/forms';
 import { ThemeService } from '../../../../core/services/ui/theme.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import flatpickr from 'flatpickr';
-import { Spanish } from 'flatpickr/dist/l10n/es';
+import { Spanish } from 'flatpickr/dist/l10n/es.js';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { SimpleCard } from '../../components/simple-card/simple-card';
 import { Tables } from '../../../../shared/components/tables/tables';
 import { DeleteModal } from '../../../../shared/components/delete-modal/delete-modal';
@@ -164,11 +166,16 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
   categoriesPage = 1;
   categoriesTotalCount = 0;
   categoriesLoading = false;
+  categorySearchTerm = '';
 
   foundationsList: any[] = [];
   foundationsPage = 1;
   foundationsTotalCount = 0;
   foundationsLoading = false;
+  foundationSearchTerm = '';
+
+  categorySearchSubject = new Subject<string>();
+  foundationSearchSubject = new Subject<string>();
 
   trendChart: any = null;
   categoryChart: any = null;
@@ -180,6 +187,24 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
     this.cargarMetricas();
     setTimeout(() => {
       this.cargarRifas();
+    });
+
+    this.categorySearchSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(term => {
+      this.categorySearchTerm = term;
+      this.loadCategories(1, true);
+    });
+
+    this.foundationSearchSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(term => {
+      this.foundationSearchTerm = term;
+      this.loadFoundations(1, true);
     });
   }
 
@@ -208,11 +233,16 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  loadCategories(page = 1): void {
+  loadCategories(page = 1, reset = false): void {
+    if (reset) {
+      this.categoriesPage = 1;
+      this.categoriesList = [];
+      this.categoriesTotalCount = 0;
+    }
     this.categoriesLoading = true;
     this.cdr.detectChanges();
     this.categoryService
-      .getActive(page, 10)
+      .getActive(page, 10, this.categorySearchTerm)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res) => {
@@ -241,11 +271,20 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
     this.loadCategories(this.categoriesPage + 1);
   }
 
-  loadFoundations(page = 1): void {
+  onCategorySearch(event: { term: string }): void {
+    this.categorySearchSubject.next(event.term);
+  }
+
+  loadFoundations(page = 1, reset = false): void {
+    if (reset) {
+      this.foundationsPage = 1;
+      this.foundationsList = [];
+      this.foundationsTotalCount = 0;
+    }
     this.foundationsLoading = true;
     this.cdr.detectChanges();
     this.foundationService
-      .getActive(page, 10)
+      .getActive(page, 10, this.foundationSearchTerm)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res) => {
@@ -270,12 +309,15 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
   }
 
   loadMoreFoundations(): void {
-    if (this.foundationsLoading || this.foundationsList.length >= this.foundationsTotalCount)
-      return;
+    if (this.foundationsLoading || this.foundationsList.length >= this.foundationsTotalCount) return;
     this.loadFoundations(this.foundationsPage + 1);
   }
 
-  initFlatpickr() {
+  onFoundationSearch(event: { term: string }): void {
+    this.foundationSearchSubject.next(event.term);
+  }
+
+  initFlatpickr(): void {
     if (this.startDateInput && this.startDateInput.nativeElement) {
       this.startDatePicker = flatpickr(this.startDateInput.nativeElement as any, {
         locale: Spanish,
@@ -624,7 +666,28 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
         plugins: {
           legend: {
             position: 'bottom',
-            labels: { color: textColor, boxWidth: 12, padding: 15 },
+            labels: {
+              color: textColor,
+              boxWidth: 12,
+              padding: 15,
+              generateLabels: (chart: any) => {
+                const data = chart.data;
+                if (data.labels.length && data.datasets.length) {
+                  const dataset = data.datasets[0];
+                  return data.labels.map((label: string, i: number) => ({
+                    text: label.length > 15 ? label.substring(0, 12) + '...' : label,
+                    fillStyle: dataset.backgroundColor[i],
+                    strokeStyle: dataset.backgroundColor[i],
+                    fontColor: textColor,
+                    color: textColor,
+                    lineWidth: 0,
+                    hidden: false,
+                    index: i,
+                  }));
+                }
+                return [];
+              },
+            },
           },
         },
       },
@@ -670,7 +733,7 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
                 if (data.labels.length && data.datasets.length) {
                   const dataset = data.datasets[0];
                   return data.labels.map((label: string, i: number) => ({
-                    text: label,
+                    text: label.length > 15 ? label.substring(0, 12) + '...' : label,
                     fillStyle: dataset.backgroundColor[i],
                     strokeStyle: dataset.backgroundColor[i],
                     fontColor: textColor,
@@ -704,7 +767,7 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
     this.cdr.detectChanges();
 
     this.raffleService
-      .getAll(1, 10, '', 'FINISHED,PENDING-DRAW', undefined, 'recent', '{"endDate":-1}')
+      .getAll(1, 10, '', 'FINISHED,PENDING-DRAW', undefined, 'recent', '{"updatedAt":-1}')
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res) => {

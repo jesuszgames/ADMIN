@@ -5,6 +5,7 @@ import {
   EventEmitter,
   OnChanges,
   SimpleChanges,
+  OnInit,
   inject,
   DestroyRef,
   ChangeDetectorRef,
@@ -17,6 +18,8 @@ import { CategoryService } from '../../../core/services/api/category.service';
 import { FoundationService } from '../../../core/services/api/foundation.service';
 import { Category } from '../../../core/interfaces/api/category.interface';
 import { Foundation } from '../../../core/interfaces/api/foundation.interface';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 @Component({
   selector: 'app-advanced-filters-modal',
@@ -25,7 +28,7 @@ import { Foundation } from '../../../core/interfaces/api/foundation.interface';
   templateUrl: './advanced-filters-modal.html',
   styleUrl: './advanced-filters-modal.scss',
 })
-export class AdvancedFiltersModal implements OnChanges {
+export class AdvancedFiltersModal implements OnChanges, OnInit {
   private readonly categoryService = inject(CategoryService);
   private readonly foundationService = inject(FoundationService);
   private readonly destroyRef = inject(DestroyRef);
@@ -59,16 +62,46 @@ export class AdvancedFiltersModal implements OnChanges {
     }
   }
 
+  categorySearchSubject = new Subject<string>();
+  foundationSearchSubject = new Subject<string>();
+
+  ngOnInit() {
+    this.categorySearchSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(term => {
+      this.categorySearchTerm = term;
+      this.loadCategories(1, true);
+    });
+
+    this.foundationSearchSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(term => {
+      this.foundationSearchTerm = term;
+      this.loadFoundations(1, true);
+    });
+  }
+
   categoriesPage = 1;
   categoriesTotalCount = 0;
+  categorySearchTerm = '';
   foundationsPage = 1;
   foundationsTotalCount = 0;
+  foundationSearchTerm = '';
 
-  loadCategories(page = 1): void {
+  loadCategories(page = 1, reset = false): void {
+    if (reset) {
+      this.categoriesPage = 1;
+      this.categories = [];
+      this.categoriesTotalCount = 0;
+    }
     this.categoriesLoading = true;
     this.cdr.detectChanges();
     this.categoryService
-      .getActive(page, 10)
+      .getActive(page, 10, this.categorySearchTerm)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res) => {
@@ -103,11 +136,20 @@ export class AdvancedFiltersModal implements OnChanges {
     this.loadCategories(this.categoriesPage + 1);
   }
 
-  loadFoundations(page = 1): void {
+  onCategorySearch(event: { term: string }): void {
+    this.categorySearchSubject.next(event.term);
+  }
+
+  loadFoundations(page = 1, reset = false): void {
+    if (reset) {
+      this.foundationsPage = 1;
+      this.foundations = [];
+      this.foundationsTotalCount = 0;
+    }
     this.foundationsLoading = true;
     this.cdr.detectChanges();
     this.foundationService
-      .getActive(page, 10)
+      .getActive(page, 10, this.foundationSearchTerm)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res) => {
@@ -140,6 +182,10 @@ export class AdvancedFiltersModal implements OnChanges {
   loadMoreFoundations(): void {
     if (this.foundationsLoading || this.foundations.length >= this.foundationsTotalCount) return;
     this.loadFoundations(this.foundationsPage + 1);
+  }
+
+  onFoundationSearch(event: { term: string }): void {
+    this.foundationSearchSubject.next(event.term);
   }
 
   clearFilters(): void {
