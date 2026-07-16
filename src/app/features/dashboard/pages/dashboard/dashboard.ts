@@ -1,10 +1,24 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject, ChangeDetectorRef, DestroyRef, AfterViewInit, OnDestroy, ElementRef, ViewChild, effect, signal } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  inject,
+  ChangeDetectorRef,
+  DestroyRef,
+  AfterViewInit,
+  OnDestroy,
+  ElementRef,
+  ViewChild,
+  effect,
+  signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ThemeService } from '../../../../core/services/ui/theme.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import flatpickr from 'flatpickr';
-import { Spanish } from 'flatpickr/dist/l10n/es';
+import { Spanish } from 'flatpickr/dist/l10n/es.js';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { SimpleCard } from '../../components/simple-card/simple-card';
 import { Tables } from '../../../../shared/components/tables/tables';
 import { DeleteModal } from '../../../../shared/components/delete-modal/delete-modal';
@@ -23,7 +37,6 @@ import {
   mapRaffleDetails,
   mapTicketDetails,
   mapRaffleForTable,
-  isDeletedStatus,
 } from '../../../../core/helpers/ui/utils';
 import {
   DEFAULT_USER_NAME,
@@ -33,11 +46,8 @@ import {
   HISTORY_ROW_ACTIONS,
   DASHBOARD_CHART_PALETTE,
   DASHBOARD_CHART_TREND_COLOR,
-  DASHBOARD_CHART_BAR_COLOR,
-  DASHBOARD_CHART_BAR_HOVER,
   DARK_AXIS_TICKS,
   DARK_AXIS_GRID,
-  DARK_LEGEND,
   DOUGHNUT_TOP_N,
 } from '../../../../core/helpers/global/dashboard.constants';
 import { UnlinkLogs } from '../../../../shared/components/unlink-logs/unlink-logs';
@@ -47,7 +57,6 @@ import {
   TABLE_ACTION_DASHBOARD_DELETE,
   TABLE_ACTION_VIEW_UNLINK_LOGS,
 } from '../../../../core/helpers/ui/constants';
-import { STATE_DELETED } from '../../../../core/helpers/global/raffle.constants';
 import { Raffle } from '../../../../core/interfaces/api/raffle.interface';
 
 export interface DashboardCard {
@@ -157,11 +166,16 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
   categoriesPage = 1;
   categoriesTotalCount = 0;
   categoriesLoading = false;
+  categorySearchTerm = '';
 
   foundationsList: any[] = [];
   foundationsPage = 1;
   foundationsTotalCount = 0;
   foundationsLoading = false;
+  foundationSearchTerm = '';
+
+  categorySearchSubject = new Subject<string>();
+  foundationSearchSubject = new Subject<string>();
 
   trendChart: any = null;
   categoryChart: any = null;
@@ -173,6 +187,24 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
     this.cargarMetricas();
     setTimeout(() => {
       this.cargarRifas();
+    });
+
+    this.categorySearchSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(term => {
+      this.categorySearchTerm = term;
+      this.loadCategories(1, true);
+    });
+
+    this.foundationSearchSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(term => {
+      this.foundationSearchTerm = term;
+      this.loadFoundations(1, true);
     });
   }
 
@@ -201,11 +233,16 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  loadCategories(page = 1): void {
+  loadCategories(page = 1, reset = false): void {
+    if (reset) {
+      this.categoriesPage = 1;
+      this.categoriesList = [];
+      this.categoriesTotalCount = 0;
+    }
     this.categoriesLoading = true;
     this.cdr.detectChanges();
     this.categoryService
-      .getActive(page, 10)
+      .getActive(page, 10, this.categorySearchTerm)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res) => {
@@ -234,11 +271,20 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
     this.loadCategories(this.categoriesPage + 1);
   }
 
-  loadFoundations(page = 1): void {
+  onCategorySearch(event: { term: string }): void {
+    this.categorySearchSubject.next(event.term);
+  }
+
+  loadFoundations(page = 1, reset = false): void {
+    if (reset) {
+      this.foundationsPage = 1;
+      this.foundationsList = [];
+      this.foundationsTotalCount = 0;
+    }
     this.foundationsLoading = true;
     this.cdr.detectChanges();
     this.foundationService
-      .getActive(page, 10)
+      .getActive(page, 10, this.foundationSearchTerm)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res) => {
@@ -267,7 +313,11 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
     this.loadFoundations(this.foundationsPage + 1);
   }
 
-  initFlatpickr() {
+  onFoundationSearch(event: { term: string }): void {
+    this.foundationSearchSubject.next(event.term);
+  }
+
+  initFlatpickr(): void {
     if (this.startDateInput && this.startDateInput.nativeElement) {
       this.startDatePicker = flatpickr(this.startDateInput.nativeElement as any, {
         locale: Spanish,
@@ -480,7 +530,6 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
     return item.label;
   }
 
-
   renderCharts(chartsData: any): void {
     this.destroyCharts();
 
@@ -499,7 +548,9 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /** Devuelve el context 2D de un canvas o null si el elemento no está listo. */
-  private getCanvasContext(canvas: ElementRef<HTMLCanvasElement> | undefined): CanvasRenderingContext2D | null {
+  private getCanvasContext(
+    canvas: ElementRef<HTMLCanvasElement> | undefined,
+  ): CanvasRenderingContext2D | null {
     return canvas?.nativeElement?.getContext('2d') ?? null;
   }
 
@@ -524,7 +575,10 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
    * categorías más el resto acumulado en una entrada "Otros". Si hay <= N entradas,
    * devuelve la lista tal cual.
    */
-  private topNPlusOtros(items: Array<{ label: string; value: number }>, n: number = DOUGHNUT_TOP_N) {
+  private topNPlusOtros(
+    items: Array<{ label: string; value: number }>,
+    n: number = DOUGHNUT_TOP_N,
+  ) {
     const sorted = [...items].sort((a, b) => b.value - a.value);
     if (sorted.length <= n) {
       return {
@@ -560,18 +614,20 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
       type: 'line',
       data: {
         labels,
-        datasets: [{
-          label: 'Recaudación ($)',
-          data,
-          borderColor: DASHBOARD_CHART_TREND_COLOR,
-          backgroundColor: gradient,
-          fill: true,
-          tension: 0.4,
-          pointBackgroundColor: DASHBOARD_CHART_TREND_COLOR,
-          pointBorderColor: '#ffffff',
-          pointBorderWidth: 1.5,
-          pointHoverRadius: 7,
-        }],
+        datasets: [
+          {
+            label: 'Recaudación ($)',
+            data,
+            borderColor: DASHBOARD_CHART_TREND_COLOR,
+            backgroundColor: gradient,
+            fill: true,
+            tension: 0.4,
+            pointBackgroundColor: DASHBOARD_CHART_TREND_COLOR,
+            pointBorderColor: '#ffffff',
+            pointBorderWidth: 1.5,
+            pointHoverRadius: 7,
+          },
+        ],
       },
       options: {
         responsive: true,
@@ -596,11 +652,13 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
       type: 'doughnut',
       data: {
         labels,
-        datasets: [{
-          data,
-          backgroundColor: [...DASHBOARD_CHART_PALETTE],
-          borderWidth: 0,
-        }],
+        datasets: [
+          {
+            data,
+            backgroundColor: [...DASHBOARD_CHART_PALETTE],
+            borderWidth: 0,
+          },
+        ],
       },
       options: {
         responsive: true,
@@ -608,7 +666,28 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
         plugins: {
           legend: {
             position: 'bottom',
-            labels: { color: textColor, boxWidth: 12, padding: 15 },
+            labels: {
+              color: textColor,
+              boxWidth: 12,
+              padding: 15,
+              generateLabels: (chart: any) => {
+                const data = chart.data;
+                if (data.labels.length && data.datasets.length) {
+                  const dataset = data.datasets[0];
+                  return data.labels.map((label: string, i: number) => ({
+                    text: label.length > 15 ? label.substring(0, 12) + '...' : label,
+                    fillStyle: dataset.backgroundColor[i],
+                    strokeStyle: dataset.backgroundColor[i],
+                    fontColor: textColor,
+                    color: textColor,
+                    lineWidth: 0,
+                    hidden: false,
+                    index: i,
+                  }));
+                }
+                return [];
+              },
+            },
           },
         },
       },
@@ -628,13 +707,15 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
       type: 'bar',
       data: {
         labels,
-        datasets: [{
-          label: 'Recaudado ($)',
-          data,
-          backgroundColor: [...DASHBOARD_CHART_PALETTE],
-          borderRadius: 5,
-          borderWidth: 0,
-        }],
+        datasets: [
+          {
+            label: 'Recaudado ($)',
+            data,
+            backgroundColor: [...DASHBOARD_CHART_PALETTE],
+            borderRadius: 5,
+            borderWidth: 0,
+          },
+        ],
       },
       options: {
         responsive: true,
@@ -646,37 +727,37 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
             labels: {
               color: textColor,
               boxWidth: 12,
-              padding: 15,
+              padding: 6,
               generateLabels: (chart: any) => {
                 const data = chart.data;
                 if (data.labels.length && data.datasets.length) {
                   const dataset = data.datasets[0];
                   return data.labels.map((label: string, i: number) => ({
-                    text: label,
+                    text: label.length > 15 ? label.substring(0, 12) + '...' : label,
                     fillStyle: dataset.backgroundColor[i],
                     strokeStyle: dataset.backgroundColor[i],
                     fontColor: textColor,
                     color: textColor,
                     lineWidth: 0,
                     hidden: false,
-                    index: i
+                    index: i,
                   }));
                 }
                 return [];
-              }
-            }
-          }
+              },
+            },
+          },
         },
         scales: {
           x: {
             grid: { display: false },
-            ticks: { display: false }
+            ticks: { display: false },
           },
           y: {
             grid: { color: gridColor },
-            ticks: { color: tickColor }
-          }
-        }
+            ticks: { color: tickColor },
+          },
+        },
       } as any,
     });
   }
@@ -684,10 +765,9 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
   cargarRifas(): void {
     this.loading = true;
     this.cdr.detectChanges();
-    this.cargarMetricas();
 
     this.raffleService
-      .getAll(1, 10, '', 'FINISHED,PENDING-DRAW', undefined, 'recent', '{"endDate":-1}')
+      .getAll(1, 10, '', 'FINISHED,PENDING-DRAW', undefined, 'recent', '{"updatedAt":-1}')
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res) => {

@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges, Output, EventEmitter } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges, Output, EventEmitter, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TicketHistoryData } from '../../../core/interfaces/api/ticket-history-data.interface';
 import { Ticket } from '../../../core/interfaces/api/ticket.interface';
@@ -13,6 +13,8 @@ import { Ticket } from '../../../core/interfaces/api/ticket.interface';
 export class HistoryTicketModel implements OnChanges {
   @Input() ticketData: TicketHistoryData | null = null;
   @Output() closed = new EventEmitter<void>();
+
+  private readonly cdr = inject(ChangeDetectorRef);
 
   currentPage = 1;
   pageSize = 100;
@@ -36,11 +38,13 @@ export class HistoryTicketModel implements OnChanges {
         this.pagedTickets = [];
         this.showSkeleton = true;
         this.loading = true;
+        this.cdr.detectChanges();
       } else {
         this.currentPage = 1;
         this.updatePagedTickets();
         this.showSkeleton = false;
         this.loading = false;
+        this.cdr.detectChanges();
       }
     }
   }
@@ -66,9 +70,11 @@ export class HistoryTicketModel implements OnChanges {
 
   triggerLoading(callback: () => void): void {
     this.loading = true;
+    this.cdr.detectChanges();
     setTimeout(() => {
       callback();
       this.loading = false;
+      this.cdr.detectChanges();
     }, 200);
   }
 

@@ -51,10 +51,14 @@ export function parseDateString(dateStr: string): Date | null {
   }
 }
 
-export function calculateRemainingTime(endDateStr: string, status?: string, startDateStr?: string): string {
+export function calculateRemainingTime(
+  endDateStr: string,
+  status?: string,
+  startDateStr?: string,
+): string {
   const statusUpper = (status || '').toUpperCase();
   if (statusUpper === 'FINISHED' || statusUpper === 'DELETED') {
-    return '0 días';
+    return '0 horas';
   }
 
   let end = new Date(endDateStr);
@@ -248,16 +252,6 @@ export function isDeletedStatus(status: string): boolean {
   return (status || '').toUpperCase() === 'DELETED';
 }
 
-/**
- * Decorates a Raffle with the derived columns used by the generic tables:
- * `soldTicketsStr`, `collectedStr`, `remainingTime`, optional `fechaSorteo`,
- * `ganadorText` and a default `drawMethod` if missing. Centralizing this
- * removes four copies of the same mapping across history/my-raffles/draws/dashboard.
- *
- * @param raffle           Source raffle as returned by the backend.
- * @param defaultDrawMethod Fallback when raffle.drawMethod is undefined.
- *                         Defaults to 'AUTOMATIC'.
- */
 export function mapRaffleForTable(
   raffle: Raffle,
   defaultDrawMethod: 'AUTOMATIC' | 'MANUAL' = 'AUTOMATIC',

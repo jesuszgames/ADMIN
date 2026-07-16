@@ -38,7 +38,7 @@ import { Category } from '../../../../core/interfaces/api/category.interface';
 import { Foundation } from '../../../../core/interfaces/api/foundation.interface';
 import { NgSelectComponent, NgOptionComponent } from '@ng-select/ng-select';
 import flatpickr from 'flatpickr';
-import { Spanish } from 'flatpickr/dist/l10n/es';
+import { Spanish } from 'flatpickr/dist/l10n/es.js';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap, tap } from 'rxjs/operators';
 
@@ -79,7 +79,28 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit, OnDe
   startDatePicker?: flatpickr.Instance;
   endDatePicker?: flatpickr.Instance;
 
-  ngOnInit() {}
+  categorySearchSubject = new Subject<string>();
+  foundationSearchSubject = new Subject<string>();
+
+  ngOnInit() {
+    this.categorySearchSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(term => {
+      this.categorySearchTerm = term;
+      this.loadCategories(1, true).subscribe();
+    });
+
+    this.foundationSearchSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(term => {
+      this.foundationSearchTerm = term;
+      this.loadFoundations(1, true).subscribe();
+    });
+  }
 
   ngOnDestroy() {
     if (this.startDatePicker) {
@@ -134,30 +155,33 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit, OnDe
   loadCategoriesIfNeeded() {
     const hasOnlyTemp = this.categories.length === 1 && this.categories[0]._id === 'temp_cat';
     if (this.categories.length === 0 || hasOnlyTemp) {
-      this.loadCategories()
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe();
+      this.loadCategories().pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
     }
   }
 
   loadFoundationsIfNeeded() {
     const hasOnlyTemp = this.foundations.length === 1 && this.foundations[0]._id === 'temp_found';
     if (this.foundations.length === 0 || hasOnlyTemp) {
-      this.loadFoundations()
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe();
+      this.loadFoundations().pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
     }
   }
 
   categoriesPage = 1;
   categoriesTotalCount = 0;
+  categorySearchTerm = '';
+
   foundationsPage = 1;
   foundationsTotalCount = 0;
+  foundationSearchTerm = '';
 
-  loadCategories(page = 1) {
+  loadCategories(page = 1, reset = false) {
+    if (reset) {
+      this.categoriesPage = 1;
+      this.categories = [];
+      this.categoriesTotalCount = 0;
+    }
     this.categoriesLoading = true;
-    console.log(`[CreateRaffle] loadCategories page=${page}`);
-    return this.categoryService.getActive(page, 10).pipe(
+    return this.categoryService.getActive(page, 10, this.categorySearchTerm).pipe(
       tap((res) => {
         this.categoriesLoading = false;
         if (res && res.data) {
@@ -168,7 +192,6 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit, OnDe
           }
           this.categoriesPage = page;
           this.categoriesTotalCount = res.totalCount || 0;
-          console.log(`[CreateRaffle] Loaded categories: current=${this.categories.length}, total=${this.categoriesTotalCount}`);
 
           if (this.raffle && this.raffle.category) {
             const hasCurrent = this.categories.some((c) => c.name === this.raffle!.category);
@@ -189,15 +212,22 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit, OnDe
   }
 
   loadMoreCategories() {
-    console.log(`[CreateRaffle] loadMoreCategories triggered. Loading=${this.categoriesLoading}, current=${this.categories.length}, total=${this.categoriesTotalCount}`);
     if (this.categoriesLoading || this.categories.length >= this.categoriesTotalCount) return;
     this.loadCategories(this.categoriesPage + 1).subscribe();
   }
 
-  loadFoundations(page = 1) {
+  onCategorySearch(event: { term: string }) {
+    this.categorySearchSubject.next(event.term);
+  }
+
+  loadFoundations(page = 1, reset = false) {
+    if (reset) {
+      this.foundationsPage = 1;
+      this.foundations = [];
+      this.foundationsTotalCount = 0;
+    }
     this.foundationsLoading = true;
-    console.log(`[CreateRaffle] loadFoundations page=${page}`);
-    return this.foundationService.getActive(page, 10).pipe(
+    return this.foundationService.getActive(page, 10, this.foundationSearchTerm).pipe(
       tap((res) => {
         this.foundationsLoading = false;
         if (res && res.data) {
@@ -208,7 +238,6 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit, OnDe
           }
           this.foundationsPage = page;
           this.foundationsTotalCount = res.totalCount || 0;
-          console.log(`[CreateRaffle] Loaded foundations: current=${this.foundations.length}, total=${this.foundationsTotalCount}`);
 
           if (this.raffle && this.raffle.foundation) {
             const hasCurrent = this.foundations.some((f) => f.name === this.raffle!.foundation);
@@ -229,9 +258,12 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit, OnDe
   }
 
   loadMoreFoundations() {
-    console.log(`[CreateRaffle] loadMoreFoundations triggered. Loading=${this.foundationsLoading}, current=${this.foundations.length}, total=${this.foundationsTotalCount}`);
     if (this.foundationsLoading || this.foundations.length >= this.foundationsTotalCount) return;
     this.loadFoundations(this.foundationsPage + 1).subscribe();
+  }
+
+  onFoundationSearch(event: { term: string }) {
+    this.foundationSearchSubject.next(event.term);
   }
 
   title = '';
@@ -303,8 +335,12 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit, OnDe
         },
         onOpen: (selectedDates, dateStr, instance) => {
           setTimeout(() => {
-            const hourInput = instance.calendarContainer?.querySelector('.flatpickr-hour') as HTMLInputElement;
-            const minuteInput = instance.calendarContainer?.querySelector('.flatpickr-minute') as HTMLInputElement;
+            const hourInput = instance.calendarContainer?.querySelector(
+              '.flatpickr-hour',
+            ) as HTMLInputElement;
+            const minuteInput = instance.calendarContainer?.querySelector(
+              '.flatpickr-minute',
+            ) as HTMLInputElement;
             if (hourInput) {
               hourInput.addEventListener('focus', () => hourInput.select());
               hourInput.addEventListener('click', () => hourInput.select());
@@ -314,7 +350,7 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit, OnDe
               minuteInput.addEventListener('click', () => minuteInput.select());
             }
           }, 50);
-        }
+        },
       });
     }
   }
@@ -370,7 +406,7 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit, OnDe
   isPastEndDate(dateStr: string): boolean {
     const parsed = this.parseFlatpickrDateTime(dateStr);
     if (!parsed) return false;
-    
+
     const now = Date.now();
     if (!this.raffle) {
       // Al crear: la fecha de fin debe ser a futuro (reloj del navegador)
@@ -458,16 +494,16 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit, OnDe
 
   onBeneficiaryPercentageChange() {
     if (this.beneficiaryPercentage !== null) {
-      if (this.beneficiaryPercentage < 0) this.beneficiaryPercentage = 0;
-      if (this.beneficiaryPercentage > 100) this.beneficiaryPercentage = 100;
+      if (this.beneficiaryPercentage < 1) this.beneficiaryPercentage = 1;
+      if (this.beneficiaryPercentage > 99) this.beneficiaryPercentage = 99;
       this.winnerPercentage = 100 - this.beneficiaryPercentage;
     }
   }
 
   onWinnerPercentageChange() {
     if (this.winnerPercentage !== null) {
-      if (this.winnerPercentage < 0) this.winnerPercentage = 0;
-      if (this.winnerPercentage > 100) this.winnerPercentage = 100;
+      if (this.winnerPercentage < 1) this.winnerPercentage = 1;
+      if (this.winnerPercentage > 99) this.winnerPercentage = 99;
       this.beneficiaryPercentage = 100 - this.winnerPercentage;
     }
   }
@@ -494,10 +530,12 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit, OnDe
 
   get minimumTicketPrice(): number {
     if (this.goal && this.goal > 0 && this.ticketsAvailable && this.ticketsAvailable > 0) {
-      return Math.ceil((this.goal / this.ticketsAvailable) * 100) / 100;
+      const calculatedPrice = Math.ceil((this.goal / this.ticketsAvailable) * 100) / 100;
+      // Retornamos un piso mínimo de $1.00 para evitar boletos de costo inviable
+      return Math.max(calculatedPrice, 1.0);
     }
 
-    return 0;
+    return 1.0;
   }
 
   autoCalculateTicketPrice() {
@@ -507,7 +545,9 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit, OnDe
       this.ticketsAvailable !== null &&
       this.ticketsAvailable > 0
     ) {
-      this.ticketPrice = Math.ceil((this.goal / this.ticketsAvailable) * 100) / 100;
+      const calculatedPrice = Math.ceil((this.goal / this.ticketsAvailable) * 100) / 100;
+      // Aplicamos el piso mínimo de $1.00 al autocalcular el precio para el usuario
+      this.ticketPrice = Math.max(calculatedPrice, 1.0);
     }
   }
 
@@ -592,11 +632,11 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit, OnDe
       this.ticketPrice !== null &&
       this.ticketPrice >= this.minimumTicketPrice &&
       this.beneficiaryPercentage !== null &&
-      this.beneficiaryPercentage >= 0 &&
-      this.beneficiaryPercentage <= 100 &&
+      this.beneficiaryPercentage >= 1 &&
+      this.beneficiaryPercentage <= 99 &&
       this.winnerPercentage !== null &&
-      this.winnerPercentage >= 0 &&
-      this.winnerPercentage <= 100 &&
+      this.winnerPercentage >= 1 &&
+      this.winnerPercentage <= 99 &&
       !!this.photo &&
       !!this.banner &&
       this.blogCardText.trim() !== '' &&
@@ -702,6 +742,15 @@ export class CreateRaffleModal implements OnChanges, OnInit, AfterViewInit, OnDe
   cancelConfirm() {
     this.showConfirmModal = false;
     this.cambios = [];
+
+    setTimeout(() => {
+      const submitButton = document.querySelector(
+        '#modalCrearRifa button[type="submit"]',
+      ) as HTMLElement;
+      if (submitButton) {
+        submitButton.focus();
+      }
+    }, 50);
   }
 
   confirmSubmit() {

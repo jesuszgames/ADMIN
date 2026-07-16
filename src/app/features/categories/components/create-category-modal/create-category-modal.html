@@ -16,16 +16,18 @@
         class="btn-close btn-close-white position-absolute top-0 end-0 m-3"
         data-bs-dismiss="modal"
         aria-label="Close"
-        style="z-index: 1055;"
+        style="z-index: 1055"
         (click)="resetForm()"
       ></button>
-      <div class="modal-body p-4 p-md-5 pb-3">
+      <div class="modal-body p-4 p-md-4 pb-3">
         <h3 class="text-theme-primary fw-bold mb-4 fs-4">
           {{ isReadOnly ? 'Detalle categoría' : category ? 'Editar categoria' : 'Crear categoria' }}
         </h3>
 
         @if (!isReadOnly) {
-          <p class="text-white-50 fs-8 mb-4" style="font-size: 0.8rem;"><span class="text-danger">*</span> Campos obligatorios</p>
+          <p class="text-white-50 fs-8 mb-4" style="font-size: 0.8rem">
+            <span class="text-danger">*</span> Campos obligatorios
+          </p>
         }
 
         @if (isReadOnly && category && category.deleteReason) {
@@ -45,7 +47,7 @@
         <div class="row g-3">
           <div class="col-12">
             <label class="form-label text-theme-secondary text-uppercase fs-7 mb-2"
-              >Nombre Categoría <span class="text-danger" *ngIf="!isReadOnly">*</span></label
+              >Nombre Categoría @if (!isReadOnly) { <span class="text-danger">*</span> }</label
             >
             <input
               type="text"
@@ -80,7 +82,8 @@
 
           <div class="col-12">
             <label class="form-label text-theme-secondary text-uppercase fs-7 mb-2"
-              >Descripción de Categoría <span class="text-danger" *ngIf="!isReadOnly">*</span></label
+              >Descripción de Categoría
+              @if (!isReadOnly) { <span class="text-danger">*</span> }</label
             >
             <textarea
               class="form-control custom-dark-input py-2 desc-textarea"
@@ -113,7 +116,9 @@
           </div>
 
           <div class="col-12">
-            <label class="form-label text-theme-secondary text-uppercase fs-7 mb-2">Icono <span class="text-danger" *ngIf="!isReadOnly">*</span></label>
+            <label class="form-label text-theme-secondary text-uppercase fs-7 mb-2"
+              >Icono @if (!isReadOnly) { <span class="text-danger">*</span> }</label
+            >
             <ng-select
               class="custom-ng-select"
               [items]="availableIcons"
@@ -141,10 +146,10 @@
         </div>
       </div>
 
-      <div class="modal-footer border-0 pt-0 pe-4 pe-md-5 justify-content-end gap-3">
+      <div class="modal-footer border-0 pt-0 pe-4 pe-md-4 justify-content-end gap-3">
         <button
           type="button"
-          class="btn px-4 py-2 rounded-3 text-uppercase fs-7 custom-btn-secondary"
+          class="btn text-uppercase fs-7 custom-btn-secondary"
           data-bs-dismiss="modal"
           (click)="resetForm()"
         >
@@ -153,7 +158,7 @@
         @if (!isReadOnly) {
           <button
             type="button"
-            class="btn px-4 py-2 rounded-3 text-uppercase fs-7 custom-btn-primary d-flex align-items-center gap-2"
+            class="btn text-uppercase fs-7 custom-btn-primary gap-2"
             [disabled]="!isFormValid() || isSaving"
             (click)="onSaveClick()"
           >
@@ -171,14 +176,14 @@
         }
         <button id="btn-cerrar-modal-crear-categoria" data-bs-dismiss="modal" hidden></button>
       </div>
-
-      <app-confirm-changes-modal
-        [title]="'Confirmar Cambios en Categoría'"
-        [changes]="cambios"
-        [isOpen]="showConfirmModal"
-        (confirm)="confirmSubmit()"
-        (cancel)="cancelConfirm()"
-      ></app-confirm-changes-modal>
     </div>
   </div>
 </div>
+
+<app-confirm-changes-modal
+  [title]="'Confirmar Cambios en Categoría'"
+  [changes]="cambios"
+  [isOpen]="showConfirmModal"
+  (confirm)="confirmSubmit()"
+  (cancel)="cancelConfirm()"
+></app-confirm-changes-modal>

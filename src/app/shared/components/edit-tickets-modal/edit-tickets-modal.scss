@@ -1,8 +1,6 @@
 @use '../../../../assets/scss/utils/variables' as var;
 
-.custom-modal-bg {
-  background-color: var.$container-bg;
-}
+
 
 /* Ticket Grid */
 .ticket-grid {
@@ -11,7 +9,7 @@
   align-content: start;
   gap: 8px;
   width: 100%;
-  min-height: 450px;
+  min-height: auto;
   transition: opacity 0.25s ease-in-out;
 
   &.loading-fade {
@@ -22,19 +20,16 @@
   @media (max-width: 480px) {
     grid-template-columns: repeat(5, 1fr);
     gap: 6px;
-    min-height: auto;
   }
 
   @media (min-width: 481px) and (max-width: 767.98px) {
     grid-template-columns: repeat(6, 1fr);
     gap: 6px;
-    min-height: auto;
   }
 
   @media (min-width: 768px) and (max-width: 991.98px) {
     grid-template-columns: repeat(8, 1fr);
     gap: 6px;
-    min-height: auto;
   }
 }
 
@@ -125,118 +120,25 @@
   }
 }
 
-.custom-dark-input {
+.ticket-skeleton {
   background-color: var.$background;
-  color: var.$primary-text;
-  border: 1px solid var.$input-border;
-  padding: 0.75rem 1rem;
   border-radius: 6px;
-  font-size: 0.9rem;
-  resize: none;
-  transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease;
-
-  &:focus {
-    background-color: var.$background;
-    color: var.$primary-text;
-    border-color: var.$button-primary;
-    box-shadow: 0 0 0 0.25rem var.$input-focus-shadow;
-    outline: none;
-  }
-
-  &::placeholder {
-    color: var.$secondary-text;
-    opacity: 0.35;
-  }
-
-  /* Make read-only inputs that are empty look very dimmed/opaco */
-  &[readonly] {
-    opacity: 0.85;
-
-    &::placeholder {
-      color: var.$secondary-text;
-      opacity: 0.25;
-    }
-  }
-}
-
-.custom-dark-addon {
-  background-color: var.$background;
-  border: 1px solid var.$input-border;
-  border-radius: 6px;
-  padding: 0.5rem 1rem;
-}
-
-::ng-deep {
-  .input-group {
-    background-color: var.$background !important;
-    border: 1px solid var.$input-border !important;
-    border-radius: 8px !important;
-    height: 42px !important;
-    display: flex;
-    align-items: center;
-    flex-wrap: nowrap !important;
-    transition:
-      border-color 0.2s ease,
-      box-shadow 0.2s ease;
-
-    &:focus-within {
-      border-color: var.$color-info !important;
-      box-shadow:
-        0 0 0 1px var.$color-info,
-        0 0 14px var.$color-info-shadow !important;
-    }
-
-    .form-control,
-    .form-select,
-    .input-group-text,
-    .custom-dark-input,
-    .custom-dark-addon {
-      border: none !important;
-      background-color: transparent !important;
-      box-shadow: none !important;
-      color: var.$primary-text !important;
-      outline: none !important;
-      height: 100% !important;
-
-      &:focus {
-        border: none !important;
-        background-color: transparent !important;
-        box-shadow: none !important;
-        outline: none !important;
-      }
-    }
-
-    .custom-dark-addon {
-      padding: 0.5rem 1rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-  }
+  aspect-ratio: 1;
+  width: 100%;
 }
 
 /* Options Accordion */
 .options-container {
-  border-top: 1px solid var.$option-border;
-  padding-top: 0.5rem;
-
-  .cursor-pointer {
-    cursor: pointer;
-    user-select: none;
-    transition: opacity 0.2s;
-
-    &:hover {
-      opacity: 0.8;
-    }
-  }
+  border: 1px solid var.$option-border;
+  border-radius: 8px;
+  background-color: var.$option-bg;
+  padding: 0.5rem 1rem;
 }
 
 .btn-option {
-  background-color: var.$option-bg;
-  border: 1px solid var.$option-border;
   border-radius: 6px;
+  border: 1px solid var.$option-border;
+  background-color: var.$background;
   transition: all 0.2s ease;
   color: var.$primary-text !important;
 
@@ -244,49 +146,6 @@
     background-color: var.$option-hover-bg;
     border-color: var.$option-hover-border;
     color: var.$primary-text !important;
-  }
-}
-
-/* Footer Buttons */
-.custom-btn-secondary {
-  background-color: #ef5350;
-  color: #ffffff;
-  border: 1px solid #ef5350;
-  font-weight: 500;
-  letter-spacing: 0.5px;
-  transition: all 0.2s ease;
-
-  &:hover,
-  &:focus {
-    background-color: #d32f2f;
-    color: #ffffff;
-    border-color: #d32f2f;
-  }
-}
-
-.custom-btn-primary {
-  background-color: var.$button-primary;
-  color: #ffffff !important;
-  border: none;
-  font-weight: 500;
-  letter-spacing: 0.5px;
-  transition: background-color 0.2s ease;
-
-  &:hover,
-  &:focus {
-    background-color: var.$button-primary-hover;
-    color: #ffffff !important;
-    box-shadow: none;
-  }
-
-  &:disabled,
-  &.btn:disabled {
-    background-color: var.$hover-cancel-button !important;
-    color: var.$secondary-text !important;
-    border: 1px solid var.$input-border !important;
-    opacity: 0.4 !important;
-    cursor: not-allowed !important;
-    pointer-events: none !important;
   }
 }
 

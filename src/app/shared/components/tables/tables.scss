@@ -45,68 +45,63 @@
     display: inline-block;
     vertical-align: middle;
   }
+}
 
-  .badge {
-    display: inline-block;
-    text-align: center;
-    border-radius: 6px;
-    padding: 0.3rem 0.6rem;
-    font-weight: 600;
-    letter-spacing: 0.03em;
-    text-transform: uppercase;
-    font-family: var(--font-monospace, monospace);
-    transition: var.$transition-fast;
-  }
+.badge {
+  display: inline-block;
+  text-align: center;
+  border-radius: 6px;
+  padding: 0.3rem 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  font-family: var(--font-monospace, monospace);
+  transition: var.$transition-fast;
 
-  .badge-active {
+  &.badge-active {
     background-color: var.$color-info-bg !important;
     color: var.$color-info !important;
     border: 1px solid var.$color-info-border !important;
   }
 
-  .badge-inactive {
+  &.badge-inactive {
     background-color: var.$color-secondary-accent-bg !important;
     color: var.$color-secondary-accent !important;
     border: 1px solid var.$color-secondary-accent-border !important;
   }
 
-  .badge-meta-completed {
+  &.badge-meta-completed {
     background-color: var.$color-success-bg !important;
     color: var.$color-success !important;
     border: 1px solid var.$color-success-border !important;
   }
 
-  .badge-no-tickets {
+  &.badge-no-tickets,
+  &.badge-prox-expired {
     background-color: var.$color-warning-bg !important;
     color: var.$color-warning !important;
     border: 1px solid var.$color-warning-border !important;
   }
 
-  .badge-prox-expired {
-    background-color: var.$color-warning-bg !important;
-    color: var.$color-warning !important;
-    border: 1px solid var.$color-warning-border !important;
-  }
-
-  .badge-deleted {
+  &.badge-deleted {
     background-color: var.$color-danger-bg !important;
     color: var.$color-danger !important;
     border: 1px solid var.$color-danger-border !important;
   }
 
-  .badge-automatico {
+  &.badge-automatico {
     background-color: var.$color-primary-accent-bg !important;
     color: var.$color-primary-accent !important;
     border: 1px solid var.$color-primary-accent-border !important;
   }
 
-  .badge-manual {
+  &.badge-manual {
     background-color: var.$color-pink-bg !important;
     color: var.$color-pink !important;
     border: 1px solid var.$color-pink-border !important;
   }
 
-  .badge-default {
+  &.badge-default {
     background-color: var.$option-bg !important;
     color: var.$primary-text !important;
     border: 1px solid var.$option-border !important;
@@ -191,65 +186,7 @@
   }
 
   .badge {
-    display: inline-block;
-    text-align: center;
-    border-radius: 6px;
-    padding: 0.3rem 0.6rem;
-    font-weight: 600;
-    letter-spacing: 0.03em;
-    text-transform: uppercase;
-    font-family: var(--font-monospace, monospace);
-    transition: var.$transition-fast;
     font-size: 0.7rem;
-
-    &.badge-active {
-      background-color: var.$color-info-bg !important;
-      color: var.$color-info !important;
-      border: 1px solid var.$color-info-border !important;
-    }
-
-    &.badge-inactive {
-      background-color: var.$color-secondary-accent-bg !important;
-      color: var.$color-secondary-accent !important;
-      border: 1px solid var.$color-secondary-accent-border !important;
-    }
-
-    &.badge-meta-completed {
-      background-color: var.$color-success-bg !important;
-      color: var.$color-success !important;
-      border: 1px solid var.$color-success-border !important;
-    }
-
-    &.badge-no-tickets,
-    &.badge-prox-expired {
-      background-color: var.$color-warning-bg !important;
-      color: var.$color-warning !important;
-      border: 1px solid var.$color-warning-border !important;
-    }
-
-    &.badge-deleted {
-      background-color: var.$color-danger-bg !important;
-      color: var.$color-danger !important;
-      border: 1px solid var.$color-danger-border !important;
-    }
-
-    &.badge-automatico {
-      background-color: var.$color-primary-accent-bg !important;
-      color: var.$color-primary-accent !important;
-      border: 1px solid var.$color-primary-accent-border !important;
-    }
-
-    &.badge-manual {
-      background-color: var.$color-pink-bg !important;
-      color: var.$color-pink !important;
-      border: 1px solid var.$color-pink-border !important;
-    }
-
-    &.badge-default {
-      background-color: var.$option-bg !important;
-      color: var.$primary-text !important;
-      border: 1px solid var.$option-border !important;
-    }
   }
 }
 
@@ -278,31 +215,47 @@
   }
 }
 
-@media (max-width: 575.98px) {
+@media (max-width: 767.98px) {
   .table-responsive {
     padding: 12px !important;
     overflow-x: hidden !important;
+  }
+}
 
-    .d-flex.justify-content-between.align-items-center.mb-3 {
-      flex-direction: column !important;
-      align-items: stretch !important;
-      gap: 12px;
-      margin-bottom: 1rem !important;
+.table-header-row {
+  @media (max-width: 767.98px) {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px;
+  }
+}
 
-      header {
-        font-size: 1.1rem;
-        font-weight: 700;
-        text-align: left;
-      }
+.table-header-title {
+  @media (max-width: 767.98px) {
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-align: left;
+  }
+}
 
-      app-search {
-        width: 100%;
-        display: block;
+.table-header-actions {
+  app-search {
+    min-width: 240px;
+  }
 
-        ::ng-deep .custom-search-container {
-          width: 100% !important;
-          max-width: 100% !important;
-        }
+  @media (max-width: 767.98px) {
+    width: 100%;
+    justify-content: space-between;
+    gap: 8px !important;
+
+    app-search {
+      flex: 1;
+      width: 100%;
+      min-width: auto;
+
+      ::ng-deep .custom-search-container {
+        width: 100% !important;
+        max-width: 100% !important;
       }
     }
   }

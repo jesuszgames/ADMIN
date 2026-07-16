@@ -124,7 +124,7 @@ export class History implements OnInit, OnDestroy {
         statuses,
         undefined,
         backendFilter,
-        '{"endDate":-1}',
+        '{"updatedAt":-1}',
         this.selectedCategory || undefined,
         this.selectedFoundation || undefined,
       )

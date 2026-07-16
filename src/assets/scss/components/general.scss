@@ -54,21 +54,6 @@ body {
   backdrop-filter: blur(20px);
 }
 
-.custom-btn-secondary {
-  background-color: rgba(239, 83, 80, 0.08) !important;
-  color: #ef5350 !important;
-  border: 1px solid rgba(239, 83, 80, 0.4) !important;
-  font-weight: 500;
-  letter-spacing: 0.5px;
-  transition: $transition-premium;
-
-  &:hover,
-  &:focus {
-    background-color: #ef5350 !important;
-    border-color: #ef5350 !important;
-    color: #ffffff !important;
-  }
-}
 
 input[type='date']::-webkit-calendar-picker-indicator {
   filter: invert(1);
@@ -138,7 +123,7 @@ textarea.form-control.custom-dark-input:disabled {
 }
 
 .fade-in-up {
-  animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes slideIn {
@@ -241,5 +226,135 @@ textarea.form-control.custom-dark-input:disabled {
       padding-top: 0 !important;
       margin-top: 0.25rem !important;
     }
+  }
+}
+
+.custom-dark-input {
+  background-color: $background;
+  color: $primary-text;
+  border: 1px solid $input-border;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  resize: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+  &:not(textarea) {
+    height: 42px !important;
+  }
+
+  &::placeholder {
+    color: $secondary-text;
+    opacity: 0.75;
+  }
+
+  &:focus {
+    background-color: $background !important;
+    color: $primary-text !important;
+    border-color: $button-primary !important;
+    box-shadow: 0 0 0 0.25rem $input-focus-shadow !important;
+    outline: none;
+  }
+
+  &:-webkit-autofill,
+  &:-webkit-autofill:hover,
+  &:-webkit-autofill:focus,
+  &:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px $background inset !important;
+    -webkit-text-fill-color: $primary-text !important;
+    transition: background-color 5000s ease-in-out 0s;
+  }
+
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  &[type='number'] {
+    appearance: textfield;
+  }
+}
+
+select.custom-dark-input {
+  background-image: $select-arrow !important;
+}
+
+.custom-dark-addon {
+  background-color: $background;
+  border: 1px solid $input-border;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+}
+
+.custom-pill {
+  background-color: $container-info-bg;
+  color: $primary-text;
+  padding: 0.35rem 0.85rem;
+  border-radius: 50rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+.input-group {
+  background-color: $background !important;
+  border: 1px solid $input-border !important;
+  border-radius: 8px !important;
+  height: 42px !important;
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap !important;
+  overflow: hidden !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+  &:focus-within {
+    border-color: $button-primary !important;
+    box-shadow: 0 0 0 0.25rem $input-focus-shadow !important;
+  }
+
+  .form-control,
+  .form-select,
+  .input-group-text,
+  .custom-dark-input,
+  .custom-dark-addon {
+    border: none !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+    color: $primary-text !important;
+    outline: none !important;
+    height: 100% !important;
+    border-radius: 0 !important;
+
+    &::placeholder {
+      color: $secondary-text !important;
+      opacity: 0.75 !important;
+    }
+
+    &:focus {
+      border: none !important;
+      background-color: transparent !important;
+      box-shadow: none !important;
+      outline: none !important;
+    }
+  }
+
+  .custom-dark-addon {
+    padding: 0.5rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+.modal-viewport-centered {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  .modal-dialog {
+    margin: 1rem !important;
+    width: calc(100% - 2rem) !important;
+    max-width: 450px !important;
   }
 }

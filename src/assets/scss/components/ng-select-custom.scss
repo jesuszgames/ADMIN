@@ -1,0 +1,88 @@
+@use '../utils/variables.scss' as var;
+
+.ng-select.custom-ng-select {
+  padding: 0;
+
+  .ng-select-container {
+    background-color: var.$background !important;
+    border: 1px solid var.$input-border !important;
+    border-radius: 8px !important;
+    height: 42px !important;
+    min-height: 42px !important;
+    align-items: center;
+    padding: 0 0.5rem !important;
+    transition:
+      border-color 0.2s ease,
+      box-shadow 0.2s ease;
+
+    .ng-value-container {
+      padding: 0 8px;
+      .ng-placeholder {
+        color: var.$secondary-text !important;
+        opacity: 1 !important;
+      }
+      .ng-value {
+        color: var.$primary-text !important;
+      }
+      .ng-input > input {
+        color: var.$primary-text !important;
+        background: transparent !important;
+        
+        &:-webkit-autofill,
+        &:-webkit-autofill:hover,
+        &:-webkit-autofill:focus,
+        &:-webkit-autofill:active {
+          -webkit-box-shadow: 0 0 0 30px var.$background inset !important;
+          -webkit-text-fill-color: var.$primary-text !important;
+          transition: background-color 5000s ease-in-out 0s;
+        }
+      }
+    }
+
+    .ng-arrow-wrapper {
+      align-self: center;
+      .ng-arrow {
+        border-color: var.$secondary-text transparent transparent;
+      }
+    }
+  }
+
+  &.ng-select-focused .ng-select-container {
+    border-color: var.$color-info !important;
+    box-shadow:
+      0 0 0 1px var.$color-info,
+      0 0 14px var.$color-info-shadow !important;
+  }
+
+  &.is-invalid .ng-select-container {
+    border-color: #ef5350 !important;
+  }
+
+  .ng-dropdown-panel {
+    background-color: var.$container-bg !important;
+    border: 1px solid var.$input-border !important;
+    border-radius: 8px !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5) !important;
+    z-index: 1050;
+
+    .ng-dropdown-panel-items {
+      .ng-option {
+        background-color: transparent !important;
+        color: var.$primary-text !important;
+        padding: 8px 12px;
+        transition: background-color 0.1s ease;
+
+        &:hover,
+        &.ng-option-marked {
+          background-color: var.$hover-cancel-button !important;
+          color: var.$primary-text !important;
+        }
+
+        &.ng-option-selected {
+          background-color: var.$button-primary !important;
+          color: #ffffff !important;
+        }
+      }
+    }
+  }
+}

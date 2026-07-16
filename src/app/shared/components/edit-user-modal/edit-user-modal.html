@@ -19,13 +19,15 @@
         style="z-index: 1055"
         (click)="onModalClosed()"
       ></button>
-      <div class="modal-body p-4 p-md-5 pb-3">
+      <div class="modal-body p-4 p-md-4 pb-3">
         <h3 class="text-white fw-bold mb-4 fs-4">
           {{ isReadOnly ? 'Detalle de Staff' : user ? 'Editar Staff' : 'Crear Staff' }}
         </h3>
 
         @if (!isReadOnly) {
-          <p class="text-white-50 fs-8 mb-4" style="font-size: 0.8rem;"><span class="text-danger">*</span> Campos obligatorios</p>
+          <p class="text-white-50 fs-8 mb-4" style="font-size: 0.8rem">
+            <span class="text-danger">*</span> Campos obligatorios
+          </p>
         }
 
         @if (isReadOnly && deleteReason) {
@@ -43,7 +45,8 @@
         <div class="row g-3">
           <div class="col-md-6 col-12">
             <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
-              >Nombre de Usuario (Login) <span class="text-danger" *ngIf="!isReadOnly">*</span></label
+              >Nombre de Usuario (Login)
+              @if (!isReadOnly) { <span class="text-danger">*</span> }</label
             >
             <input
               type="text"
@@ -69,7 +72,9 @@
           </div>
 
           <div class="col-md-6 col-12">
-            <label class="form-label text-white-50 text-uppercase fs-7 mb-2">Contraseña <span class="text-danger" *ngIf="!isReadOnly && !user">*</span></label>
+            <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
+              >Contraseña @if (!isReadOnly && !user) { <span class="text-danger">*</span> }</label
+            >
             <div class="input-group">
               <input
                 [type]="showPassword ? 'text' : 'password'"
@@ -105,7 +110,9 @@
             }
           </div>
           <div class="col-md-6 col-12">
-            <label class="form-label text-white-50 text-uppercase fs-7 mb-2">Nombre Completo <span class="text-danger" *ngIf="!isReadOnly">*</span></label>
+            <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
+              >Nombre Completo @if (!isReadOnly) { <span class="text-danger">*</span> }</label
+            >
             <input
               type="text"
               class="form-control custom-dark-input py-2"
@@ -127,7 +134,7 @@
 
           <div class="col-md-6 col-12">
             <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
-              >Correo Electrónico <span class="text-danger" *ngIf="!isReadOnly">*</span></label
+              >Correo Electrónico @if (!isReadOnly) { <span class="text-danger">*</span> }</label
             >
             <input
               type="email"
@@ -147,7 +154,9 @@
           </div>
 
           <div class="col-md-6 col-12">
-            <label class="form-label text-white-50 text-uppercase fs-7 mb-2">Teléfono <span class="text-danger" *ngIf="!isReadOnly">*</span></label>
+            <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
+              >Teléfono @if (!isReadOnly) { <span class="text-danger">*</span> }</label
+            >
             <input
               type="text"
               class="form-control custom-dark-input py-2"
@@ -176,7 +185,9 @@
             }
           </div>
           <div class="col-md-6 col-12">
-            <label class="form-label text-white-50 text-uppercase fs-7 mb-2">Rol de Usuario <span class="text-danger" *ngIf="!isReadOnly">*</span></label>
+            <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
+              >Rol de Usuario @if (!isReadOnly) { <span class="text-danger">*</span> }</label
+            >
             <ng-select
               class="custom-ng-select"
               [(ngModel)]="role"
@@ -191,10 +202,10 @@
         </div>
       </div>
 
-      <div class="modal-footer border-0 pt-0 pe-4 pe-md-5 justify-content-end gap-3">
+      <div class="modal-footer border-0 pt-0 pe-4 pe-md-4 justify-content-end gap-3">
         <button
           type="button"
-          class="btn px-4 py-2 rounded-3 text-uppercase fs-7 custom-btn-secondary"
+          class="btn text-uppercase fs-7 custom-btn-secondary"
           data-bs-dismiss="modal"
         >
           {{ isReadOnly ? 'Cerrar' : 'Cancelar' }}
@@ -202,7 +213,7 @@
         @if (!isReadOnly) {
           <button
             type="button"
-            class="btn px-4 py-2 rounded-3 text-uppercase fs-7 custom-btn-primary d-flex align-items-center gap-2"
+            class="btn text-uppercase fs-7 custom-btn-primary gap-2"
             [disabled]="!isFormValid() || isSaving"
             (click)="onSaveClick()"
           >
@@ -220,14 +231,14 @@
         }
         <button id="btn-cerrar-modal-editar-usuario" data-bs-dismiss="modal" hidden></button>
       </div>
-
-      <app-confirm-changes-modal
-        [title]="'Confirmar Cambios en Usuario'"
-        [changes]="cambios"
-        [isOpen]="showConfirmModal"
-        (confirm)="confirmSubmit()"
-        (cancel)="cancelConfirm()"
-      ></app-confirm-changes-modal>
     </div>
   </div>
 </div>
+
+<app-confirm-changes-modal
+  [title]="'Confirmar Cambios en Usuario'"
+  [changes]="cambios"
+  [isOpen]="showConfirmModal"
+  (confirm)="confirmSubmit()"
+  (cancel)="cancelConfirm()"
+></app-confirm-changes-modal>

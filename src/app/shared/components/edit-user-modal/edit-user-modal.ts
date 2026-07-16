@@ -48,7 +48,7 @@ export class EditUserModal implements OnChanges {
       this.username = this.user.username || '';
       this.name = this.user.name || '';
       this.email = this.user.email || '';
-      this.phone = this.user.phone || '';
+      this.phone = this.user.phone ? String(this.user.phone) : '';
 
       const rawRole = this.user.role;
       if (Array.isArray(rawRole)) {
@@ -86,7 +86,7 @@ export class EditUserModal implements OnChanges {
   }
 
   esNumero(val: string): boolean {
-    return /^\d+$/.test((val || '').trim());
+    return /^\d+$/.test(String(val || '').trim());
   }
 
   soloNumeros(event: KeyboardEvent): void {
@@ -98,11 +98,11 @@ export class EditUserModal implements OnChanges {
   }
 
   isFormValid(): boolean {
-    const trimmedUsername = (this.username || '').trim();
-    const trimmedName = (this.name || '').trim();
-    const trimmedEmail = (this.email || '').trim();
-    const trimmedPhone = (this.phone || '').trim();
-    const trimmedPassword = (this.password || '').trim();
+    const trimmedUsername = String(this.username || '').trim();
+    const trimmedName = String(this.name || '').trim();
+    const trimmedEmail = String(this.email || '').trim();
+    const trimmedPhone = String(this.phone || '').trim();
+    const trimmedPassword = String(this.password || '').trim();
 
     const isPasswordValid = this.user
       ? trimmedPassword.length === 0 || trimmedPassword.length >= 6

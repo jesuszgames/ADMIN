@@ -182,7 +182,6 @@
 .cropper-empty-area {
   border: 2px dashed var.$option-border;
   background: var.$option-bg;
-  min-height: 250px;
   cursor: default;
 
   &.cursor-pointer {

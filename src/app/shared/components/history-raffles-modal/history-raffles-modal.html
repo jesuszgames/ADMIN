@@ -1,4 +1,10 @@
-<div class="modal fade" id="modalDetalleRifa" tabindex="-1" aria-hidden="true" (hidden.bs.modal)="onModalClosed()">
+<div
+  class="modal fade"
+  id="modalDetalleRifa"
+  tabindex="-1"
+  aria-hidden="true"
+  (hidden.bs.modal)="onModalClosed()"
+>
   <div class="modal-dialog modal-xl modal-dialog-centered">
     <div
       class="modal-content custom-modal-bg border-secondary border-opacity-25 rounded-3 shadow-lg position-relative"
@@ -10,8 +16,8 @@
         aria-label="Close"
         style="z-index: 1055"
       ></button>
-      <div class="modal-body p-4 p-md-5 pb-3">
-        <h3 class="text-white fw-bold mb-4 fs-4">Historial Rifa</h3>
+      <div class="modal-body p-4 p-md-4 pb-3">
+        <h3 class="text-theme-primary fw-bold mb-4 fs-4">Historial Rifa</h3>
 
         @if (raffleData && raffleData.deleteReason) {
           <div
@@ -20,7 +26,9 @@
             <i class="bi bi-exclamation-octagon-fill fs-5 lh-1"></i>
             <div class="text-break">
               <strong class="d-block mb-1 text-uppercase fs-7">Rifa Eliminada</strong>
-              <span class="fs-7"><strong>Razón de la eliminación:</strong> {{ raffleData.deleteReason }}</span>
+              <span class="fs-7"
+                ><strong>Razón de la eliminación:</strong> {{ raffleData.deleteReason }}</span
+              >
             </div>
           </div>
         }
@@ -30,7 +38,7 @@
             <div class="d-flex flex-column gap-4">
               <div class="row g-4">
                 <div class="col-md-6">
-                  <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
+                  <label class="form-label text-theme-secondary text-uppercase fs-7 mb-2"
                     >Nombre Rifa</label
                   >
                   <input
@@ -42,7 +50,7 @@
                 </div>
 
                 <div class="col-md-6">
-                  <label class="form-label text-white-50 text-uppercase fs-7 mb-2">Fundacion</label>
+                  <label class="form-label text-theme-secondary text-uppercase fs-7 mb-2">Fundacion</label>
                   <input
                     type="text"
                     class="form-control custom-dark-input py-2 w-100"
@@ -54,8 +62,13 @@
 
               <div class="row g-4">
                 <div class="col-md-6">
-                  <div class="d-flex justify-content-between align-items-center mb-2" style="height: 21px;">
-                    <label class="form-label text-white-50 text-uppercase fs-7 mb-0">Fecha Inicio</label>
+                  <div
+                    class="d-flex justify-content-between align-items-center mb-2"
+                    style="height: 21px"
+                  >
+                    <label class="form-label text-theme-secondary text-uppercase fs-7 mb-0"
+                      >Fecha Inicio</label
+                    >
                   </div>
                   <input
                     type="text"
@@ -66,9 +79,18 @@
                 </div>
 
                 <div class="col-md-6">
-                  <div class="d-flex justify-content-between align-items-center mb-2" style="height: 21px;">
-                    <label class="form-label text-white-50 text-uppercase fs-7 mb-0">Fecha Fin</label>
-                    <span class="fs-8 text-white-50" style="font-size: 0.7rem; opacity: 0.6; font-weight: normal;">24 horas</span>
+                  <div
+                    class="d-flex justify-content-between align-items-center mb-2"
+                    style="height: 21px"
+                  >
+                    <label class="form-label text-theme-secondary text-uppercase fs-7 mb-0"
+                      >Fecha Fin</label
+                    >
+                    <span
+                      class="fs-8 text-theme-secondary"
+                      style="font-size: 0.7rem; opacity: 0.6; font-weight: normal"
+                      >24 horas</span
+                    >
                   </div>
                   <input
                     type="text"
@@ -81,7 +103,7 @@
 
               <div class="row g-4">
                 <div class="col-md-6">
-                  <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
+                  <label class="form-label text-theme-secondary text-uppercase fs-7 mb-2"
                     >Meta Dinero</label
                   >
                   <div class="input-group">
@@ -91,14 +113,14 @@
                       [value]="raffleData?.moneyGoal"
                       readonly
                     />
-                    <span class="input-group-text custom-dark-addon border-start-0 text-white-50">
+                    <span class="input-group-text custom-dark-addon border-start-0 text-theme-secondary">
                       <i class="bi bi-currency-dollar fs-5"></i>
                     </span>
                   </div>
                 </div>
 
                 <div class="col-md-6">
-                  <label class="form-label text-white-50 text-uppercase fs-7 mb-2">Categoria</label>
+                  <label class="form-label text-theme-secondary text-uppercase fs-7 mb-2">Categoria</label>
                   <input
                     type="text"
                     class="form-control custom-dark-input py-2 w-100"
@@ -110,7 +132,7 @@
 
               <div class="row g-4">
                 <div class="col-md-6">
-                  <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
+                  <label class="form-label text-theme-secondary text-uppercase fs-7 mb-2"
                     >Método de Sorteo</label
                   >
                   <input
@@ -126,7 +148,7 @@
                 </div>
 
                 <div class="col-md-6">
-                  <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
+                  <label class="form-label text-theme-secondary text-uppercase fs-7 mb-2"
                     >Numero Maximos de Boletos</label
                   >
                   <div class="input-group">
@@ -136,7 +158,7 @@
                       [value]="raffleData?.ticketsAvailable"
                       readonly
                     />
-                    <span class="input-group-text custom-dark-addon border-start-0 text-white-50">
+                    <span class="input-group-text custom-dark-addon border-start-0 text-theme-secondary">
                       <i class="bi bi-hash fs-5"></i>
                     </span>
                   </div>
@@ -145,7 +167,7 @@
 
               <div class="row g-4">
                 <div class="col-md-6">
-                  <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
+                  <label class="form-label text-theme-secondary text-uppercase fs-7 mb-2"
                     >Precio Boleto</label
                   >
                   <div class="input-group">
@@ -155,14 +177,14 @@
                       [value]="raffleData?.ticketPrice"
                       readonly
                     />
-                    <span class="input-group-text custom-dark-addon border-start-0 text-white-50">
+                    <span class="input-group-text custom-dark-addon border-start-0 text-theme-secondary">
                       <i class="bi bi-currency-dollar fs-5"></i>
                     </span>
                   </div>
                 </div>
 
                 <div class="col-md-6">
-                  <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
+                  <label class="form-label text-theme-secondary text-uppercase fs-7 mb-2"
                     >Link / URL (Opcional)</label
                   >
                   <div class="input-group">
@@ -172,7 +194,7 @@
                       [value]="raffleData?.link"
                       readonly
                     />
-                    <span class="input-group-text custom-dark-addon border-start-0 text-white-50">
+                    <span class="input-group-text custom-dark-addon border-start-0 text-theme-secondary">
                       <i class="bi bi-link-45deg"></i>
                     </span>
                   </div>
@@ -181,7 +203,7 @@
 
               <div class="row g-4">
                 <div class="col-md-6">
-                  <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
+                  <label class="form-label text-theme-secondary text-uppercase fs-7 mb-2"
                     >Porcentaje Beneficiarios</label
                   >
                   <div class="input-group">
@@ -200,7 +222,7 @@
                 </div>
 
                 <div class="col-md-6">
-                  <label class="form-label text-white-50 text-uppercase fs-7 mb-2"
+                  <label class="form-label text-theme-secondary text-uppercase fs-7 mb-2"
                     >Porcentaje Ganadores</label
                   >
                   <div class="input-group">
@@ -249,7 +271,7 @@
                     raffleData?.blogCardText ||
                       'Ayuda a reforestar 10,000 hectáreas en el Amazonas.'
                   }}</textarea>
-                  <div class="text-white-50 fs-8 mt-2 lh-sm">
+                  <div class="text-theme-secondary fs-8 mt-2 lh-sm">
                     Breve descripción de lo que se va<br />a mostrar en la card
                   </div>
                 </div>
@@ -260,7 +282,7 @@
                   <textarea class="form-control custom-dark-input blog-textarea w-100" readonly>{{
                     raffleData?.blogDetailText || 'Detalle completo de la rifa se muestra aquí...'
                   }}</textarea>
-                  <div class="text-white-50 fs-8 mt-2 lh-sm">
+                  <div class="text-theme-secondary fs-8 mt-2 lh-sm">
                     Descripción completa que se mostrará en los detalles
                   </div>
                 </div>
@@ -270,7 +292,7 @@
 
           <div class="col-lg-5 d-flex flex-column gap-3 pt-lg-2">
             <div>
-              <label class="form-label text-white-50 text-uppercase fs-7 mb-2 text-center d-block"
+              <label class="form-label text-theme-secondary text-uppercase fs-7 mb-2 text-center d-block"
                 >Imagen de Card</label
               >
               <app-image-cropper
@@ -282,7 +304,7 @@
             </div>
 
             <div class="mt-2">
-              <label class="form-label text-white-50 text-uppercase fs-7 mb-2 text-center d-block"
+              <label class="form-label text-theme-secondary text-uppercase fs-7 mb-2 text-center d-block"
                 >Imagen de Banner</label
               >
               <app-image-cropper
@@ -294,17 +316,18 @@
             </div>
           </div>
         </div>
+      </div>
 
-        <div class="modal-footer border-0 pt-0 pe-4 pe-md-5 justify-content-end mt-4">
-          <button
-            type="button"
-            class="btn px-4 py-2 rounded-3 text-uppercase fs-7 custom-btn-secondary"
-            data-bs-dismiss="modal"
-          >
-            Cerrar
-          </button>
-        </div>
+      <div class="modal-footer border-0 pt-0 pe-4 pe-md-4 justify-content-end gap-3">
+        <button
+          type="button"
+          class="btn text-uppercase fs-7 custom-btn-secondary"
+          data-bs-dismiss="modal"
+        >
+          Cerrar
+        </button>
       </div>
     </div>
   </div>
 </div>
+

@@ -1,0 +1,59 @@
+@use '../utils/variables.scss' as var;
+
+.custom-btn-secondary,
+.custom-btn-primary {
+  height: 40px !important;
+  padding: 0 1.5rem !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 8px !important;
+  font-size: 0.85rem !important;
+  font-weight: 600 !important;
+  text-transform: uppercase;
+}
+
+.custom-btn-secondary {
+  background-color: rgba(239, 83, 80, 0.08) !important;
+  color: #ef5350 !important;
+  border: 1px solid rgba(239, 83, 80, 0.4) !important;
+  letter-spacing: 0.5px;
+  transition: var.$transition-premium;
+
+  &:hover,
+  &:focus {
+    background-color: #ef5350 !important;
+    border-color: #ef5350 !important;
+    color: #ffffff !important;
+  }
+}
+
+.custom-btn-primary {
+  background-color: var.$button-success-bg !important;
+  color: var.$button-success !important;
+  border: 1px solid var.$button-success !important;
+  letter-spacing: 0.5px;
+  transition: var.$transition-premium;
+
+  &:hover:not(:disabled),
+  &:focus:not(:disabled) {
+    background-color: var.$button-success !important;
+    color: var.$primary-text !important;
+  }
+
+  &:disabled {
+    background-color: var.$hover-cancel-button !important;
+    color: var.$secondary-text !important;
+    border-color: var.$hover-cancel-button !important;
+    cursor: not-allowed;
+  }
+}
+
+[data-theme='dark'] .btn-close {
+  filter: invert(1) grayscale(1) brightness(2) !important;
+}
+
+.btn-close:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}

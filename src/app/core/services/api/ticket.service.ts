@@ -23,10 +23,10 @@ export class TicketService {
   private readonly apiUrl = `${environment.apiUrl}/tickets`;
 
   getTicketsByRaffle(raffleId: string, page?: number, limit?: number, search?: string): Observable<{ data: Ticket[], totalCount?: number, currentPage?: number }> {
-    const body: Record<string, unknown> = { raffleId };
-    if (page !== undefined) body['page'] = page;
-    if (limit !== undefined) body['limit'] = limit;
-    if (search !== undefined) body['search'] = search;
+    let url = `${this.apiUrl}/raffle?raffleId=${raffleId}&`;
+    if (page !== undefined) url += `page=${page}&`;
+    if (limit !== undefined) url += `limit=${limit}&`;
+    if (search !== undefined) url += `search=${encodeURIComponent(search)}&`;
     interface GetTicketsResponse {
       data?: {
         result?: Ticket[];
@@ -34,7 +34,7 @@ export class TicketService {
         page?: number;
       } | Ticket[];
     }
-    return this.http.post<GetTicketsResponse>(`${this.apiUrl}/raffle`, body).pipe(
+    return this.http.get<GetTicketsResponse>(url).pipe(
       map((res) => {
         const list = res?.data && !Array.isArray(res.data) && res.data.result ? res.data.result : (Array.isArray(res?.data) ? res.data : []);
         const totalCount = res?.data && !Array.isArray(res.data) ? res.data.totalCount : undefined;

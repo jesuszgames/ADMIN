@@ -99,6 +99,7 @@
 /* Tarjetas de Gráficos */
 .chart-card {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  padding: 1.5rem 1.5rem 0.6rem 1.5rem !important;
   transition:
     transform 0.2s ease,
     box-shadow 0.2s ease;
@@ -126,7 +127,7 @@
 }
 
 .bar-wrapper {
-  height: 290px;
+  height: 315px;
 }
 
 .floating-filter-btn {
@@ -202,6 +203,7 @@
 .chart-skeleton-loader {
   position: relative;
   width: 100%;
+  height: 250px; /* Default height for mobile */
   background-color: rgba(255, 255, 255, 0.03);
   border-radius: 8px;
   overflow: hidden;
@@ -224,6 +226,14 @@
   }
 }
 
+.doughnut-skeleton {
+  height: 270px;
+}
+
+.bar-skeleton {
+  height: 315px;
+}
+
 @keyframes shimmer {
   100% {
     transform: translateX(100%);
@@ -240,6 +250,19 @@
         rgba(0, 0, 0, 0.06) 50%,
         rgba(0, 0, 0, 0) 100%
       );
+    }
+  }
+}
+
+/* On desktop, make the chart cards stretch to align perfectly with side-by-side elements */
+@media (min-width: 1200px) {
+  .chart-card {
+    display: flex !important;
+    flex-direction: column !important;
+
+    .chart-wrapper,
+    .chart-skeleton-loader {
+      flex: 1 1 auto !important;
     }
   }
 }

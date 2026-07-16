@@ -1,0 +1,73 @@
+<div class="main-content">
+  <div class="container-fluid px-3 pt-5 pb-4 mt-4 fade-in-up">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h3 class="m-0">Gestión de Banners</h3>
+      <app-main-button
+        [label]="'Crear Banner'"
+        [icon]="'bi-plus'"
+        (btnClick)="abrirCrearBanner()"
+      ></app-main-button>
+    </div>
+
+    <div class="row">
+      <div class="col-12">
+        <app-tables
+          [principalheader]="principalHeader.title"
+          [columns]="bannersColumns"
+          [data]="$any(tableData)"
+          [rowActions]="bannersActions"
+          [loading]="loading"
+          [placeholderSearch]="'Buscar por título...'"
+          [serverSide]="true"
+          [totalItems]="totalCount"
+          [pageSize]="pageSize"
+          [currentPage]="currentPage"
+          [showStatusFilter]="true"
+          [statusOptions]="statusOptions"
+          [selectedStatus]="selectedStatus"
+          (statusChanged)="applyFilters($event)"
+          (pageChanged)="onPageChanged($event)"
+          (searchChanged)="onSearchChanged($event)"
+          (actionClicked)="manejarAccion($event)"
+          (refreshData)="loadBanners()"
+        >
+        </app-tables>
+      </div>
+    </div>
+  </div>
+
+  @if (showDeleteModal) {
+    <app-delete-modal
+      [id]="'eliminar-banner'"
+      [itemName]="bannerSeleccionadoParaBorrar?.title"
+      (confirmDelete)="confirmarEliminar($event)"
+      (closed)="onCloseDeleteModal()"
+    ></app-delete-modal>
+    <button
+      id="btn-abrir-modal-delete-banner"
+      data-bs-toggle="modal"
+      data-bs-target="#modal-eliminar-banner"
+      hidden
+    ></button>
+  }
+
+  @if (showCreateModal) {
+    <app-create-banner-modal [banner]="selectedBannerForEdit" [isReadOnly]="isReadOnlyView"
+    [isSaving]="isBannerSaving" (save)="onSaveBanner($event)" (closed)="onCloseCreateBanner()">
+  </app-create-banner-modal>
+    <button
+      id="btn-abrir-modal-create-banner"
+      data-bs-toggle="modal"
+      data-bs-target="#createBannerModal"
+      hidden
+    ></button>
+  }
+
+  <app-confirm-changes-modal
+    [title]="'Confirmar Cambio de Estado'"
+    [changes]="changesToConfirm"
+    [isOpen]="showConfirmModal"
+    (confirm)="confirmarCambioEstado()"
+    (cancel)="cancelarCambioEstado()"
+  ></app-confirm-changes-modal>
+</div>
