@@ -63,7 +63,7 @@ export class BannerService {
   }
 
   getActive(): Observable<BannerResponse> {
-    return this.http.get<BannerResponse>(`${this.apiUrl}/active`);
+    return this.http.get<BannerResponse>(`${this.apiUrl}/get-active`);
   }
 
   create(formData: FormData): Observable<SingleBannerResponse> {
@@ -74,7 +74,7 @@ export class BannerService {
   }
 
   update(id: string, formData: FormData): Observable<SingleBannerResponse> {
-    return this.http.patch<SingleBannerResponse>(
+    return this.http.put<SingleBannerResponse>(
       `${this.apiUrl}/update/${id}`,
       formData
     );

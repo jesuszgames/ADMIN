@@ -209,8 +209,12 @@ export class CreateBannerModal implements OnChanges {
 
     const formData = new FormData();
     formData.append('title', this.title.trim());
-    if (this.raffleId) formData.append('raffleId', this.raffleId);
-    if (this.linkUrl.trim()) formData.append('linkUrl', this.linkUrl.trim());
+    if (this.raffleId) {
+      formData.append('raffleId', this.raffleId);
+    } else {
+      formData.append('raffleId', '');
+    }
+    formData.append('linkUrl', this.linkUrl.trim());
     
     if (this.selectedFile && (this.selectedFile instanceof File || this.selectedFile instanceof Blob)) {
       formData.append('banner', this.selectedFile);
